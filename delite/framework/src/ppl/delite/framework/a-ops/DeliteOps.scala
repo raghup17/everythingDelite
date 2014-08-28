@@ -1152,10 +1152,13 @@ trait DeliteOpsExp extends BaseFatExp with EffectExp with VariablesExp with Loop
       val be = summarizeBody(x.body)
       reflectEffect(d, re andAlso be)
     case x: DeliteOpSingleTask[_] =>
+//      Console.println("DeliteOps::reflectPure::DeliteOpSingleTask = " + x)
       val mutableInputs = readMutableData(d) //TODO: necessary or not??
+//      Console.println("mutableInputs = " + mutableInputs)
       //val mutableInputs = Nil // readMutableData(d) TODO: necessary or not??
       val re = Read(mutableInputs)
       val be = summarizeEffects(x.block)
+//      Console.println("summarized effects (be) = " + be)
       reflectEffect(d, re andAlso be)
     case _ =>
       toAtom(d)
@@ -4196,11 +4199,12 @@ trait CGenDeliteOps extends CGenLoopsFat with GenericGenDeliteOps {
     case s:DeliteOpSingleTask[_] =>
       //printlog("EMIT single "+s)
       // always wrap single tasks in methods to reduce JIT compilation unit size
-      Console.println("CGenDeliteOps::emitNode::DeliteOpSingleTask")
+      Console.println("CGenDeliteOps::emitNode::DeliteOpSingleTask = " + s)
       val b = s.block
       emitBlock(b)
-      if (!isVoidType(sym.tp)) 
+      if (!isVoidType(sym.tp)) { 
         stream.println(remap(sym.tp) + addRef(sym.tp) + quote(sym) + " = " + quote(getBlockResult(b)) + ";")
+      }
 
     case op: AbstractLoop[_] =>
       // TODO: we'd like to always have fat loops but currently they are not allowed to have effects

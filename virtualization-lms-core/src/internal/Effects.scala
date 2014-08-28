@@ -437,8 +437,10 @@ trait Effects extends Expressions with Blocks with Utils {
       
       // FIXME: Reflect(Reflect(ObjectUnsafeImmutable(..))) on delite
       assert(!x.isInstanceOf[Reflect[_]], x)
-
+//      Console.println("[reflectEffectInternal] x = " + x)
+//      Console.println("[reflectEffectInternal] summary = " + u)
       val deps = calculateDependencies(u)
+//      Console.println("[reflectEffectInternal] dependencies = " + deps)
       val zd = Reflect(x,u,deps)
       if (mustIdempotent(u)) {
         context find { case Def(d) => d == zd } map { _.asInstanceOf[Exp[A]] } getOrElse {
@@ -515,6 +517,13 @@ trait Effects extends Expressions with Blocks with Utils {
       // TODO: write-on-read deps should be weak
       // TODO: optimize!!
       val allDeps = canonic(readDeps ++ softWriteDeps ++ writeDeps ++ canonicLinear(simpleDeps) ++ canonicLinear(controlDeps) ++ canonicLinear(globalDeps))
+//      Console.println("[calculateDependencies] readDeps = " + readDeps)
+//      Console.println("[calculateDependencies] softWriteDeps = " + softWriteDeps)
+//      Console.println("[calculateDependencies] writeDeps = " + writeDeps)
+//      Console.println("[calculateDependencies] simpleDeps = " + simpleDeps)
+//      Console.println("[calculateDependencies] controlDeps = " + controlDeps)
+//      Console.println("[calculateDependencies] globalDeps = " + globalDeps)
+//      Console.println("[calculateDependencies] scope = " + scope)
       scope filter (allDeps contains _)
     }
   }

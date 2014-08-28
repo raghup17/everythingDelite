@@ -99,13 +99,13 @@ trait CGenCastOps extends CGenFat {
   override def emitNode(sym: Sym[Any], rhs: Def[Any]) = {
       rhs match {
       case mn@Cast_AsInstanceOf(__arg0) => 
-        Console.println("CGenCastOps::emitNode::Cast_AsInstanceOf")
+//        Console.println("CGenCastOps::emitNode::Cast_AsInstanceOf")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("("+remapWithRef(sym.tp)+")"+quote(__arg0)+"")
         stream.println(";")
 
       case _ => 
-        Console.println("CGenCastOps::emitNode - going elsewhere")
+//        Console.println("CGenCastOps::emitNode - going elsewhere")
         super.emitNode(sym, rhs)
     }
   }

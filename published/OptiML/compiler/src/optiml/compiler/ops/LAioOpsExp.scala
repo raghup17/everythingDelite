@@ -150,13 +150,13 @@ trait CGenLAioOps extends CGenFat {
   override def emitNode(sym: Sym[Any], rhs: Def[Any]) = { 
       rhs match {
       case mn@ReadFirstLine(path) => 
-        Console.println("CGenLAioOps::emitNode::ReadFirstLine")
+//        Console.println("CGenLAioOps::emitNode::ReadFirstLine")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("readFirstLineFile("+quote(path)+")")
         stream.println(";")
 
       case _ => 
-        Console.println("CGenLAioOps::emitNode - going elsewhere")
+//        Console.println("CGenLAioOps::emitNode - going elsewhere")
         super.emitNode(sym, rhs)
     }
   }

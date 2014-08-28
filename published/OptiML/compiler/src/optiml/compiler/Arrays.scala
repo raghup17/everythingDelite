@@ -116,13 +116,13 @@ trait CLikeGenForgeArrayOps extends CLikeGenBase {
   override def emitNode(sym: Sym[Any], rhs: Def[Any]) = {
     rhs match {
       case ArrayApply(x,n) => 
-        println("CLikeGenForgeArrayOps::emitNode::ArrayApply")
+//        Console.println("CLikeGenForgeArrayOps::emitNode::ArrayApply")
         emitValDef(sym, quote(x) + ".apply(" + quote(n) + ")")
       case ArrayLength(x) => 
-        println("CLikeGenForgeArrayOps::emitNode::ArrayLength")
+//        Console.println("CLikeGenForgeArrayOps::emitNode::ArrayLength")
         emitValDef(sym, quote(x) + ".length")
       case _ => 
-        println("CLikeGenForgeArrayOps::emitNode - going elsewhere")
+//      Console.println("CLikeGenForgeArrayOps::emitNode - going elsewhere")
         super.emitNode(sym, rhs)
     }
   }
@@ -136,17 +136,17 @@ trait CGenForgeArrayOps extends CGenDeliteArrayOps with CGenObjectOps {
   override def emitNode(sym: Sym[Any], rhs: Def[Any]) = { 
     rhs match {
       case ArrayApply(x,n) => 
-        Console.println("CForgeArrayOps::emitNode::ArrayApply")
+//        Console.println("CForgeArrayOps::emitNode::ArrayApply")
         emitValDef(sym, quote(x) + "->apply(" + quote(n) + ")")
       case ArrayLength(x) => 
-        Console.println("CForgeArrayOps::emitNode::ArrayLength")
+//        Console.println("CForgeArrayOps::emitNode::ArrayLength")
         emitValDef(sym, quote(x) + "->length")
       //TODO: enable ArrayStringSplit in cluster mode
       case ArrayStringSplit(a,b,l) if (!Config.generateSerializable) => 
-        Console.println("CForgeArrayOps::emitNode::ArrayStringSplit")
+//        Console.println("CForgeArrayOps::emitNode::ArrayStringSplit")
         emitValDef(sym, "string_split(resourceInfo," + quote(a) + "," + quote(b) + "," + quote(l) + ")")
       case _ => 
-        Console.println("CForgeArrayOps::emitNode - going elsewhere")
+//        Console.println("CForgeArrayOps::emitNode - going elsewhere")
         super.emitNode(sym, rhs)
     }
   }

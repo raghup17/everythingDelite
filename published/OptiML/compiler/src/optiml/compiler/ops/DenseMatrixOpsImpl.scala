@@ -723,9 +723,11 @@ trait DenseMatrixOpsImpl {
         }
     }
 
-    for (i <- residueStart until loopEnd by step)  {
-      println("residue")
-      body(i)
+    // Residue part - makes sense only if the unroll factor is greater than 1
+    if (unrollFactor > 1) {
+      for (i <- residueStart until loopEnd by step)  {
+        body(i)
+      }
     }
   }
 
@@ -782,7 +784,9 @@ trait DenseMatrixOpsImpl {
   def densematrix_matmult_impl62[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
 //    fassert(self.numCols == __arg1.numRows, "dimension mismatch: matrix multiply")
 
-    val out = DenseMatrix[T](self.numRows, __arg1.numCols)
+    // Allocation happening here - do not need this for autotuning!
+//    val out = DenseMatrix[T](self.numRows, __arg1.numCols)
+    val out = self 
     if (Config.autotuneEnabled) {
       Console.println("[AUTOTUNER] Autotuner enabled, matmult")
       Console.println("[AUTOTUNER] Autotunable parameters at this level:")
@@ -799,30 +803,30 @@ trait DenseMatrixOpsImpl {
       */
 //      val yT = __arg1.t
 
-//      val M = self.numRows
-//      val P = self.numCols
-//      val N = __arg1.numCols
-//      val m = 4
-//      val p = 4
-//      val n = 4
+      val M = self.numRows
+      val P = self.numCols
+      val N = __arg1.numCols
+      val m = 4
+      val p = 4
+      val n = 4
 //
-      println("M P N m p n")
-//      unroll(2) (0, M, m) { blockm => {
-//        unroll(2) (0, N, n) { blockn => { 
-//          unroll(2) (0, P, p) { blockp => {
-//          
-//            unroll(2) (blockm, blockm+m, 1) { rowIdx => {
-//              unroll(2) (blockn ,blockn+n, 1) { colIdx => {
-//                var acc = out(rowIdx, colIdx)
-//                unroll(2) (blockp, blockp + p, 1) { tempIter => {
-//                  acc += self(rowIdx, tempIter) * __arg1(tempIter, colIdx)
-//                }}
-//                out(rowIdx, colIdx) = acc
-//              }}
-//            }}
-//          }}
-//        }}
-//      }}
+//      println("M P N m p n")
+      unroll(1) (0, M, m) { blockm => {
+        unroll(1) (0, N, n) { blockn => { 
+          unroll(1) (0, P, p) { blockp => {
+          
+            unroll(1) (blockm, blockm+m, 1) { rowIdx => {
+              unroll(1) (blockn ,blockn+n, 1) { colIdx => {
+                var acc = out(rowIdx, colIdx)
+                unroll(4) (blockp, blockp + p, 1) { tempIter => {
+                  acc += self(rowIdx, tempIter) * __arg1(tempIter, colIdx)
+                }}
+                out(rowIdx, colIdx) = acc
+              }}
+            }}
+          }}
+        }}
+      }}
 
     }
     else {

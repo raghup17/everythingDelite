@@ -309,26 +309,26 @@ trait CGenDeliteFileReaderOps extends CGenFat {
   override def emitNode(sym: Sym[Any], rhs: Def[Any]) = {
       rhs match {
       case op: DeliteOpFileReaderReadLines[_] => 
-        println("CGenDeliteFileReaderOps::emitNode::DeliteOpFileReaderReadLines")
+//        Console.println("CGenDeliteFileReaderOps::emitNode::DeliteOpFileReaderReadLines")
         throw new GenerationFailedException("DeliteOpFileReaderReadLines is the old interface: C++ target does not support it.")
       case DeliteFileStreamNew(paths) =>
         // C++ variable length args does not allow string types, so use underlying char *
-        println("CGenDeliteFileReaderOps::emitNode::DeliteFileStreamNew")
+//        Console.println("CGenDeliteFileReaderOps::emitNode::DeliteFileStreamNew")
         if (cppMemMgr == "refcnt")
           stream.println(remap(sym.tp) + " " + quote(sym) + "(new cppFileStream(" + paths.length + "," + paths.map(quote(_) + ".c_str()").mkString(",") + "));")
         else
           emitValDef(sym, "new cppFileStream(" + paths.length + "," + paths.map(quote(_) + ".c_str()").mkString(",") + ")")
       case DeliteFileStreamReadLine(stream,idx) =>
-        println("CGenDeliteFileReaderOps::emitNode::DeliteFileStreamReadLine")
+//        Console.println("CGenDeliteFileReaderOps::emitNode::DeliteFileStreamReadLine")
         emitValDef(sym, quote(stream) + "->readLine(" + resourceInfoSym + "," + quote(idx) + ")")
       case DeliteFileStreamSize(stream) =>
-        println("CGenDeliteFileReaderOps::emitNode::DeliteFileStreamSize")
+//        Console.println("CGenDeliteFileReaderOps::emitNode::DeliteFileStreamSize")
         emitValDef(sym, quote(stream) + "->size")
       case DeliteFileStreamNumThreads(stream) =>
-        println("CGenDeliteFileReaderOps::emitNode::DeliteFileStreamNumThreads")
+//        Console.println("CGenDeliteFileReaderOps::emitNode::DeliteFileStreamNumThreads")
         emitValDef(sym, quote(stream) + "->numThreads")
       case _ => 
-        println("CGenDeliteFileReaderOps::emitNode - going elsewhere")
+//        Console.println("CGenDeliteFileReaderOps::emitNode - going elsewhere")
         super.emitNode(sym, rhs)
     }
   }

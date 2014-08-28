@@ -751,213 +751,213 @@ trait CGenPrimitive2Ops extends CGenFat {
   override def emitNode(sym: Sym[Any], rhs: Def[Any]) = {
       rhs match {
       case mn@Primitive2_Unary_bang(__arg0) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Unary_bang")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Unary_bang")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("!"+quote(__arg0)+"")
         stream.println(";")
 
       case mn@Primitive2_Oror(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Oror")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Oror")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" || "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_Andand(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Andand")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Andand")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" && "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive21_ToInt(__arg0) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive21_ToInt")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive21_ToInt")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("(int) "+quote(__arg0)+"")
         stream.println(";")
 
       case mn@Primitive21_ToFloat(__arg0) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive21_ToFloat")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive21_ToFloat")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("(float) "+quote(__arg0)+"")
         stream.println(";")
 
       case mn@Primitive21_ToDouble(__arg0) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive21_ToDouble")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive21_ToDouble")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("(double) "+quote(__arg0)+"")
         stream.println(";")
 
       case mn@Primitive21_ToLong(__arg0) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive21_ToLong")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive21_ToLong")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("(long) "+quote(__arg0)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_int_plus(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_int_plus")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_int_plus")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" + "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_int_minus(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_int_minus")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_int_minus")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" - "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_int_times(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_int_times")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_int_times")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" * "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_int_divide(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_int_divide")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_int_divide")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" / "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_int_shift_left(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_int_shift_left")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_int_shift_left")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" << "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_int_and(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_int_and")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_int_and")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" & "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_int_or(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_int_or")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_int_or")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" | "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_int_shift_right(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_int_shift_right")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_int_shift_right")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" >> "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_%(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_%")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_%")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" % "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive21_Unary_~(__arg0) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive21_Unary_~")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive21_Unary_~")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("~"+quote(__arg0)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_float_plus(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_float_plus")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_float_plus")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" + "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_float_minus(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_float_minus")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_float_minus")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" - "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_float_times(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_float_times")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_float_times")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" * "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_float_divide(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_float_divide")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_float_divide")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" / "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_double_plus(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_double_plus")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_double_plus")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" + "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_double_minus(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_double_minus")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_double_minus")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" - "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_double_times(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_double_times")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_double_times")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" * "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_double_divide(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_double_divide")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_double_divide")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" / "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_long_plus(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_long_plus")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_long_plus")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" + "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_long_minus(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_long_minus")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_long_minus")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" - "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_long_times(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_long_times")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_long_times")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" * "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_long_divide(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_long_divide")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_long_divide")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" / "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_long_divide_double(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_long_divide_double")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_long_divide_double")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" / "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_long_and(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_long_and")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_long_and")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" & "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_long_or(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_long_or")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_long_or")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" | "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive2_Forge_long_xor(__arg0,__arg1) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_long_xor")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive2_Forge_long_xor")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" ^ "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Primitive22_Unary_~(__arg0) => 
-        Console.println("CGenPrimitive2Ops::emitNode::Primitive22_Unary_~")
+//        Console.println("CGenPrimitive2Ops::emitNode::Primitive22_Unary_~")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("~"+quote(__arg0)+"")
         stream.println(";")
 
       case _ => 
-        Console.println("CGenPrimitive2Ops::emitNode - going elsewhere")
+//        Console.println("CGenPrimitive2Ops::emitNode - going elsewhere")
         super.emitNode(sym, rhs)
     }
   }

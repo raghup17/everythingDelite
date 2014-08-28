@@ -17,7 +17,7 @@ import optiml.compiler.ops._
 import ppl.delite.framework.Config
 
 import ppl.delite.framework.codegen.delite.DeliteCodegen
-import java.io.PrintWriter
+import java.io.{FileWriter, PrintWriter}
 /**
  * IR Definitions
  */
@@ -747,21 +747,22 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
   }
   def densematrix_matmult[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]])(implicit __pos: SourceContext,__imp0: Arith[T]) = {
     if (Config.autotuneEnabled) {
-      Console.println("[AUTOTUNER] Enabled, doing my thing in densematrix_matmult")
+//      Console.println("[AUTOTUNER] Enabled, creating IR nodes in densematrix_matmult")
       val m1 = fresh[DenseMatrix[T]]
       val m2 = fresh[DenseMatrix[T]]
       val lhs = reflectPure(Densematrix_matmult[T](m1, m2)(implicitly[Manifest[T]],__pos,__imp0))
+//      Console.println("[AUTOTUNER] End creating IR nodes in densematrix_matmult")
       val stm = findDefinition(lhs.asInstanceOf[Sym[Any]]).get
       val irnode = stm match {
         case TP(lhs: Sym[Any], rhs: Def[Any]) => rhs
       }
 
-      Console.println("Sym: ")
-      Console.println(lhs)
-      Console.println("Matmult IR node: ")
-      Console.println(irnode)
+//      Console.println("Sym: ")
+//      Console.println(lhs)
+//      Console.println("Matmult IR node: ")
+//      Console.println(irnode)
       val codegen = new OptiMLCodegenC{val IR: DenseMatrixOpsExp.this.type = DenseMatrixOpsExp.this} // ; stream = new PrintWriter(System.out)}
-      val stream = new PrintWriter(System.out)
+      val stream = new PrintWriter(new FileWriter("kernelcode.cpp"))
       codegen.withStream(stream) {
         codegen.emitNode(lhs.asInstanceOf[Sym[Any]], irnode)
       }

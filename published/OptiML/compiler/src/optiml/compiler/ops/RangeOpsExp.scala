@@ -70,7 +70,7 @@ trait RangeOpsExp extends RangeCompilerOps with BaseFatExp with DeliteStructsExp
 
   def range_foreach(start: Rep[Int],end: Rep[Int], step: Int, func: (Rep[Int]) => Rep[Unit])(implicit __pos: SourceContext) = {
     if (Config.autotuneEnabled) {
-      Console.println("[AUTOTUNER] Autotuner enabled, range_foreach")
+//      Console.println("[AUTOTUNER] Autotuner enabled, range_foreach")
     }
     val f_func___arg0 = fresh[Int]
 //    (start, end) match {
@@ -163,7 +163,7 @@ trait CGenRangeOps extends CGenFat {
   override def emitNode(sym: Sym[Any], rhs: Def[Any]) = {
       rhs match {
       case mn@Range_foreach(start,end,step, func,f_func___arg0) => 
-        Console.println("CGenRangeOps::emitNode::Range_foreach")
+//        Console.println("CGenRangeOps::emitNode::Range_foreach")
         stream.print("for(int i="+quote(start)+" ; i<"+quote(end)+" ; i+="+ step + ") {\n  { ")
         emitValDef(f_func___arg0.asInstanceOf[Sym[Any]],"i")
         emitBlock(func)
@@ -171,7 +171,7 @@ trait CGenRangeOps extends CGenFat {
         stream.println(";")
 
       case _ => 
-        Console.println("CGenRangeOps::emitNode - going elsewhere")
+//        Console.println("CGenRangeOps::emitNode - going elsewhere")
         super.emitNode(sym, rhs)
 
     }
