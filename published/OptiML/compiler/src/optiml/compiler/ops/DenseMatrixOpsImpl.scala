@@ -780,28 +780,14 @@ trait DenseMatrixOpsImpl {
 //  C  
 //  }
 
-
-  def densematrix_matmult_impl62[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
-//    fassert(self.numCols == __arg1.numRows, "dimension mismatch: matrix multiply")
-
+  def densematrix_matmult_impl62a[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]], res: Rep[DenseMatrix[T]])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
     // Allocation happening here - do not need this for autotuning!
-//    val out = DenseMatrix[T](self.numRows, __arg1.numCols)
-    val out = self 
+    //    val out = DenseMatrix[T](self.numRows, __arg1.numCols)
+    val out = res 
     if (Config.autotuneEnabled) {
       Console.println("[AUTOTUNER] Autotuner enabled, matmult")
       Console.println("[AUTOTUNER] Autotunable parameters at this level:")
       Console.println("[AUTOTUNER] #blocking levels, blockSize, double buffering, block location, transpose")
-      /*
-      * repeat {
-      *   params = getParams
-      *   fileName = dumpFuncToFile(params)   // How?
-      *   score = driver(fileName)     // How?
-      *  } until params is good
-      *
-      *  func = getFunc(params)
-      *  func
-      */
-//      val yT = __arg1.t
 
       val M = self.numRows
       val P = self.numCols
@@ -809,8 +795,61 @@ trait DenseMatrixOpsImpl {
       val m = 4
       val p = 4
       val n = 4
-//
-//      println("M P N m p n")
+
+      unroll(1) (0, M, m) { blockm => {
+        unroll(1) (0, N, n) { blockn => { 
+          unroll(1) (0, P, p) { blockp => {
+          
+            unroll(1) (blockm, blockm+m, 1) { rowIdx => {
+              unroll(1) (blockn ,blockn+n, 1) { colIdx => {
+                var acc = out(rowIdx, colIdx)
+                unroll(4) (blockp, blockp + p, 1) { tempIter => {
+                  acc += self(rowIdx, tempIter) * __arg1(tempIter, colIdx)
+                }}
+                out(rowIdx, colIdx) = acc
+              }}
+            }}
+          }}
+        }}
+      }}
+
+    }
+    else {
+      throw new Exception("Non-autotuned version should not use this implementation! ABORT!!")
+      val yT = __arg1.t
+    
+      for (rowIdx <- 0 until self.numRows) {
+        for (i <- 0 until __arg1.numCols) {
+          var acc = self(rowIdx, 0) * yT(i, 0)
+          for (j <- 1 until yT.numCols) {
+            acc += self(rowIdx, j) * yT(i, j)
+          }
+          out(rowIdx, i) = acc
+        }
+      }
+
+    }
+    out.unsafeImmutable
+  }
+
+
+  def densematrix_matmult_impl62[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
+    fassert(self.numCols == __arg1.numRows, "dimension mismatch: matrix multiply")
+
+    val out = DenseMatrix[T](self.numRows, __arg1.numCols)
+    if (Config.autotuneEnabled) {
+      Console.println("[AUTOTUNER] Autotuner enabled, matmult")
+      Console.println("[AUTOTUNER] Autotunable parameters at this level:")
+      Console.println("[AUTOTUNER] #blocking levels, blockSize, double buffering, block location, transpose")
+      throw new Exception("Autotuner should use another implementation, ABORT!!")
+
+      val M = self.numRows
+      val P = self.numCols
+      val N = __arg1.numCols
+      val m = 4
+      val p = 4
+      val n = 4
+
       unroll(1) (0, M, m) { blockm => {
         unroll(1) (0, N, n) { blockn => { 
           unroll(1) (0, P, p) { blockp => {

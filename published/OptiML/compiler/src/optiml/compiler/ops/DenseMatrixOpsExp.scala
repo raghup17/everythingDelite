@@ -218,6 +218,12 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
     override def autotune = Config.autotuneEnabled
   }
 
+  case class Densematrix_matmult_autotune[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]], res: Rep[DenseMatrix[T]])(implicit val __pos: SourceContext,val __imp0: Arith[T]) extends DeliteOpSingleTask[DenseMatrix[T]](reifyEffectsHere(densematrix_matmult_impl62a[T](self,__arg1, res)(implicitly[Manifest[T]],__pos,__imp0))) {
+    val _mT = implicitly[Manifest[T]]
+
+    override def autotune = Config.autotuneEnabled
+  }
+
   case class Densematrix_matvecmult[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseVector[T]])(implicit val __pos: SourceContext,val __imp0: Arith[T]) extends DeliteOpSingleTask[DenseVector[T]](reifyEffectsHere(densematrix_matvecmult_impl63[T](self,__arg1)(implicitly[Manifest[T]],__pos,__imp0))) {
     val _mT = implicitly[Manifest[T]]
   }
@@ -747,24 +753,28 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
   }
   def densematrix_matmult[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]])(implicit __pos: SourceContext,__imp0: Arith[T]) = {
     if (Config.autotuneEnabled) {
-//      Console.println("[AUTOTUNER] Enabled, creating IR nodes in densematrix_matmult")
+      // Create symbols representing DenseMatrix[T] for input and output matrices
       val m1 = fresh[DenseMatrix[T]]
       val m2 = fresh[DenseMatrix[T]]
-      val lhs = reflectPure(Densematrix_matmult[T](m1, m2)(implicitly[Manifest[T]],__pos,__imp0))
-//      Console.println("[AUTOTUNER] End creating IR nodes in densematrix_matmult")
+      val m3 = fresh[DenseMatrix[T]]   
+
+      // Creates IR nodes to perform m3 = m1 x m2, assumes that m1 and m2 are multiply-compatible
+      val lhs = reflectPure(Densematrix_matmult_autotune[T](m1, m2, m3)(implicitly[Manifest[T]],__pos,__imp0))
       val stm = findDefinition(lhs.asInstanceOf[Sym[Any]]).get
       val irnode = stm match {
         case TP(lhs: Sym[Any], rhs: Def[Any]) => rhs
       }
 
-//      Console.println("Sym: ")
-//      Console.println(lhs)
-//      Console.println("Matmult IR node: ")
-//      Console.println(irnode)
       val codegen = new OptiMLCodegenC{val IR: DenseMatrixOpsExp.this.type = DenseMatrixOpsExp.this} // ; stream = new PrintWriter(System.out)}
+
+      // Don't want to call codegen.initializeGenerator as it does a bunch of unnecessary crap.
+      // Just manually initializing required fields
+      codegen.headerStream = new PrintWriter(new FileWriter("kernelcode.h"))
       val stream = new PrintWriter(new FileWriter("kernelcode.cpp"))
       codegen.withStream(stream) {
+        codegen.emitKernelHeader(List(lhs.asInstanceOf[Sym[Any]]), List(m1,m2,m3), List(), "myResType", false, false)
         codegen.emitNode(lhs.asInstanceOf[Sym[Any]], irnode)
+        codegen.emitKernelFooter(List(lhs.asInstanceOf[Sym[Any]]), List(m1,m2,m3), List(), "myResType", false, false)
       }
       throw new Exception("stop here")
       lhs
@@ -1041,6 +1051,9 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
     case Reflect(mn@DenseMatrix61_Mul(__arg0,__arg1), u, es) => reflectMirrored(Reflect(new { override val original = Some(f,mn) } with DenseMatrix61_Mul(f(__arg0),f(__arg1))(mtype(mn._mT),mn.__pos,atype(mn.__imp0)), mapOver(f,u), f(es)))(mtype(manifest[A]), pos)
     case mn@Densematrix_matmult(__arg0,__arg1) => reflectPure(new { override val original = Some(f,mn) } with Densematrix_matmult(f(__arg0),f(__arg1))(mtype(mn._mT),mn.__pos,atype(mn.__imp0)))(mtype(manifest[A]), pos)
     case Reflect(mn@Densematrix_matmult(__arg0,__arg1), u, es) => reflectMirrored(Reflect(new { override val original = Some(f,mn) } with Densematrix_matmult(f(__arg0),f(__arg1))(mtype(mn._mT),mn.__pos,atype(mn.__imp0)), mapOver(f,u), f(es)))(mtype(manifest[A]), pos)
+//      TODO: Should I add cases for Densematrix_matmult_autotune here?
+//    case mn@Densematrix_matmult_autotune(__arg0, __arg1, __arg2) =>
+//    case Reflect(mn@Densematrix_matmult_autotune(__arg0, __arg1, u, es) =>
     case mn@Densematrix_matvecmult(__arg0,__arg1) => reflectPure(new { override val original = Some(f,mn) } with Densematrix_matvecmult(f(__arg0),f(__arg1))(mtype(mn._mT),mn.__pos,atype(mn.__imp0)))(mtype(manifest[A]), pos)
     case Reflect(mn@Densematrix_matvecmult(__arg0,__arg1), u, es) => reflectMirrored(Reflect(new { override val original = Some(f,mn) } with Densematrix_matvecmult(f(__arg0),f(__arg1))(mtype(mn._mT),mn.__pos,atype(mn.__imp0)), mapOver(f,u), f(es)))(mtype(manifest[A]), pos)
     case mn@DenseMatrix59_Div(__arg0,__arg1) => reflectPure(new { override val original = Some(f,mn) } with DenseMatrix59_Div(f(__arg0),f(__arg1))(mtype(mn._mT),mn.__pos,atype(mn.__imp0)))(mtype(manifest[A]), pos)

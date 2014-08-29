@@ -4,27 +4,27 @@ autotuneEnabled =
 [AUTOTUNER] Autotuner enabled, matmult
 [AUTOTUNER] Autotunable parameters at this level:
 [AUTOTUNER] #blocking levels, blockSize, double buffering, block location, transpose
-error: write to non-mutable Sym(239) -> None
-at Sym(332)=Reflect(StructUpdate(Sym(239),List(_data),List(Sym(275)),Sym(331)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(239)),List(Sym(239))),List())
-error: write to non-mutable Sym(239) -> None
-at Sym(334)=Reflect(Range_foreach(Sym(253),Sym(269),1,Block(Sym(333)),Sym(272)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(239)),List(Sym(239))),List())
-error: write to non-mutable Sym(239) -> None
-at Sym(336)=Reflect(Range_foreach(Sym(248),Sym(262),1,Block(Sym(335)),Sym(265)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(239)),List(Sym(239))),List())
-error: write to non-mutable Sym(239) -> None
-at Sym(338)=Reflect(Range_foreach(Const(0),Sym(255),4,Block(Sym(337)),Sym(258)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(239)),List(Sym(239))),List())
-error: write to non-mutable Sym(239) -> None
-at Sym(340)=Reflect(Range_foreach(Const(0),Sym(250),4,Block(Sym(339)),Sym(253)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(239)),List(Sym(239))),List())
-error: write to non-mutable Sym(239) -> None
-at Sym(342)=Reflect(Range_foreach(Const(0),Sym(245),4,Block(Sym(341)),Sym(248)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(239)),List(Sym(239))),List())
-error: write to non-mutable Sym(239) -> None
-at Sym(345)=Reflect(Densematrix_matmult(Sym(239),Sym(240)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(239)),List(Sym(239))),List())
-CGenDeliteOps::emitNode::DeliteOpSingleTask = Densematrix_matmult(Sym(239),Sym(240))
+error: write to non-mutable Sym(241) -> None
+at Sym(336)=Reflect(StructUpdate(Sym(241),List(_data),List(Sym(277)),Sym(335)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(241)),List(Sym(241))),List())
+error: write to non-mutable Sym(241) -> None
+at Sym(338)=Reflect(Range_foreach(Sym(254),Sym(270),1,Block(Sym(337)),Sym(273)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(241)),List(Sym(241))),List())
+error: write to non-mutable Sym(241) -> None
+at Sym(340)=Reflect(Range_foreach(Sym(249),Sym(263),1,Block(Sym(339)),Sym(266)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(241)),List(Sym(241))),List())
+error: write to non-mutable Sym(241) -> None
+at Sym(342)=Reflect(Range_foreach(Const(0),Sym(256),4,Block(Sym(341)),Sym(259)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(241)),List(Sym(241))),List())
+error: write to non-mutable Sym(241) -> None
+at Sym(344)=Reflect(Range_foreach(Const(0),Sym(251),4,Block(Sym(343)),Sym(254)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(241)),List(Sym(241))),List())
+error: write to non-mutable Sym(241) -> None
+at Sym(346)=Reflect(Range_foreach(Const(0),Sym(246),4,Block(Sym(345)),Sym(249)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(241)),List(Sym(241))),List())
+error: write to non-mutable Sym(241) -> None
+at Sym(349)=Reflect(Densematrix_matmult_autotune(Sym(239),Sym(240),Sym(241)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(241)),List(Sym(241))),List())
+CGenDeliteOps::emitNode::DeliteOpSingleTask = Densematrix_matmult_autotune(Sym(239),Sym(240),Sym(241))
 Exception in thread "main" java.lang.Exception: stop here
-	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2.apply(DenseMatrixOpsExp.scala:769)
-	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2.apply(DenseMatrixOpsExp.scala:749)
+	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2.apply(DenseMatrixOpsExp.scala:779)
+	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2.apply(DenseMatrixOpsExp.scala:755)
 	at scala.virtualization.lms.common.IfThenElse$class.__ifThenElse(IfThenElse.scala:13)
 	at MatMultCompiler$.__ifThenElse(MatMult.scala:4)
-	at optiml.compiler.ops.DenseMatrixOpsExp$class.densematrix_matmult(DenseMatrixOpsExp.scala:749)
+	at optiml.compiler.ops.DenseMatrixOpsExp$class.densematrix_matmult(DenseMatrixOpsExp.scala:755)
 	at MatMultCompiler$.optiml$compiler$ops$BLASOpsExp$$super$densematrix_matmult(MatMult.scala:4)
 	at optiml.compiler.ops.BLASOpsExp$$anonfun$densematrix_matmult$3.apply(BLASOpsExp.scala:72)
 	at optiml.compiler.ops.BLASOpsExp$$anonfun$densematrix_matmult$3.apply(BLASOpsExp.scala:72)
