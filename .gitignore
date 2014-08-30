@@ -18,4 +18,5 @@ project/plugins/project/
 .worksheet
 
 # Delite-specific
+generated/
 generatedCache/
