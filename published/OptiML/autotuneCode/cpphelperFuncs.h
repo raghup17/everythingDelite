@@ -1,3 +1,5 @@
+#ifndef CPP_HELPERFUNCS_H
+#define CPP_HELPERFUNCS_H
 #include <stdio.h>
 #include <stdint.h>
 #include <iostream>
@@ -8,6 +10,7 @@ public:
   int length;
 
   cppDeliteArraydouble(int _length): data((double  *)(new double [_length])), length(_length) { }
+  cppDeliteArraydouble(int _length, int heapIdx): data((double  *)(new double [_length])), length(_length) { }
 
   cppDeliteArraydouble(double  *_data, int _length) {
     data = _data;
@@ -54,3 +57,4 @@ typedef struct {
 } resourceInfo_t;
 
 
+#endif
