@@ -224,6 +224,12 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
     override def autotune = Config.autotuneEnabled
   }
 
+  case class Densematrix_new[T:Manifest](r: Rep[Int],c: Rep[Int])(implicit val __pos: SourceContext,val __imp0: Arith[T]) extends DeliteOpSingleTask[DenseMatrix[T]](reifyEffectsHere(densematrix_new[T](r,c)(implicitly[Manifest[T]],__pos,__imp0))) {
+    val _mT = implicitly[Manifest[T]]
+    override def autotune = Config.autotuneEnabled
+  }
+
+
   case class Densematrix_matvecmult[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseVector[T]])(implicit val __pos: SourceContext,val __imp0: Arith[T]) extends DeliteOpSingleTask[DenseVector[T]](reifyEffectsHere(densematrix_matvecmult_impl63[T](self,__arg1)(implicitly[Manifest[T]],__pos,__imp0))) {
     val _mT = implicitly[Manifest[T]]
   }
@@ -470,6 +476,11 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
 
 
   def densematrix_object_apply[T:Manifest](__arg0: Rep[Int],__arg1: Rep[Int])(implicit __pos: SourceContext,__imp1: Overload20) = {
+    Console.println("[densematrix_object_apply] __arg0 ")
+    Console.println(__arg0)
+    Console.println("[densematrix_object_apply] __arg1 ")
+    Console.println(__arg1)
+
     reflectMutable(DenseMatrix20Object_Apply[T](__arg0,__arg1)(implicitly[Manifest[T]],__pos))
   }
   def densematrix_object_apply[T:Manifest](__arg0: Rep[DenseVector[DenseVector[T]]])(implicit __pos: SourceContext,__imp1: Overload21) = {
@@ -766,16 +777,60 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
       }
 
       val codegen = new OptiMLCodegenC{val IR: DenseMatrixOpsExp.this.type = DenseMatrixOpsExp.this} // ; stream = new PrintWriter(System.out)}
-
-      // Don't want to call codegen.initializeGenerator as it does a bunch of unnecessary crap.
-      // Just manually initializing required fields
-      codegen.headerStream = new PrintWriter(new FileWriter("kernelcode.h"))
-      val stream = new PrintWriter(new FileWriter("kernelcode.cpp"))
+      codegen.headerStream = new PrintWriter(new FileWriter("avoidNullptrException.h"))
+      val resType = codegen.remap(lhs.tp)
+      val stream = new PrintWriter(new FileWriter("autotuneCode/kernelcode.cpp"))
       codegen.withStream(stream) {
-        codegen.emitKernelHeader(List(lhs.asInstanceOf[Sym[Any]]), List(m1,m2,m3), List(), "myResType", false, false)
+        codegen.emitKernelHeader(List(lhs.asInstanceOf[Sym[Any]]), List(m1,m2,m3), List(), resType, false, false)
         codegen.emitNode(lhs.asInstanceOf[Sym[Any]], irnode)
-        codegen.emitKernelFooter(List(lhs.asInstanceOf[Sym[Any]]), List(m1,m2,m3), List(), "myResType", false, false)
+        codegen.emitKernelFooter(List(lhs.asInstanceOf[Sym[Any]]), List(m1,m2,m3), List(), resType, false, false)
       }
+
+      // Codegen to generate matrices
+      val M = fresh[Int]
+      val P = fresh[Int]
+      val N = fresh[Int]
+//      val m1_in = DenseMatrix[T](M, P)
+//      val m2_in = DenseMatrix[T](P, N)
+//      val out = DenseMatrix[T](M, N)
+      val lhs_m1 = reflectPure(Densematrix_new[T](M, P)(implicitly[Manifest[T]],__pos,__imp0))
+      val stm_m1 = findDefinition(lhs_m1.asInstanceOf[Sym[Any]]).get
+      val irnode_m1 = stm_m1 match {
+        case TP(lhs: Sym[Any], rhs: Def[Any]) => rhs
+      }
+ 
+      val lhs_m2 = reflectPure(Densematrix_new[T](P, N)(implicitly[Manifest[T]],__pos,__imp0))
+      val stm_m2 = findDefinition(lhs_m2.asInstanceOf[Sym[Any]]).get
+      val irnode_m2 = stm_m2 match {
+        case TP(lhs: Sym[Any], rhs: Def[Any]) => rhs
+      }
+   
+      val lhs_m3 = reflectPure(Densematrix_new[T](M, N)(implicitly[Manifest[T]],__pos,__imp0))
+      val stm_m3 = findDefinition(lhs_m3.asInstanceOf[Sym[Any]]).get
+      val irnode_m3 = stm_m3 match {
+        case TP(lhs: Sym[Any], rhs: Def[Any]) => rhs
+      }
+
+      val stream_createmat = new PrintWriter(new FileWriter("autotuneCode/kernelInit.cpp"))
+
+      codegen.withStream(stream_createmat) {
+        // m1
+        codegen.emitKernelHeader(List(lhs_m1.asInstanceOf[Sym[Any]]), List(M, P), List(), resType, false, false)
+        codegen.emitNode(lhs_m1.asInstanceOf[Sym[Any]], irnode_m1)
+        codegen.emitKernelFooter(List(lhs_m1.asInstanceOf[Sym[Any]]), List(M, P), List(), resType, false, false)
+
+        // m2
+        codegen.emitKernelHeader(List(lhs_m2.asInstanceOf[Sym[Any]]), List(P, N), List(), resType, false, false)
+        codegen.emitNode(lhs_m2.asInstanceOf[Sym[Any]], irnode_m2)
+        codegen.emitKernelFooter(List(lhs_m2.asInstanceOf[Sym[Any]]), List(P, N), List(), resType, false, false)
+
+        // m3
+        codegen.emitKernelHeader(List(lhs_m3.asInstanceOf[Sym[Any]]), List(M, N), List(), resType, false, false)
+        codegen.emitNode(lhs_m3.asInstanceOf[Sym[Any]], irnode_m3)
+        codegen.emitKernelFooter(List(lhs_m3.asInstanceOf[Sym[Any]]), List(M, N), List(), resType, false, false)
+
+      }
+
       throw new Exception("stop here")
       lhs
     }

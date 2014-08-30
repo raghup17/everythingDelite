@@ -19,12 +19,27 @@ at Sym(346)=Reflect(Range_foreach(Const(0),Sym(246),4,Block(Sym(345)),Sym(249)),
 error: write to non-mutable Sym(241) -> None
 at Sym(349)=Reflect(Densematrix_matmult_autotune(Sym(239),Sym(240),Sym(241)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(241)),List(Sym(241))),List())
 CGenDeliteOps::emitNode::DeliteOpSingleTask = Densematrix_matmult_autotune(Sym(239),Sym(240),Sym(241))
+[densematrix_object_apply] __arg0 
+Sym(350)
+[densematrix_object_apply] __arg1 
+Sym(351)
+[densematrix_object_apply] __arg0 
+Sym(351)
+[densematrix_object_apply] __arg1 
+Sym(352)
+[densematrix_object_apply] __arg0 
+Sym(350)
+[densematrix_object_apply] __arg1 
+Sym(352)
+CGenDeliteOps::emitNode::DeliteOpSingleTask = Densematrix_new(Sym(350),Sym(351))
+CGenDeliteOps::emitNode::DeliteOpSingleTask = Densematrix_new(Sym(351),Sym(352))
+CGenDeliteOps::emitNode::DeliteOpSingleTask = Densematrix_new(Sym(350),Sym(352))
 Exception in thread "main" java.lang.Exception: stop here
-	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2.apply(DenseMatrixOpsExp.scala:779)
-	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2.apply(DenseMatrixOpsExp.scala:755)
+	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2.apply(DenseMatrixOpsExp.scala:834)
+	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2.apply(DenseMatrixOpsExp.scala:766)
 	at scala.virtualization.lms.common.IfThenElse$class.__ifThenElse(IfThenElse.scala:13)
 	at MatMultCompiler$.__ifThenElse(MatMult.scala:4)
-	at optiml.compiler.ops.DenseMatrixOpsExp$class.densematrix_matmult(DenseMatrixOpsExp.scala:755)
+	at optiml.compiler.ops.DenseMatrixOpsExp$class.densematrix_matmult(DenseMatrixOpsExp.scala:766)
 	at MatMultCompiler$.optiml$compiler$ops$BLASOpsExp$$super$densematrix_matmult(MatMult.scala:4)
 	at optiml.compiler.ops.BLASOpsExp$$anonfun$densematrix_matmult$3.apply(BLASOpsExp.scala:72)
 	at optiml.compiler.ops.BLASOpsExp$$anonfun$densematrix_matmult$3.apply(BLASOpsExp.scala:72)

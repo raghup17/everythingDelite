@@ -780,6 +780,13 @@ trait DenseMatrixOpsImpl {
 //  C  
 //  }
 
+
+  def densematrix_new[T:Manifest](r: Rep[Int], c: Rep[Int])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
+    val out = DenseMatrix[T](r, c)
+    out.unsafeImmutable
+  }
+
+
   def densematrix_matmult_impl62a[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]], res: Rep[DenseMatrix[T]])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
     // Allocation happening here - do not need this for autotuning!
     //    val out = DenseMatrix[T](self.numRows, __arg1.numCols)
@@ -838,34 +845,34 @@ trait DenseMatrixOpsImpl {
 
     val out = DenseMatrix[T](self.numRows, __arg1.numCols)
     if (Config.autotuneEnabled) {
-      Console.println("[AUTOTUNER] Autotuner enabled, matmult")
-      Console.println("[AUTOTUNER] Autotunable parameters at this level:")
-      Console.println("[AUTOTUNER] #blocking levels, blockSize, double buffering, block location, transpose")
-      throw new Exception("Autotuner should use another implementation, ABORT!!")
-
-      val M = self.numRows
-      val P = self.numCols
-      val N = __arg1.numCols
-      val m = 4
-      val p = 4
-      val n = 4
-
-      unroll(1) (0, M, m) { blockm => {
-        unroll(1) (0, N, n) { blockn => { 
-          unroll(1) (0, P, p) { blockp => {
-          
-            unroll(1) (blockm, blockm+m, 1) { rowIdx => {
-              unroll(1) (blockn ,blockn+n, 1) { colIdx => {
-                var acc = out(rowIdx, colIdx)
-                unroll(4) (blockp, blockp + p, 1) { tempIter => {
-                  acc += self(rowIdx, tempIter) * __arg1(tempIter, colIdx)
-                }}
-                out(rowIdx, colIdx) = acc
-              }}
-            }}
-          }}
-        }}
-      }}
+//      Console.println("[AUTOTUNER] Autotuner enabled, matmult")
+//      Console.println("[AUTOTUNER] Autotunable parameters at this level:")
+//      Console.println("[AUTOTUNER] #blocking levels, blockSize, double buffering, block location, transpose")
+//      throw new Exception("Autotuner should use another implementation, ABORT!!")
+//
+//      val M = self.numRows
+//      val P = self.numCols
+//      val N = __arg1.numCols
+//      val m = 4
+//      val p = 4
+//      val n = 4
+//
+//      unroll(1) (0, M, m) { blockm => {
+//        unroll(1) (0, N, n) { blockn => { 
+//          unroll(1) (0, P, p) { blockp => {
+//          
+//            unroll(1) (blockm, blockm+m, 1) { rowIdx => {
+//              unroll(1) (blockn ,blockn+n, 1) { colIdx => {
+//                var acc = out(rowIdx, colIdx)
+//                unroll(4) (blockp, blockp + p, 1) { tempIter => {
+//                  acc += self(rowIdx, tempIter) * __arg1(tempIter, colIdx)
+//                }}
+//                out(rowIdx, colIdx) = acc
+//              }}
+//            }}
+//          }}
+//        }}
+//      }}
 
     }
     else {
