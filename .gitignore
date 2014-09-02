@@ -20,5 +20,6 @@ project/plugins/project/
 
 # Delite-specific
 *.deg
+*.mybak
 generated/
 generatedCache/
