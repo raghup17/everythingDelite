@@ -2,6 +2,7 @@
 *.log
 *.swp
 *.pyc
+*.tags*
 # sbt specific
 .cache/
 .history/
