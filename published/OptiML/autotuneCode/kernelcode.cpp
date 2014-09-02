@@ -78,6 +78,7 @@ x279 += x319;
 };
 for(int i=x283 ; i<x280 ; i+=1) {
   { int32_t x325 = i;
+std::cout << "Residue" << std::endl;
 int32_t x326 = x288 + x325;
 double x327 = x287->apply(x326);
 int32_t x328 = x325 * x244;

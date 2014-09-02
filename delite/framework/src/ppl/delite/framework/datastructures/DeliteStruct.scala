@@ -239,6 +239,7 @@ trait ScalaGenDeliteStruct extends BaseGenStruct {
     //   emitValDef(sym, shiftOnString(elems, "Long"))
     case Struct(tag, elems) =>
       registerStruct(structName(sym.tp), elems)
+      val remapped = remap(sym.tp)
       emitValDef(sym, "new " + remap(sym.tp) + "(" + elems.map{ e => 
         if (isVarType(e._2) && deliteInputs.contains(e._2)) quote(e._2) + ".get"
         else quote(e._2)

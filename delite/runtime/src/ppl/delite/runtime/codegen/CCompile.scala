@@ -121,6 +121,7 @@ trait CCompile extends CodeCache {
 
     //TODO: How many parallel jobs? For now, the number of processors.
     val args = Array(config.make, "-s", "-j", Runtime.getRuntime.availableProcessors.toString, "-f", makefile, "all")
+    Console.println("Delite compilation command: " + args.mkString(","))
     val process = Runtime.getRuntime.exec(args)
     process.waitFor
     checkError(process, args)
