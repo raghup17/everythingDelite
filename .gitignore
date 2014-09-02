@@ -19,5 +19,6 @@ project/plugins/project/
 .worksheet
 
 # Delite-specific
+*.deg
 generated/
 generatedCache/
