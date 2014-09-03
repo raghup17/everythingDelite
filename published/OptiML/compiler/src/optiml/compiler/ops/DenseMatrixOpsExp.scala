@@ -777,33 +777,29 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
       val P = fresh[Int]
       val N = fresh[Int]
 
-      // Creates IR nodes to perform m3 = m1 x m2, assumes that m1 and m2 are multiply-compatible
+      // Creates IR nodes to perform m3 = m1 x m2 for the given Tunable parameters
       val lhs = reflectPure(Densematrix_matmult_autotune[T](M, P, N)(implicitly[Manifest[T]],__pos,__imp0))
       val stm = findDefinition(lhs.asInstanceOf[Sym[Any]]).get
       val irnode = stm match {
         case TP(lhs: Sym[Any], rhs: Def[Any]) => rhs
       }
 
-      // Code generation
+      // Code generator initialization
       val codegen = new OptiMLCodegenC{val IR: DenseMatrixOpsExp.this.type = DenseMatrixOpsExp.this} 
       codegen.headerStream = new PrintWriter(new FileWriter("autotuneCode/avoidNullptrException.h"))
       val resType = codegen.remap(lhs.tp)
       val kernelFileName="auto_kernelcode.cpp"
 
+      // Function to generate driver code
       def generateDriver(lhs: Sym[Any], irnode: Def[Any], stream: PrintWriter) = {
-        Console.println("irnode:")
-        Console.println(irnode)
         val argTypeList = new ListBuffer[(String, String)]
         irnode match {
           case p: Product => 
-            Console.println("irnode is a product")
             val iter = p.productIterator
             while (iter.hasNext) {
               val v = iter.next.asInstanceOf[Sym[Any]]
               val arg = codegen.quote(v)
               val tpe = codegen.remap(v.tp)
-              Console.println(arg)
-              Console.println(tpe)
               argTypeList.append((arg, tpe))
             }
             // Main function needs to read p.productArity number of arguments from command line
@@ -843,6 +839,7 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
         stream.println("}")
       }
      
+      // Generate kernel code
       val stream = new PrintWriter(new FileWriter("autotuneCode/%s".format(kernelFileName)))
       codegen.withStream(stream) {
         codegen.emitKernelHeader(List(lhs.asInstanceOf[Sym[Any]]), List(M, P, N), List(), resType, false, false)
@@ -850,7 +847,7 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
         codegen.emitKernelFooter(List(lhs.asInstanceOf[Sym[Any]]), List(M, P, N), List(), resType, false, false)
       }
 
-      
+      // Generate driver code
       val stream_driver = new PrintWriter(new FileWriter("autotuneCode/auto_driver.cpp"))
       generateDriver(lhs.asInstanceOf[Sym[Any]], irnode, stream_driver)
       stream_driver.flush
