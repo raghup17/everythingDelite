@@ -772,66 +772,23 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
   }
   def densematrix_matmult[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]])(implicit __pos: SourceContext,__imp0: Arith[T]) = {
     if (Config.autotuneEnabled) {
-      // Create symbols representing DenseMatrix[T] for input and output matrices
-//      val m1 = fresh[DenseMatrix[T]]
-//      val m2 = fresh[DenseMatrix[T]]
-//      val m3 = fresh[DenseMatrix[T]]   
-//
-
       // Codegen to generate matrices
       val M = fresh[Int]
       val P = fresh[Int]
       val N = fresh[Int]
 
-//      val lhs_m1 = reflectPure(Densematrix_new[T](M, P)(implicitly[Manifest[T]],__pos,__imp0))
-//      val stm_m1 = findDefinition(lhs_m1.asInstanceOf[Sym[Any]]).get
-//      val irnode_m1 = stm_m1 match {
-//        case TP(lhs: Sym[Any], rhs: Def[Any]) => rhs
-//      }
-// 
-//      val lhs_m2 = reflectPure(Densematrix_new[T](P, N)(implicitly[Manifest[T]],__pos,__imp0))
-//      val stm_m2 = findDefinition(lhs_m2.asInstanceOf[Sym[Any]]).get
-//      val irnode_m2 = stm_m2 match {
-//        case TP(lhs: Sym[Any], rhs: Def[Any]) => rhs
-//      }
-//   
-//      val lhs_m3 = reflectPure(Densematrix_new[T](M, N)(implicitly[Manifest[T]],__pos,__imp0))
-//      val stm_m3 = findDefinition(lhs_m3.asInstanceOf[Sym[Any]]).get
-//      val irnode_m3 = stm_m3 match {
-//        case TP(lhs: Sym[Any], rhs: Def[Any]) => rhs
-//      }
-
-//      def driver_impl[T:Manifest](M: Int, P: Int, N: Int)(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
-//
-//      }
-//
-//      val driver_lhs = reflectPure(DeliteOpSingleTask[DenseMatrix[T]](reifyEffectsHere(driver_impl[T](M, P, N))))
-//      val driver_stm = findDefinition(driver_lhs.asInstanceOf[Sym[Any]]).get
-//      val driver_irnode = driver_stm match {
-//        case TP(lhs: Sym[Any], rhs: Def[Any]) => rhs
-//      }
-
       // Creates IR nodes to perform m3 = m1 x m2, assumes that m1 and m2 are multiply-compatible
       val lhs = reflectPure(Densematrix_matmult_autotune[T](M, P, N)(implicitly[Manifest[T]],__pos,__imp0))
       val stm = findDefinition(lhs.asInstanceOf[Sym[Any]]).get
       val irnode = stm match {
-        case TP(lhs: Sym[Any], rhs: Def[Any]) => {Console.println("[inside case] lhs = "); Console.println(lhs); rhs}
+        case TP(lhs: Sym[Any], rhs: Def[Any]) => rhs
       }
-      Console.println("[outside case] lhs = ")
-      Console.println(lhs)
 
       // Code generation
       val codegen = new OptiMLCodegenC{val IR: DenseMatrixOpsExp.this.type = DenseMatrixOpsExp.this} 
       codegen.headerStream = new PrintWriter(new FileWriter("autotuneCode/avoidNullptrException.h"))
       val resType = codegen.remap(lhs.tp)
       val kernelFileName="auto_kernelcode.cpp"
-      val stream = new PrintWriter(new FileWriter("autotuneCode/%s".format(kernelFileName)))
-      codegen.withStream(stream) {
-        codegen.emitKernelHeader(List(lhs.asInstanceOf[Sym[Any]]), List(M, P, N), List(), resType, false, false)
-        codegen.emitNode(lhs.asInstanceOf[Sym[Any]], irnode)
-        codegen.emitKernelFooter(List(lhs.asInstanceOf[Sym[Any]]), List(M, P, N), List(), resType, false, false)
-      }
-
 
       def generateDriver(lhs: Sym[Any], irnode: Def[Any], stream: PrintWriter) = {
         Console.println("irnode:")
@@ -886,6 +843,14 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
         stream.println("}")
       }
      
+      val stream = new PrintWriter(new FileWriter("autotuneCode/%s".format(kernelFileName)))
+      codegen.withStream(stream) {
+        codegen.emitKernelHeader(List(lhs.asInstanceOf[Sym[Any]]), List(M, P, N), List(), resType, false, false)
+        codegen.emitNode(lhs.asInstanceOf[Sym[Any]], irnode)
+        codegen.emitKernelFooter(List(lhs.asInstanceOf[Sym[Any]]), List(M, P, N), List(), resType, false, false)
+      }
+
+      
       val stream_driver = new PrintWriter(new FileWriter("autotuneCode/auto_driver.cpp"))
       generateDriver(lhs.asInstanceOf[Sym[Any]], irnode, stream_driver)
       stream_driver.flush
