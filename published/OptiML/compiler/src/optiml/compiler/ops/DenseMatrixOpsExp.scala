@@ -18,6 +18,7 @@ import ppl.delite.framework.Config
 
 import ppl.delite.framework.codegen.delite.DeliteCodegen
 import java.io.{FileWriter, PrintWriter}
+import scala.collection.mutable.ListBuffer
 /**
  * IR Definitions
  */
@@ -218,11 +219,18 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
     override def autotune = Config.autotuneEnabled
   }
 
-  case class Densematrix_matmult_autotune[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]], res: Rep[DenseMatrix[T]])(implicit val __pos: SourceContext,val __imp0: Arith[T]) extends DeliteOpSingleTask[DenseMatrix[T]](reifyEffectsHere(densematrix_matmult_impl62a[T](self,__arg1, res)(implicitly[Manifest[T]],__pos,__imp0))) {
+  case class Densematrix_matmult_autotune[T:Manifest](M: Rep[Int], P: Rep[Int], N: Rep[Int])(implicit val __pos: SourceContext,val __imp0: Arith[T]) extends DeliteOpSingleTask[DenseMatrix[T]](reifyEffectsHere(densematrix_matmult_impl62a[T](M, P, N)(implicitly[Manifest[T]],__pos,__imp0))) {
     val _mT = implicitly[Manifest[T]]
 
     override def autotune = Config.autotuneEnabled
   }
+
+//  case class Densematrix_matmult_autotune[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]], res: Rep[DenseMatrix[T]])(implicit val __pos: SourceContext,val __imp0: Arith[T]) extends DeliteOpSingleTask[DenseMatrix[T]](reifyEffectsHere(densematrix_matmult_impl62a[T](self,__arg1, res)(implicitly[Manifest[T]],__pos,__imp0))) {
+//    val _mT = implicitly[Manifest[T]]
+//
+//    override def autotune = Config.autotuneEnabled
+//  }
+
 
   case class Densematrix_new[T:Manifest](r: Rep[Int],c: Rep[Int])(implicit val __pos: SourceContext,val __imp0: Arith[T]) extends DeliteOpSingleTask[DenseMatrix[T]](reifyEffectsHere(densematrix_new[T](r,c)(implicitly[Manifest[T]],__pos,__imp0))) {
     val _mT = implicitly[Manifest[T]]
@@ -765,71 +773,141 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
   def densematrix_matmult[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]])(implicit __pos: SourceContext,__imp0: Arith[T]) = {
     if (Config.autotuneEnabled) {
       // Create symbols representing DenseMatrix[T] for input and output matrices
-      val m1 = fresh[DenseMatrix[T]]
-      val m2 = fresh[DenseMatrix[T]]
-      val m3 = fresh[DenseMatrix[T]]   
-
-      // Creates IR nodes to perform m3 = m1 x m2, assumes that m1 and m2 are multiply-compatible
-      val lhs = reflectPure(Densematrix_matmult_autotune[T](m1, m2, m3)(implicitly[Manifest[T]],__pos,__imp0))
-      val stm = findDefinition(lhs.asInstanceOf[Sym[Any]]).get
-      val irnode = stm match {
-        case TP(lhs: Sym[Any], rhs: Def[Any]) => rhs
-      }
-
-      val codegen = new OptiMLCodegenC{val IR: DenseMatrixOpsExp.this.type = DenseMatrixOpsExp.this} // ; stream = new PrintWriter(System.out)}
-      codegen.headerStream = new PrintWriter(new FileWriter("avoidNullptrException.h"))
-      val resType = codegen.remap(lhs.tp)
-      val stream = new PrintWriter(new FileWriter("autotuneCode/kernelcode.cpp"))
-      codegen.withStream(stream) {
-        codegen.emitKernelHeader(List(lhs.asInstanceOf[Sym[Any]]), List(m1,m2,m3), List(), resType, false, false)
-        codegen.emitNode(lhs.asInstanceOf[Sym[Any]], irnode)
-        codegen.emitKernelFooter(List(lhs.asInstanceOf[Sym[Any]]), List(m1,m2,m3), List(), resType, false, false)
-      }
+//      val m1 = fresh[DenseMatrix[T]]
+//      val m2 = fresh[DenseMatrix[T]]
+//      val m3 = fresh[DenseMatrix[T]]   
+//
 
       // Codegen to generate matrices
       val M = fresh[Int]
       val P = fresh[Int]
       val N = fresh[Int]
-//      val m1_in = DenseMatrix[T](M, P)
-//      val m2_in = DenseMatrix[T](P, N)
-//      val out = DenseMatrix[T](M, N)
-      val lhs_m1 = reflectPure(Densematrix_new[T](M, P)(implicitly[Manifest[T]],__pos,__imp0))
-      val stm_m1 = findDefinition(lhs_m1.asInstanceOf[Sym[Any]]).get
-      val irnode_m1 = stm_m1 match {
-        case TP(lhs: Sym[Any], rhs: Def[Any]) => rhs
+
+//      val lhs_m1 = reflectPure(Densematrix_new[T](M, P)(implicitly[Manifest[T]],__pos,__imp0))
+//      val stm_m1 = findDefinition(lhs_m1.asInstanceOf[Sym[Any]]).get
+//      val irnode_m1 = stm_m1 match {
+//        case TP(lhs: Sym[Any], rhs: Def[Any]) => rhs
+//      }
+// 
+//      val lhs_m2 = reflectPure(Densematrix_new[T](P, N)(implicitly[Manifest[T]],__pos,__imp0))
+//      val stm_m2 = findDefinition(lhs_m2.asInstanceOf[Sym[Any]]).get
+//      val irnode_m2 = stm_m2 match {
+//        case TP(lhs: Sym[Any], rhs: Def[Any]) => rhs
+//      }
+//   
+//      val lhs_m3 = reflectPure(Densematrix_new[T](M, N)(implicitly[Manifest[T]],__pos,__imp0))
+//      val stm_m3 = findDefinition(lhs_m3.asInstanceOf[Sym[Any]]).get
+//      val irnode_m3 = stm_m3 match {
+//        case TP(lhs: Sym[Any], rhs: Def[Any]) => rhs
+//      }
+
+//      def driver_impl[T:Manifest](M: Int, P: Int, N: Int)(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
+//
+//      }
+//
+//      val driver_lhs = reflectPure(DeliteOpSingleTask[DenseMatrix[T]](reifyEffectsHere(driver_impl[T](M, P, N))))
+//      val driver_stm = findDefinition(driver_lhs.asInstanceOf[Sym[Any]]).get
+//      val driver_irnode = driver_stm match {
+//        case TP(lhs: Sym[Any], rhs: Def[Any]) => rhs
+//      }
+
+      // Creates IR nodes to perform m3 = m1 x m2, assumes that m1 and m2 are multiply-compatible
+      val lhs = reflectPure(Densematrix_matmult_autotune[T](M, P, N)(implicitly[Manifest[T]],__pos,__imp0))
+      val stm = findDefinition(lhs.asInstanceOf[Sym[Any]]).get
+      val irnode = stm match {
+        case TP(lhs: Sym[Any], rhs: Def[Any]) => {Console.println("[inside case] lhs = "); Console.println(lhs); rhs}
       }
- 
-      val lhs_m2 = reflectPure(Densematrix_new[T](P, N)(implicitly[Manifest[T]],__pos,__imp0))
-      val stm_m2 = findDefinition(lhs_m2.asInstanceOf[Sym[Any]]).get
-      val irnode_m2 = stm_m2 match {
-        case TP(lhs: Sym[Any], rhs: Def[Any]) => rhs
+      Console.println("[outside case] lhs = ")
+      Console.println(lhs)
+
+      // Code generation
+      val codegen = new OptiMLCodegenC{val IR: DenseMatrixOpsExp.this.type = DenseMatrixOpsExp.this} 
+      codegen.headerStream = new PrintWriter(new FileWriter("autotuneCode/avoidNullptrException.h"))
+      val resType = codegen.remap(lhs.tp)
+      val kernelFileName="auto_kernelcode.cpp"
+      val stream = new PrintWriter(new FileWriter("autotuneCode/%s".format(kernelFileName)))
+      codegen.withStream(stream) {
+        codegen.emitKernelHeader(List(lhs.asInstanceOf[Sym[Any]]), List(M, P, N), List(), resType, false, false)
+        codegen.emitNode(lhs.asInstanceOf[Sym[Any]], irnode)
+        codegen.emitKernelFooter(List(lhs.asInstanceOf[Sym[Any]]), List(M, P, N), List(), resType, false, false)
       }
-   
-      val lhs_m3 = reflectPure(Densematrix_new[T](M, N)(implicitly[Manifest[T]],__pos,__imp0))
-      val stm_m3 = findDefinition(lhs_m3.asInstanceOf[Sym[Any]]).get
-      val irnode_m3 = stm_m3 match {
-        case TP(lhs: Sym[Any], rhs: Def[Any]) => rhs
+
+
+      def generateDriver(lhs: Sym[Any], irnode: Def[Any], stream: PrintWriter) = {
+        Console.println("irnode:")
+        Console.println(irnode)
+        val argTypeList = new ListBuffer[(String, String)]
+        irnode match {
+          case p: Product => 
+            Console.println("irnode is a product")
+            val iter = p.productIterator
+            while (iter.hasNext) {
+              val v = iter.next.asInstanceOf[Sym[Any]]
+              val arg = codegen.quote(v)
+              val tpe = codegen.remap(v.tp)
+              Console.println(arg)
+              Console.println(tpe)
+              argTypeList.append((arg, tpe))
+            }
+            // Main function needs to read p.productArity number of arguments from command line
+          case _ => throw new Exception("Expecting only product here, ABORT!")
+        }
+
+        stream.println("#include \"%s\"".format(kernelFileName))
+        stream.println("// This file is automatically generated")
+        stream.println("int main(int argc, char **argv) {")
+        stream.println("  resourceInfo_t r;")
+        for (t: (String, String) <- argTypeList) {
+          stream.println("  " + t._2 + " " + t._1 + ";" )
+        }
+
+        stream.println("  if (argc <= " + argTypeList.length + ") {")
+        stream.println("    printf(\"Wrong number of args\\n\");")
+        stream.println("    exit(-1);")
+        stream.println("  }")
+        for (i: Int <- argTypeList.indices) {
+          stream.println("  " + argTypeList(i)._1 + " = atoi(argv[" + (i+1) + "]);" )
+        }
+
+        val kernelName = "kernel_" + codegen.quote(lhs)
+
+        val args = argTypeList map { i => i._1 } mkString(",")
+
+        stream.println("  Timer t;")
+        val numTries = 31
+        for (i <- 0 until numTries) {
+          stream.println("  t.start();")        
+          stream.println("  " + kernelName + "(" + "r," + args + ");")
+          stream.println("  t.stop();")        
+        }
+        
+        stream.println("  std::cout << t.getAvgElapsed() << std::endl;")
+        stream.println("  return 0;")
+        stream.println("}")
       }
+     
+      val stream_driver = new PrintWriter(new FileWriter("autotuneCode/auto_driver.cpp"))
+      generateDriver(lhs.asInstanceOf[Sym[Any]], irnode, stream_driver)
+      stream_driver.flush
 
-      val stream_createmat = new PrintWriter(new FileWriter("autotuneCode/kernelInit.cpp"))
+//      val stream_createmat = new PrintWriter(new FileWriter("autotuneCode/kernelInit.cpp"))
+//      codegen.withStream(stream_createmat) {
+//        // m1
+//        codegen.emitKernelHeader(List(lhs_m1.asInstanceOf[Sym[Any]]), List(M, P), List(), resType, false, false)
+//        codegen.emitNode(lhs_m1.asInstanceOf[Sym[Any]], irnode_m1)
+//        codegen.emitKernelFooter(List(lhs_m1.asInstanceOf[Sym[Any]]), List(M, P), List(), resType, false, false)
+//
+//        // m2
+//        codegen.emitKernelHeader(List(lhs_m2.asInstanceOf[Sym[Any]]), List(P, N), List(), resType, false, false)
+//        codegen.emitNode(lhs_m2.asInstanceOf[Sym[Any]], irnode_m2)
+//        codegen.emitKernelFooter(List(lhs_m2.asInstanceOf[Sym[Any]]), List(P, N), List(), resType, false, false)
+//
+//        // m3
+//        codegen.emitKernelHeader(List(lhs_m3.asInstanceOf[Sym[Any]]), List(M, N), List(), resType, false, false)
+//        codegen.emitNode(lhs_m3.asInstanceOf[Sym[Any]], irnode_m3)
+//        codegen.emitKernelFooter(List(lhs_m3.asInstanceOf[Sym[Any]]), List(M, N), List(), resType, false, false)
+//      }
 
-      codegen.withStream(stream_createmat) {
-        // m1
-        codegen.emitKernelHeader(List(lhs_m1.asInstanceOf[Sym[Any]]), List(M, P), List(), resType, false, false)
-        codegen.emitNode(lhs_m1.asInstanceOf[Sym[Any]], irnode_m1)
-        codegen.emitKernelFooter(List(lhs_m1.asInstanceOf[Sym[Any]]), List(M, P), List(), resType, false, false)
-
-        // m2
-        codegen.emitKernelHeader(List(lhs_m2.asInstanceOf[Sym[Any]]), List(P, N), List(), resType, false, false)
-        codegen.emitNode(lhs_m2.asInstanceOf[Sym[Any]], irnode_m2)
-        codegen.emitKernelFooter(List(lhs_m2.asInstanceOf[Sym[Any]]), List(P, N), List(), resType, false, false)
-
-        // m3
-        codegen.emitKernelHeader(List(lhs_m3.asInstanceOf[Sym[Any]]), List(M, N), List(), resType, false, false)
-        codegen.emitNode(lhs_m3.asInstanceOf[Sym[Any]], irnode_m3)
-        codegen.emitKernelFooter(List(lhs_m3.asInstanceOf[Sym[Any]]), List(M, N), List(), resType, false, false)
-
-      }
 
       throw new Exception("stop here")
       lhs

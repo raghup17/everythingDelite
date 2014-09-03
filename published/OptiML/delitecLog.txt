@@ -1,57 +1,41 @@
 Delite Application Being Staged:[MatMultCompiler$]
 ******Generating the program******
 autotuneEnabled = 
+[densematrix_object_apply] __arg0 
+Sym(239)
+[densematrix_object_apply] __arg1 
+Sym(240)
+[densematrix_object_apply] __arg0 
+Sym(240)
+[densematrix_object_apply] __arg1 
+Sym(241)
+[densematrix_object_apply] __arg0 
+Sym(239)
+[densematrix_object_apply] __arg1 
+Sym(241)
 [AUTOTUNER] Autotuner enabled, matmult
 [AUTOTUNER] Autotunable parameters at this level:
 [AUTOTUNER] #blocking levels, blockSize, double buffering, block location, transpose
-error: write to non-mutable Sym(241) -> None
-at Sym(336)=Reflect(StructUpdate(Sym(241),List(_data),List(Sym(277)),Sym(335)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(241)),List(Sym(241))),List())
-error: write to non-mutable Sym(241) -> None
-at Sym(338)=Reflect(Range_foreach(Sym(254),Sym(270),1,Block(Sym(337)),Sym(273)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(241)),List(Sym(241))),List())
-error: write to non-mutable Sym(241) -> None
-at Sym(340)=Reflect(Range_foreach(Sym(249),Sym(263),1,Block(Sym(339)),Sym(266)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(241)),List(Sym(241))),List())
-error: write to non-mutable Sym(241) -> None
-at Sym(342)=Reflect(Range_foreach(Const(0),Sym(256),4,Block(Sym(341)),Sym(259)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(241)),List(Sym(241))),List())
-error: write to non-mutable Sym(241) -> None
-at Sym(344)=Reflect(Range_foreach(Const(0),Sym(251),4,Block(Sym(343)),Sym(254)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(241)),List(Sym(241))),List())
-error: write to non-mutable Sym(241) -> None
-at Sym(346)=Reflect(Range_foreach(Const(0),Sym(246),4,Block(Sym(345)),Sym(249)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(241)),List(Sym(241))),List())
-error: write to non-mutable Sym(241) -> None
-at Sym(349)=Reflect(Densematrix_matmult_autotune(Sym(239),Sym(240),Sym(241)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(241)),List(Sym(241))),List())
+[inside case] lhs = 
+Sym(374)
+[outside case] lhs = 
+Sym(374)
 CGenDeliteOps::emitNode::DeliteOpSingleTask = Densematrix_matmult_autotune(Sym(239),Sym(240),Sym(241))
-[densematrix_object_apply] __arg0 
-Sym(350)
-[densematrix_object_apply] __arg1 
-Sym(351)
-[densematrix_object_apply] __arg0 
-Sym(351)
-[densematrix_object_apply] __arg1 
-Sym(352)
-[densematrix_object_apply] __arg0 
-Sym(350)
-[densematrix_object_apply] __arg1 
-Sym(352)
-CGenDeliteOps::emitNode::DeliteOpSingleTask = Densematrix_new(Sym(350),Sym(351))
-cppMemMgr = 
-malloc
-cppMemMgr = 
-malloc
-CGenDeliteOps::emitNode::DeliteOpSingleTask = Densematrix_new(Sym(351),Sym(352))
-cppMemMgr = 
-malloc
-cppMemMgr = 
-malloc
-CGenDeliteOps::emitNode::DeliteOpSingleTask = Densematrix_new(Sym(350),Sym(352))
-cppMemMgr = 
-malloc
-cppMemMgr = 
-malloc
+irnode:
+Densematrix_matmult_autotune(Sym(239),Sym(240),Sym(241))
+irnode is a product
+x239
+int32_t
+x240
+int32_t
+x241
+int32_t
 Exception in thread "main" java.lang.Exception: stop here
-	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2.apply(DenseMatrixOpsExp.scala:834)
-	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2.apply(DenseMatrixOpsExp.scala:766)
+	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2.apply(DenseMatrixOpsExp.scala:912)
+	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2.apply(DenseMatrixOpsExp.scala:774)
 	at scala.virtualization.lms.common.IfThenElse$class.__ifThenElse(IfThenElse.scala:13)
 	at MatMultCompiler$.__ifThenElse(MatMult.scala:4)
-	at optiml.compiler.ops.DenseMatrixOpsExp$class.densematrix_matmult(DenseMatrixOpsExp.scala:766)
+	at optiml.compiler.ops.DenseMatrixOpsExp$class.densematrix_matmult(DenseMatrixOpsExp.scala:774)
 	at MatMultCompiler$.optiml$compiler$ops$BLASOpsExp$$super$densematrix_matmult(MatMult.scala:4)
 	at optiml.compiler.ops.BLASOpsExp$$anonfun$densematrix_matmult$3.apply(BLASOpsExp.scala:72)
 	at optiml.compiler.ops.BLASOpsExp$$anonfun$densematrix_matmult$3.apply(BLASOpsExp.scala:72)
@@ -86,5 +70,5 @@ Exception in thread "main" java.lang.Exception: stop here
 	at MatMultCompiler$.main(MatMult.scala:4)
 	at MatMultCompiler.main(MatMult.scala)
 Option parsed successfully, Autotune is enabled
-==  Generating DEG file with options: {'profile': False, 'xdebug': False, 'no_multidimgpu': False, 'xnocache': False, 'jar_app': False, 'debug': False, 'opencl': False, 'no_fusion': False, 'build_dir': '/home/raghu/w/everythingDelite/published/OptiML', 'cluster': False, 'dump_exception': False, 'autotune': True, 'no_soa': False, 'cpp': True, 'no_blas': True, 'cuda': False, 'optimize': 0, 'verbose': False}
+==  Generating DEG file with options: {'profile': False, 'xdebug': False, 'no_multidimgpu': False, 'xnocache': False, 'jar_app': False, 'debug': False, 'opencl': False, 'no_fusion': False, 'build_dir': '/usr/local/google/home/raghuprabhakar/work/stanford/everythingDelite/published/OptiML', 'cluster': False, 'dump_exception': False, 'autotune': True, 'no_soa': False, 'cpp': True, 'no_blas': True, 'cuda': False, 'optimize': 0, 'verbose': False}
 error: Delite compilation failed

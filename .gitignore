@@ -19,7 +19,7 @@ project/plugins/project/
 .worksheet
 
 # Delite-specific
-autodriver.*
+auto*
 *.deg
 *.mybak
 generated/

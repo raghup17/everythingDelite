@@ -787,21 +787,64 @@ trait DenseMatrixOpsImpl {
   }
 
 
-  def densematrix_matmult_impl62a[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]], res: Rep[DenseMatrix[T]])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
-    // Allocation happening here - do not need this for autotuning!
-    //    val out = DenseMatrix[T](self.numRows, __arg1.numCols)
-    val out = res 
+//  def densematrix_matmult_impl62a[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]], res: Rep[DenseMatrix[T]])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
+//    // Allocation happening here - do not need this for autotuning!
+//    //    val out = DenseMatrix[T](self.numRows, __arg1.numCols)
+//    val out = res 
+//    if (Config.autotuneEnabled) {
+//      Console.println("[AUTOTUNER] Autotuner enabled, matmult")
+//      Console.println("[AUTOTUNER] Autotunable parameters at this level:")
+//      Console.println("[AUTOTUNER] #blocking levels, blockSize, double buffering, block location, transpose")
+//
+//      val M = self.numRows
+//      val P = self.numCols
+//      val N = __arg1.numCols
+//      val m = 4
+//      val p = 4
+//      val n = 4
+//
+//      unroll(1) (0, M, m) { blockm => {
+//        unroll(1) (0, N, n) { blockn => { 
+//          unroll(1) (0, P, p) { blockp => {
+//          
+//            unroll(1) (blockm, blockm+m, 1) { rowIdx => {
+//              unroll(1) (blockn ,blockn+n, 1) { colIdx => {
+//                var acc = out(rowIdx, colIdx)
+//                unroll(4) (blockp, blockp + p, 1) { tempIter => {
+//                  acc += self(rowIdx, tempIter) * __arg1(tempIter, colIdx)
+//                }}
+//                out(rowIdx, colIdx) = acc
+//              }}
+//            }}
+//          }}
+//        }}
+//      }}
+//
+//    }
+//    else {
+//      throw new Exception("Non-autotuned version should not use this implementation! ABORT!!")
+//    }
+//    out.unsafeImmutable
+//  }
+
+def densematrix_matmult_impl62a[T:Manifest](M: Rep[Int], P: Rep[Int], N: Rep[Int])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
+    val m1 = DenseMatrix[T](M, P)
+    val m2 = DenseMatrix[T](P, N)
+    val out = DenseMatrix[T](M, N)
+
     if (Config.autotuneEnabled) {
       Console.println("[AUTOTUNER] Autotuner enabled, matmult")
       Console.println("[AUTOTUNER] Autotunable parameters at this level:")
       Console.println("[AUTOTUNER] #blocking levels, blockSize, double buffering, block location, transpose")
 
-      val M = self.numRows
-      val P = self.numCols
-      val N = __arg1.numCols
       val m = 4
       val p = 4
       val n = 4
+
+      // Note: Don't add any prints here - that adds a 'Misc1_Println' node in the IR which has a 'Simple' summary. This
+      // inadvertently adds a dependency on previously created IR nodes, even if the string to be printed doesn't depend 
+      // on anything. If you are unconvinced, add a println("blah") and see how the generated code explodes in size due to
+      // all the dependencies
 
       unroll(1) (0, M, m) { blockm => {
         unroll(1) (0, N, n) { blockn => { 
@@ -811,7 +854,7 @@ trait DenseMatrixOpsImpl {
               unroll(1) (blockn ,blockn+n, 1) { colIdx => {
                 var acc = out(rowIdx, colIdx)
                 unroll(4) (blockp, blockp + p, 1) { tempIter => {
-                  acc += self(rowIdx, tempIter) * __arg1(tempIter, colIdx)
+                  acc += m1(rowIdx, tempIter) * m2(tempIter, colIdx)
                 }}
                 out(rowIdx, colIdx) = acc
               }}
@@ -823,22 +866,9 @@ trait DenseMatrixOpsImpl {
     }
     else {
       throw new Exception("Non-autotuned version should not use this implementation! ABORT!!")
-      val yT = __arg1.t
-    
-      for (rowIdx <- 0 until self.numRows) {
-        for (i <- 0 until __arg1.numCols) {
-          var acc = self(rowIdx, 0) * yT(i, 0)
-          for (j <- 1 until yT.numCols) {
-            acc += self(rowIdx, j) * yT(i, j)
-          }
-          out(rowIdx, i) = acc
-        }
-      }
-
     }
     out.unsafeImmutable
   }
-
 
   def densematrix_matmult_impl62[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
     fassert(self.numCols == __arg1.numRows, "dimension mismatch: matrix multiply")

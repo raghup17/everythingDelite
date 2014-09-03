@@ -2,6 +2,8 @@
 #define CPP_HELPERFUNCS_H
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <sys/time.h>
 #include <iostream>
 
 class cppDeliteArraydouble {
@@ -56,5 +58,46 @@ typedef struct {
   int socket_id;
 } resourceInfo_t;
 
+// Helper class to time kernels
+class Timer {
+  double uStart;
+  double uEnd;
+  double totalElapsed;
+  int count;
+  struct timeval t;
+
+public:
+  Timer() {
+    uStart = 0.0;
+    uEnd = 0.0;
+    count = 0;
+    totalElapsed = 0.0;
+  }
+
+  double getTimeInMicroSecs() {
+    double tmp = 0.0;
+    gettimeofday(&t, NULL);
+    tmp = t.tv_sec * 1000000.0 + t.tv_usec;
+    return tmp;
+  }
+  void start() {
+    count++;
+    uStart = getTimeInMicroSecs(); 
+  }
+
+  double stop() {
+    uEnd = getTimeInMicroSecs();
+    double elapsed = uEnd - uStart;
+    totalElapsed += elapsed;
+    if (elapsed < 0) {
+      std::cout << "TIMER ERROR: Overflow!" << std::endl;
+    }
+    return elapsed;
+  }
+
+  double getAvgElapsed() {
+    return totalElapsed / count;
+  }
+};
 
 #endif
