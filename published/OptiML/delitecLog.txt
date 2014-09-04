@@ -26,53 +26,84 @@ Sym(241)
 Not a symbol
 List(4, 4, 4, 1, 1, 1, 2, 2, 2)
 [make] make: Entering directory `/usr/local/google/home/raghuprabhakar/work/stanford/everythingDelite/published/OptiML/autotuneCode'
-sed -i.mybak s/new\ \(resourceInfo.thread_id\)/new/ auto_kernelcode.cpp 
-g++ -O3 auto_driver.cpp -o auto_driver.cpp.out
 make: Leaving directory `/usr/local/google/home/raghuprabhakar/work/stanford/everythingDelite/published/OptiML/autotuneCode'
 
 
-[run] 98087.1
+Score: List(4, 4, 4, 1, 1, 1, 2, 2, 2) - 101404.000000
+[densematrix_object_apply] __arg0 
+Sym(753)
+[densematrix_object_apply] __arg1 
+Sym(754)
+[densematrix_object_apply] __arg0 
+Sym(754)
+[densematrix_object_apply] __arg1 
+Sym(755)
+[densematrix_object_apply] __arg0 
+Sym(753)
+[densematrix_object_apply] __arg1 
+Sym(755)
+[AUTOTUNER] Autotuner enabled, matmult
+[AUTOTUNER] Autotunable parameters at this level:
+[AUTOTUNER] #blocking levels, blockSize, double buffering, block location, transpose
+CGenDeliteOps::emitNode::DeliteOpSingleTask = Densematrix_matmult_autotune(Sym(753),Sym(754),Sym(755),List(4, 4, 4, 1, 1, 1, 4, 2, 2))
+x is a symbol
+Sym(753)
+x is a symbol
+Sym(754)
+x is a symbol
+Sym(755)
+Not a symbol
+List(4, 4, 4, 1, 1, 1, 4, 2, 2)
+[make] make: Entering directory `/usr/local/google/home/raghuprabhakar/work/stanford/everythingDelite/published/OptiML/autotuneCode'
+make: Leaving directory `/usr/local/google/home/raghuprabhakar/work/stanford/everythingDelite/published/OptiML/autotuneCode'
 
 
-Exception in thread "main" java.lang.Exception: stop here
-	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2.apply(DenseMatrixOpsExp.scala:871)
-	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2.apply(DenseMatrixOpsExp.scala:791)
-	at scala.virtualization.lms.common.IfThenElse$class.__ifThenElse(IfThenElse.scala:13)
-	at MatMultCompiler$.__ifThenElse(MatMult.scala:4)
-	at optiml.compiler.ops.DenseMatrixOpsExp$class.densematrix_matmult(DenseMatrixOpsExp.scala:791)
-	at MatMultCompiler$.optiml$compiler$ops$BLASOpsExp$$super$densematrix_matmult(MatMult.scala:4)
-	at optiml.compiler.ops.BLASOpsExp$$anonfun$densematrix_matmult$3.apply(BLASOpsExp.scala:72)
-	at optiml.compiler.ops.BLASOpsExp$$anonfun$densematrix_matmult$3.apply(BLASOpsExp.scala:72)
-	at scala.virtualization.lms.common.IfThenElse$class.__ifThenElse(IfThenElse.scala:14)
-	at MatMultCompiler$.__ifThenElse(MatMult.scala:4)
-	at optiml.compiler.ops.BLASOpsExp$class.densematrix_matmult(BLASOpsExp.scala:64)
-	at MatMultCompiler$.densematrix_matmult(MatMult.scala:4)
-	at MatMultCompiler$.densematrix_matmult(MatMult.scala:4)
-	at optiml.shared.ops.DenseMatrixOps$DenseMatrixDenseMatrixDoubleOpsCls.$times(DenseMatrixOps.scala:174)
-	at MatMult$class.main(MatMult.scala:10)
-	at MatMultCompiler$.main(MatMult.scala:4)
-	at ppl.delite.framework.DeliteApplication$class.mainWithResult(DeliteApplication.scala:196)
-	at MatMultCompiler$.mainWithResult(MatMult.scala:4)
-	at ppl.delite.framework.DeliteApplication$class.liftedMain(DeliteApplication.scala:199)
-	at MatMultCompiler$.liftedMain(MatMult.scala:4)
-	at ppl.delite.framework.DeliteApplication$$anonfun$5.apply(DeliteApplication.scala:244)
-	at ppl.delite.framework.DeliteApplication$$anonfun$5.apply(DeliteApplication.scala:244)
-	at scala.virtualization.lms.internal.GenericCodegen$$anonfun$1.apply(GenericCodegen.scala:114)
-	at scala.virtualization.lms.internal.GenericCodegen$$anonfun$1.apply(GenericCodegen.scala:114)
-	at scala.virtualization.lms.internal.Expressions$class.reifySubGraph(Expressions.scala:128)
-	at MatMultCompiler$.reifySubGraph(MatMult.scala:4)
-	at scala.virtualization.lms.internal.Effects$class.reifyEffects(Effects.scala:581)
-	at MatMultCompiler$.reifyEffects(MatMult.scala:4)
-	at scala.virtualization.lms.internal.NestedBlockTraversal$class.reifyBlock(BlockTraversal.scala:41)
-	at ppl.delite.framework.DeliteApplication$$anon$1.reifyBlock(DeliteApplication.scala:52)
-	at ppl.delite.framework.DeliteApplication$$anon$1.reifyBlock(DeliteApplication.scala:52)
-	at scala.virtualization.lms.internal.GenericCodegen$class.emitSource(GenericCodegen.scala:114)
-	at ppl.delite.framework.DeliteApplication$$anon$1.emitSource(DeliteApplication.scala:52)
-	at ppl.delite.framework.DeliteApplication$class.emitRegisteredSource(DeliteApplication.scala:236)
-	at MatMultCompiler$.emitRegisteredSource(MatMult.scala:4)
-	at ppl.delite.framework.DeliteApplication$class.main(DeliteApplication.scala:134)
-	at MatMultCompiler$.main(MatMult.scala:4)
-	at MatMultCompiler.main(MatMult.scala)
+Score: List(4, 4, 4, 1, 1, 1, 4, 2, 2) - 97397.200000
+[densematrix_object_apply] __arg0 
+Sym(1559)
+[densematrix_object_apply] __arg1 
+Sym(1560)
+[densematrix_object_apply] __arg0 
+Sym(1560)
+[densematrix_object_apply] __arg1 
+Sym(1561)
+[densematrix_object_apply] __arg0 
+Sym(1559)
+[densematrix_object_apply] __arg1 
+Sym(1561)
+[AUTOTUNER] Autotuner enabled, matmult
+[AUTOTUNER] Autotunable parameters at this level:
+[AUTOTUNER] #blocking levels, blockSize, double buffering, block location, transpose
+CGenDeliteOps::emitNode::DeliteOpSingleTask = Densematrix_matmult_autotune(Sym(1559),Sym(1560),Sym(1561),List(4, 4, 4, 1, 1, 1, 4, 4, 4))
+x is a symbol
+Sym(1559)
+x is a symbol
+Sym(1560)
+x is a symbol
+Sym(1561)
+Not a symbol
+List(4, 4, 4, 1, 1, 1, 4, 4, 4)
+[make] make: Entering directory `/usr/local/google/home/raghuprabhakar/work/stanford/everythingDelite/published/OptiML/autotuneCode'
+make: Leaving directory `/usr/local/google/home/raghuprabhakar/work/stanford/everythingDelite/published/OptiML/autotuneCode'
+
+
+Score: List(4, 4, 4, 1, 1, 1, 4, 4, 4) - 99522.700000
+[densematrix_object_apply] __arg0 
+Sym(3235)
+[densematrix_object_apply] __arg1 
+Sym(3236)
+[densematrix_object_apply] __arg0 
+Sym(3236)
+[densematrix_object_apply] __arg1 
+Sym(3237)
+[densematrix_object_apply] __arg0 
+Sym(3235)
+[densematrix_object_apply] __arg1 
+Sym(3237)
+[AUTOTUNER] Autotuner enabled, matmult
+[AUTOTUNER] Autotunable parameters at this level:
+[AUTOTUNER] #blocking levels, blockSize, double buffering, block location, transpose
+CGenDeliteOps::emitNode::DeliteOpSingleTask = Densematrix_matmult_autotune(Sym(3235),Sym(3236),Sym(3237),List(4, 4, 4, 1, 1, 1, 8, 8, 8))
 Option parsed successfully, Autotune is enabled
 ==  Generating DEG file with options: {'profile': False, 'xdebug': False, 'no_multidimgpu': False, 'xnocache': False, 'jar_app': False, 'debug': False, 'opencl': False, 'no_fusion': False, 'build_dir': '/usr/local/google/home/raghuprabhakar/work/stanford/everythingDelite/published/OptiML', 'cluster': False, 'dump_exception': False, 'autotune': True, 'no_soa': False, 'cpp': True, 'no_blas': True, 'cuda': False, 'optimize': 0, 'verbose': False}
 error: Delite compilation failed

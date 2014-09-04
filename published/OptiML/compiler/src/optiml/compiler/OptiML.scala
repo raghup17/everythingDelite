@@ -252,15 +252,15 @@ trait OptiMLCodegenC extends OptiMLCodegenBase
           val tmp = iter.next
           tmp match {
             case x: IR.Sym[Any] => 
-              Console.println("x is a symbol")
-              Console.println(x)
+//              Console.println("x is a symbol")
+//              Console.println(x)
 //              val v = tmp.asInstanceOf[IR.Sym[Any]]
               val arg = quote(x)
               val tpe = remap(x.tp)
               argTypeList.append((arg, tpe))
             case y: Any =>
-              Console.println("Not a symbol")
-              Console.println(y)
+//              Console.println("Not a symbol")
+//              Console.println(y)
             case _ =>
               throw new Exception("Unknown type, don't know what I'm dealing with. ABORT!")
           }

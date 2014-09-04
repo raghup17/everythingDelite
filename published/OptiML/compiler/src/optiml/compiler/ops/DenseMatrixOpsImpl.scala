@@ -588,128 +588,6 @@ trait DenseMatrixOpsImpl {
 //    C
 //  }
 
-//  def autotune[ARGTYPE,T,RESTYPE](f: List[ARGTYPE] => Tunable[T] => RESTYPE, f_gold: List[ARGTYPE] => RESTYPE)
-//  															 (input: List[ARGTYPE])
-//  															 (tunable: Tunable[T]): Unit = {
-//
-//    // Some autotuning constants
-//    val numGenerations = 100
-//    val populationSize = 10
-//    val invalidScore = Long.MaxValue
-//
-//    // Correct output
-//    val resGold = f_gold(input)
-//
-//    // Population of tunables: map maintains score of each tunable
-//    var population = Map[Tunable[T],Long]()
-//    var populationCache = Set[Tunable[T]]()
-//
-//    // Initialize population with random 'tunable' parameters
-//    for (i <- 0 until populationSize) {
-//      var t = tunable.getnew
-//      while (populationCache contains t) {
-//        t = tunable.getnew
-//      }
-//      populationCache += t
-//      population += (t -> invalidScore)
-//    }
-//
-//    // Genetic search for 'numGenerations' generations
-//    for (gen <- 0 until numGenerations) {
-//      println("Generation %d".format(gen))
-//
-//      // Profile run each of the tunables in population
-//      for (t <- population.keySet) {
-//        var elapsedTimes = List[Long]()
-//        for (i <- 0 to 5) {
-//          val t1 = System.nanoTime
-//          val res = f(input)(t)
-//          val t2 = System.nanoTime
-//          if (res equals resGold) {
-//            val elapsedTime = t2 - t1
-//            elapsedTimes ::= elapsedTime
-//          }
-//          else {
-//            throw new Exception("Results don't match, aborting!")
-//          }
-//        }
-//        println("[" + t + "]" + "elapsedTimes: " + elapsedTimes.sorted)
-//        val elapsedMedian = elapsedTimes.sorted.apply(elapsedTimes.length/2)
-//        population += (t -> elapsedMedian)
-//      }
-//
-//      // Get sorted list of tunables by rank
-//      val popList = population.toList
-//      val sortedTupleList = popList sortBy { _._2 }
-//      val sortedTunables = sortedTupleList map { x => x._1 }
-//
-//      // Time for deletions - keep only the top half
-//      val bestList = sortedTunables take (populationSize/2)
-//  
-//      // Remove the bottom entries from the population map
-//      val badTunables = sortedTunables diff bestList
-//      for (bad <- badTunables) {
-//        population -= bad
-//      }
-//
-//      // We need to make up new members of population
-//      val numNew = badTunables.length
-//      val numMutation = numNew/2 
-//      val numCrossovers = 1 
-//      val numRandomNew = numNew - numMutation - numCrossovers
-//
-//      // Crossovers
-//      val crossoverList = (for (i <- 0 until numCrossovers) yield {
-//          val t1 = bestList(Util.positiveRand % bestList.length)
-//          val t2 = bestList(Util.positiveRand % bestList.length)  // TODO: Could be the same as t1 !
-//          var res = t1 crossOver t2
-//
-//          while (populationCache contains res) {
-//            val t1 = bestList(Util.positiveRand % bestList.length)
-//            val t2 = bestList(Util.positiveRand % bestList.length)  // TODO: Could be the same as t1 !
-//            res = t1 crossOver t2
-//          }
-//          populationCache += res
-//          res
-//      }).toList
-//
-//      // Mutations - restricting to upper half of bestList tunables
-//      val mutationList = (for (i <- 0 until numMutation) yield {
-//        val t1 = bestList(Util.positiveRand % bestList.length/2)
-//        var res = t1.mutate
-//        while (populationCache contains res) {
-//          val t1 = bestList(Util.positiveRand % bestList.length/2)
-//          res = t1.mutate
-//        }
-//        populationCache += res
-//        res
-//      }).toList
-//
-//      // - completely random tunables
-//      val newList = (for (i <- 0 until numNew) yield {
-//        var res = tunable.getnew
-//        while (populationCache contains res) {
-//          res = tunable.getnew
-//        }
-//        populationCache += res
-//        res
-//      }).toList
-//      
-//      // Add all the new guys into population
-//      val newMembers = crossoverList ::: mutationList ::: newList
-////      val newMembers = newList
-//      for (t <- newMembers) {
-//          population += (t -> invalidScore)
-//      }
-//      println("\tBest so far: " + bestList(0) + " -> " + population(bestList(0)))
-//    }  // End for loop on generations
-//
-//    // Get sorted list of tunables by rank
-//    val popList = population.toList
-//    val sortedTupleList = popList sortBy { _._2 }
-//    val sortedTunables = sortedTupleList map { x => x._1 }
-//    println("Best tunables order" + sortedTupleList)
-//  }
 
   def unroll(unrollFactor: scala.Int)(loopStart: Rep[Int], loopEnd: Rep[Int], step: Int)(body: Rep[Int] => scala.Unit) = {
     val iterCount = (loopEnd-loopStart)
@@ -833,9 +711,9 @@ def densematrix_matmult_impl62a[T:Manifest](M: Rep[Int], P: Rep[Int], N: Rep[Int
     val out = DenseMatrix[T](M, N)
 
     if (Config.autotuneEnabled) {
-      Console.println("[AUTOTUNER] Autotuner enabled, matmult")
-      Console.println("[AUTOTUNER] Autotunable parameters at this level:")
-      Console.println("[AUTOTUNER] #blocking levels, blockSize, double buffering, block location, transpose")
+//      Console.println("[AUTOTUNER] Autotuner enabled, matmult")
+//      Console.println("[AUTOTUNER] Autotunable parameters at this level:")
+//      Console.println("[AUTOTUNER] #blocking levels, blockSize, double buffering, block location, transpose")
 
       val m: scala.Int = tunables(0)
       val p: scala.Int = tunables(1)

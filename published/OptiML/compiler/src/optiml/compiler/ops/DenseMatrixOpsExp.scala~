@@ -820,9 +820,9 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
 
         // Generate Makefile code
         val stream_makefile = new PrintWriter(new FileWriter("%s/Makefile".format(genFolderName)))
-        executableNum += 1
+	executableNum += 1
         val makefileStr="""
-all: clean
+all:
 	sed -i.mybak s/new\ \(resourceInfo.thread_id\)/new/ %s 
 	g++ -O3 %s -o %s.%d.out
 
@@ -842,7 +842,7 @@ clean:
         val arg1 = sizes(1).toString
         val arg2 = sizes(2).toString
         Console.println("[run]")
-        val nativeRunCmd = scala.Array("%s/%s.%d.out".format(genFolderName, driverFileName, executableNum), arg0, arg1, arg2)
+        val nativeRunCmd = scala.Array("%s/%s.out".format(genFolderName, driverFileName), arg0, arg1, arg2)
         val nativeRunOut = runThis(nativeRunCmd)
         nativeRunOut.toDouble
       }
