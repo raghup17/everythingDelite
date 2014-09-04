@@ -219,7 +219,7 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
     override def autotune = Config.autotuneEnabled
   }
 
-  case class Densematrix_matmult_autotune[T:Manifest](M: Rep[Int], P: Rep[Int], N: Rep[Int])(implicit val __pos: SourceContext,val __imp0: Arith[T]) extends DeliteOpSingleTask[DenseMatrix[T]](reifyEffectsHere(densematrix_matmult_impl62a[T](M, P, N)(implicitly[Manifest[T]],__pos,__imp0))) {
+  case class Densematrix_matmult_autotune[T:Manifest](M: Rep[Int], P: Rep[Int], N: Rep[Int], tunables: scala.List[scala.Int])(implicit val __pos: SourceContext,val __imp0: Arith[T]) extends DeliteOpSingleTask[DenseMatrix[T]](reifyEffectsHere(densematrix_matmult_impl62a[T](M, P, N)(tunables)(implicitly[Manifest[T]],__pos,__imp0))) {
     val _mT = implicitly[Manifest[T]]
 
     override def autotune = Config.autotuneEnabled
@@ -789,39 +789,40 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
 
   def densematrix_matmult[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]])(implicit __pos: SourceContext,__imp0: Arith[T]) = {
     if (Config.autotuneEnabled) {
-      // Codegen to generate matrices
-      val M = fresh[Int]
-      val P = fresh[Int]
-      val N = fresh[Int]
-
-      // Creates IR nodes to perform m3 = m1 x m2 for the given Tunable parameters
-      val lhs = reflectPure(Densematrix_matmult_autotune[T](M, P, N)(implicitly[Manifest[T]],__pos,__imp0))
-      val stm = findDefinition(lhs.asInstanceOf[Sym[Any]]).get
-      val irnode = stm match {
-        case TP(lhs: Sym[Any], rhs: Def[Any]) => rhs
-      }
-
+      // Code generator initialization
       val genFolderName="autotuneCode"
       val kernelFileName="auto_kernelcode.cpp"
       val driverFileName="auto_driver.cpp"
-
-      // Code generator initialization
       val codegen = new OptiMLCodegenC{val IR: DenseMatrixOpsExp.this.type = DenseMatrixOpsExp.this} 
       codegen.headerStream = new PrintWriter(new FileWriter("%s/avoidNullptrException.h".format(genFolderName)))
+ 
+      // Get the set of tunable parameters
+      val tunables = scala.List(4,4,4,1,1,1,2,2,2)
+
+      // Create IR nodes to perform m3 = m1 x m2 for the given tunables 
+      val M = fresh[Int]
+      val P = fresh[Int]
+      val N = fresh[Int]
+      val lhs = reflectPure(Densematrix_matmult_autotune[T](M, P, N, tunables)(implicitly[Manifest[T]],__pos,__imp0))
+      val lhs_sym = lhs.asInstanceOf[Sym[Any]]
+      val stm = findDefinition(lhs_sym).get
+      val irnode = stm match {
+        case TP(lhs: Sym[Any], rhs: Def[Any]) => rhs
+      }
       val resType = codegen.remap(lhs.tp)
 
       // Generate kernel code
       val stream = new PrintWriter(new FileWriter("%s/%s".format(genFolderName, kernelFileName)))
       codegen.withStream(stream) {
-        codegen.emitKernelHeader(List(lhs.asInstanceOf[Sym[Any]]), List(M, P, N), List(), resType, false, false)
-        codegen.emitNode(lhs.asInstanceOf[Sym[Any]], irnode)
-        codegen.emitKernelFooter(List(lhs.asInstanceOf[Sym[Any]]), List(M, P, N), List(), resType, false, false)
+        codegen.emitKernelHeader(List(lhs_sym), List(M, P, N), List(), resType, false, false)
+        codegen.emitNode(lhs_sym, irnode)
+        codegen.emitKernelFooter(List(lhs_sym), List(M, P, N), List(), resType, false, false)
       }
 
       // Generate driver code
       val stream_driver = new PrintWriter(new FileWriter("%s/%s".format(genFolderName, driverFileName)))
       
-      codegen.generateDriver(lhs.asInstanceOf[Sym[Any]], irnode, stream_driver, kernelFileName)
+      codegen.generateDriver(lhs_sym, irnode, stream_driver, kernelFileName)
       stream_driver.flush
 
       // Generate Makefile code

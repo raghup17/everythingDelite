@@ -827,7 +827,7 @@ trait DenseMatrixOpsImpl {
 //    out.unsafeImmutable
 //  }
 
-def densematrix_matmult_impl62a[T:Manifest](M: Rep[Int], P: Rep[Int], N: Rep[Int])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
+def densematrix_matmult_impl62a[T:Manifest](M: Rep[Int], P: Rep[Int], N: Rep[Int])(tunables: scala.List[scala.Int])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
     val m1 = DenseMatrix[T](M, P)
     val m2 = DenseMatrix[T](P, N)
     val out = DenseMatrix[T](M, N)
@@ -837,23 +837,32 @@ def densematrix_matmult_impl62a[T:Manifest](M: Rep[Int], P: Rep[Int], N: Rep[Int
       Console.println("[AUTOTUNER] Autotunable parameters at this level:")
       Console.println("[AUTOTUNER] #blocking levels, blockSize, double buffering, block location, transpose")
 
-      val m = 4
-      val p = 4
-      val n = 4
+      val m: scala.Int = tunables(0)
+      val p: scala.Int = tunables(1)
+      val n: scala.Int = tunables(2)
+
+      val u1: scala.Int = tunables(3)
+      val u2: scala.Int = tunables(4)
+      val u3: scala.Int = tunables(5)
+      val u4: scala.Int = tunables(6)
+      val u5: scala.Int = tunables(7)
+      val u6: scala.Int = tunables(8)
+
+        
 
       // Note: Don't add any prints here - that adds a 'Misc1_Println' node in the IR which has a 'Simple' summary. This
       // inadvertently adds a dependency on previously created IR nodes, even if the string to be printed doesn't depend 
       // on anything. If you are unconvinced, add a println("blah") and see how the generated code explodes in size due to
       // all the dependencies
 
-      unroll(1) (0, M, m) { blockm => {
-        unroll(1) (0, N, n) { blockn => { 
-          unroll(1) (0, P, p) { blockp => {
+      unroll(u1) (0, M, m) { blockm => {
+        unroll(u2) (0, N, n) { blockn => { 
+          unroll(u3) (0, P, p) { blockp => {
           
-            unroll(1) (blockm, blockm+m, 1) { rowIdx => {
-              unroll(1) (blockn ,blockn+n, 1) { colIdx => {
+            unroll(u4) (blockm, blockm+m, 1) { rowIdx => {
+              unroll(u5) (blockn ,blockn+n, 1) { colIdx => {
                 var acc = out(rowIdx, colIdx)
-                unroll(4) (blockp, blockp + p, 1) { tempIter => {
+                unroll(u6) (blockp, blockp + p, 1) { tempIter => {
                   acc += m1(rowIdx, tempIter) * m2(tempIter, colIdx)
                 }}
                 out(rowIdx, colIdx) = acc

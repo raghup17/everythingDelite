@@ -16,18 +16,26 @@ Sym(241)
 [AUTOTUNER] Autotuner enabled, matmult
 [AUTOTUNER] Autotunable parameters at this level:
 [AUTOTUNER] #blocking levels, blockSize, double buffering, block location, transpose
-CGenDeliteOps::emitNode::DeliteOpSingleTask = Densematrix_matmult_autotune(Sym(239),Sym(240),Sym(241))
+CGenDeliteOps::emitNode::DeliteOpSingleTask = Densematrix_matmult_autotune(Sym(239),Sym(240),Sym(241),List(4, 4, 4, 1, 1, 1, 2, 2, 2))
+x is a symbol
+Sym(239)
+x is a symbol
+Sym(240)
+x is a symbol
+Sym(241)
+Not a symbol
+List(4, 4, 4, 1, 1, 1, 2, 2, 2)
 [make] make: Entering directory `/usr/local/google/home/raghuprabhakar/work/stanford/everythingDelite/published/OptiML/autotuneCode'
 sed -i.mybak s/new\ \(resourceInfo.thread_id\)/new/ auto_kernelcode.cpp 
 g++ -O3 auto_driver.cpp -o auto_driver.cpp.out
 make: Leaving directory `/usr/local/google/home/raghuprabhakar/work/stanford/everythingDelite/published/OptiML/autotuneCode'
 
 
-[run] 87239.8
+[run] 98087.1
 
 
 Exception in thread "main" java.lang.Exception: stop here
-	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2.apply(DenseMatrixOpsExp.scala:870)
+	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2.apply(DenseMatrixOpsExp.scala:871)
 	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2.apply(DenseMatrixOpsExp.scala:791)
 	at scala.virtualization.lms.common.IfThenElse$class.__ifThenElse(IfThenElse.scala:13)
 	at MatMultCompiler$.__ifThenElse(MatMult.scala:4)

@@ -246,11 +246,25 @@ trait OptiMLCodegenC extends OptiMLCodegenBase
       case p: Product => 
         val iter = p.productIterator
         while (iter.hasNext) {
-          val v = iter.next.asInstanceOf[IR.Sym[Any]]
-          val arg = quote(v)
-          val tpe = remap(v.tp)
-          argTypeList.append((arg, tpe))
-        }
+          // Value parameters of case classes will have both symbols, which are 'Rep' typed inputs
+          // as well as tunable parameters, which can be resolved at staging time. 
+          // Pattern match here so that only the Rep typed symbols are counted.
+          val tmp = iter.next
+          tmp match {
+            case x: IR.Sym[Any] => 
+              Console.println("x is a symbol")
+              Console.println(x)
+//              val v = tmp.asInstanceOf[IR.Sym[Any]]
+              val arg = quote(x)
+              val tpe = remap(x.tp)
+              argTypeList.append((arg, tpe))
+            case y: Any =>
+              Console.println("Not a symbol")
+              Console.println(y)
+            case _ =>
+              throw new Exception("Unknown type, don't know what I'm dealing with. ABORT!")
+          }
+                  }
         // Main function needs to read p.productArity number of arguments from command line
       case _ => throw new Exception("Expecting only product here, ABORT!")
     }
