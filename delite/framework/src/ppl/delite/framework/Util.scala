@@ -1,6 +1,7 @@
 package ppl.delite.framework
 
 import java.io.File
+import scala.util.Random
 
 object Util {
 
@@ -23,4 +24,6 @@ object Util {
       superIsSub || x.getInterfaces().exists(s=>isSubtype(s,cls))
     }
   }      
+
+  def positiveRand() = Math.abs(Random.nextInt)
 }

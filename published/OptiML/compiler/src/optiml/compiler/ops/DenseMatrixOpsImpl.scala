@@ -705,7 +705,7 @@ trait DenseMatrixOpsImpl {
 //    out.unsafeImmutable
 //  }
 
-def densematrix_matmult_impl62a[T:Manifest](M: Rep[Int], P: Rep[Int], N: Rep[Int])(tunables: scala.List[scala.Int])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
+def densematrix_matmult_impl62a[T:Manifest](M: Rep[Int], P: Rep[Int], N: Rep[Int])(tunables: Tunable[scala.Int])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
     val m1 = DenseMatrix[T](M, P)
     val m2 = DenseMatrix[T](P, N)
     val out = DenseMatrix[T](M, N)

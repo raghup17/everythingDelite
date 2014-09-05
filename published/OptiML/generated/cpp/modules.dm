@@ -1,2 +1,0 @@
-datastructures:
-kernels:datastructures

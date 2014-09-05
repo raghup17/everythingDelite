@@ -24,6 +24,7 @@ public:
   }
 
   void update(int idx, double  val) {
+ //   std::cout << "Updating " << idx << std::endl;
     data[idx] = val;
   }
 
