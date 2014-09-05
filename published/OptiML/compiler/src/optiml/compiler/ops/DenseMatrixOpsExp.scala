@@ -963,7 +963,7 @@ clean:
 //    //      Console.println("new list: " + newList)
 //    //      Console.println("New population: " + newPop)
           Console.println("Pop adjustment end")
-//          Console.println("\tBest so far: %s -> %s".format(bestList(0).toString, population(bestList(0)).toString))
+          Console.println("\tBest so far: %s -> %s".format(bestList(0).toString, population(bestList(0)).toString))
         }  // End for loop on generations
 
         // Get sorted list of tunables by rank
@@ -986,14 +986,30 @@ clean:
       }
 
       // Get the set of tunable parameters
+      def factors(n: Int) = {
+          (1 to Math.sqrt(n).toInt) filter (n % _ == 0) flatMap { x => List(x,n/x) } sorted
+        }
+    
+      def getBlockSizes(M: Int) = {
+        (for (i <- factors(M)) yield i).toList
+      } 
+
       val tunables: scala.List[scala.List[scala.Int]] = scala.List(
             scala.List(32,32,32,1,1,1,1,1,1)
                     )
 
-      val sizes = List(1024, 1024, 1024)
-//      autotune2(matrixMult)(sizes)(tunables)
+      val mdim = 1024
+      val pdim = 1024
+      val ndim = 1024
       
-
+      // Tunables order:
+      // (bm, bp, bn, u1, u2, u3, u4, u5, u6)
+      val bmRange = getBlockSizes(mdim)
+      val bpRange = getBlockSizes(pdim)
+      val bnRange = getBlockSizes(ndim)
+      autotune2(matrixMult)(sizes)(tunables)
+      
+      
 //      val stream_createmat = new PrintWriter(new FileWriter("autotuneCode/kernelInit.cpp"))
 //      codegen.withStream(stream_createmat) {
 //        // m1
