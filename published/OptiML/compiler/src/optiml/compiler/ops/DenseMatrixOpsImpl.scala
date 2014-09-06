@@ -705,10 +705,14 @@ trait DenseMatrixOpsImpl {
 //    out.unsafeImmutable
 //  }
 
-def densematrix_matmult_impl62a[T:Manifest](M: Rep[Int], P: Rep[Int], N: Rep[Int])(tunables: Tunable[scala.Int])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
-    val m1 = DenseMatrix[T](M, P)
-    val m2 = DenseMatrix[T](P, N)
-    val out = DenseMatrix[T](M, N)
+def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[DenseMatrix[T]], out: Rep[DenseMatrix[T]])(tunables: Tunable[scala.Int])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
+//    val m1 = DenseMatrix[T](M, P)
+//    val m2 = DenseMatrix[T](P, N)
+//    val out = DenseMatrix[T](M, N)
+
+    val M = m1.numRows
+    val P = m1.numCols
+    val N = m2.numRows
 
     if (Config.autotuneEnabled) {
 //      Console.println("[AUTOTUNER] Autotuner enabled, matmult")
@@ -719,14 +723,19 @@ def densematrix_matmult_impl62a[T:Manifest](M: Rep[Int], P: Rep[Int], N: Rep[Int
       val p: scala.Int = tunables(1)
       val n: scala.Int = tunables(2)
 
-      val u1: scala.Int = tunables(3)
-      val u2: scala.Int = tunables(4)
-      val u3: scala.Int = tunables(5)
-      val u4: scala.Int = tunables(6)
-      val u5: scala.Int = tunables(7)
-      val u6: scala.Int = tunables(8)
+//      val u1: scala.Int = tunables(3)
+//      val u2: scala.Int = tunables(4)
+//      val u3: scala.Int = tunables(5)
+//      val u4: scala.Int = tunables(6)
+//      val u5: scala.Int = tunables(7)
+//      val u6: scala.Int = tunables(8)
 
-        
+      val u1: scala.Int = 1 
+      val u2: scala.Int = 1 
+      val u3: scala.Int = 1 
+      val u4: scala.Int = 1 
+      val u5: scala.Int = 1 
+      val u6: scala.Int = 1
 
       // Note: Don't add any prints here - that adds a 'Misc1_Println' node in the IR which has a 'Simple' summary. This
       // inadvertently adds a dependency on previously created IR nodes, even if the string to be printed doesn't depend 
