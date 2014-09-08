@@ -2,7 +2,11 @@
 *.log
 *.swp
 *.pyc
-*.tags*
+*.tagsShared
+*.tagsComp
+*.tags
+*.tagsFramework
+*.tagsRuntime
 # sbt specific
 .cache/
 .history/
