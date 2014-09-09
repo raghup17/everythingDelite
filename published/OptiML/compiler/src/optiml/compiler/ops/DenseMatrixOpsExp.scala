@@ -1118,12 +1118,12 @@ clean:
       val ndim = 128 
       val sizes = List(mdim, pdim, ndim) 
       val tunables = getTunablesFromMatSizes(mdim, pdim, ndim)
-//      val bestTunable = autotune2(matrixMult)(sizes)(tunables)
+      val bestTunable = autotune2(matrixMult)(sizes)(tunables)
       
-      val bestTunable = tunables      
 //      val out = reflectPure(Densematrix_new[T](self.numRows, __arg1.numCols)(implicitly[Manifest[T]],__pos,__imp0))
-//      reflectPure(Densematrix_matmult_autotune[T](self, __arg1, out, bestTunable)(implicitly[Manifest[T]],__pos,__imp0))
-      reflectPure(Densematrix_matmult_autotune3[T](self, __arg1)(implicitly[Manifest[T]],__pos,__imp0))
+      val out = fresh[DenseMatrix[T]] 
+      reflectPure(Densematrix_matmult_autotune[T](self, __arg1, out, bestTunable)(implicitly[Manifest[T]],__pos,__imp0))
+//      reflectPure(Densematrix_matmult_autotune3[T](self, __arg1)(implicitly[Manifest[T]],__pos,__imp0))
 //      reflectPure(Densematrix_matmult[T](self,__arg1)(implicitly[Manifest[T]],__pos,__imp0))
     }
     else {
@@ -1399,8 +1399,16 @@ clean:
     case mn@Densematrix_matmult(__arg0,__arg1) => reflectPure(new { override val original = Some(f,mn) } with Densematrix_matmult(f(__arg0),f(__arg1))(mtype(mn._mT),mn.__pos,atype(mn.__imp0)))(mtype(manifest[A]), pos)
     case Reflect(mn@Densematrix_matmult(__arg0,__arg1), u, es) => reflectMirrored(Reflect(new { override val original = Some(f,mn) } with Densematrix_matmult(f(__arg0),f(__arg1))(mtype(mn._mT),mn.__pos,atype(mn.__imp0)), mapOver(f,u), f(es)))(mtype(manifest[A]), pos)
 //      TODO: Should I add cases for Densematrix_matmult_autotune here?
-    case mn@Densematrix_matmult_autotune(__arg0, __arg1, __arg2, tunables) => throw new Exception("backtrace?")
-//    case Reflect(mn@Densematrix_matmult_autotune(__arg0, __arg1, u, es) =>
+    case mn@Densematrix_new(__arg0,__arg1) => reflectPure(new { override val original = Some(f,mn) } with Densematrix_new(f(__arg0),f(__arg1))(mtype(mn._mT),mn.__pos,atype(mn.__imp0)))(mtype(manifest[A]), pos)
+
+    case Reflect(mn@Densematrix_new(__arg0,__arg1), u, es) => reflectMirrored(Reflect(new { override val original = Some(f,mn) } with Densematrix_new(f(__arg0),f(__arg1))(mtype(mn._mT),mn.__pos,atype(mn.__imp0)), mapOver(f,u), f(es)))(mtype(manifest[A]), pos)
+
+    case mn@Densematrix_matmult_autotune(__arg0,__arg1, __arg2, tunables) => reflectPure(new { override val original = Some(f,mn) } with Densematrix_matmult_autotune(f(__arg0),f(__arg1), f(__arg2), tunables)(mtype(mn._mT),mn.__pos,atype(mn.__imp0)))(mtype(manifest[A]), pos)
+    case Reflect(mn@Densematrix_matmult_autotune(__arg0,__arg1, __arg2, tunables), u, es) => reflectMirrored(Reflect(new { override val original = Some(f,mn) } with Densematrix_matmult_autotune(f(__arg0),f(__arg1), f(__arg2), tunables)(mtype(mn._mT),mn.__pos,atype(mn.__imp0)), mapOver(f,u), f(es)))(mtype(manifest[A]), pos)
+
+    case mn@Densematrix_matmult_autotune3(__arg0,__arg1) => reflectPure(new { override val original = Some(f,mn) } with Densematrix_matmult_autotune3(f(__arg0),f(__arg1))(mtype(mn._mT),mn.__pos,atype(mn.__imp0)))(mtype(manifest[A]), pos)
+    case Reflect(mn@Densematrix_matmult_autotune3(__arg0,__arg1), u, es) => reflectMirrored(Reflect(new { override val original = Some(f,mn) } with Densematrix_matmult_autotune3(f(__arg0),f(__arg1))(mtype(mn._mT),mn.__pos,atype(mn.__imp0)), mapOver(f,u), f(es)))(mtype(manifest[A]), pos)
+
     case mn@Densematrix_matvecmult(__arg0,__arg1) => reflectPure(new { override val original = Some(f,mn) } with Densematrix_matvecmult(f(__arg0),f(__arg1))(mtype(mn._mT),mn.__pos,atype(mn.__imp0)))(mtype(manifest[A]), pos)
     case Reflect(mn@Densematrix_matvecmult(__arg0,__arg1), u, es) => reflectMirrored(Reflect(new { override val original = Some(f,mn) } with Densematrix_matvecmult(f(__arg0),f(__arg1))(mtype(mn._mT),mn.__pos,atype(mn.__imp0)), mapOver(f,u), f(es)))(mtype(manifest[A]), pos)
     case mn@DenseMatrix59_Div(__arg0,__arg1) => reflectPure(new { override val original = Some(f,mn) } with DenseMatrix59_Div(f(__arg0),f(__arg1))(mtype(mn._mT),mn.__pos,atype(mn.__imp0)))(mtype(manifest[A]), pos)
