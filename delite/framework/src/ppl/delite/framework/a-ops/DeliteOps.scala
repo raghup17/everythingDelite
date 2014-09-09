@@ -4195,16 +4195,24 @@ trait CGenDeliteOps extends CGenLoopsFat with GenericGenDeliteOps {
     stream.println
   }
 
+  // Gross hack for autotune mode - if a symbol has already been codegen'ed before, don't codegen it again
+//  var symsAlreadySeen = Set[Sym[Any]]()
   override def emitNode(sym: Sym[Any], rhs: Def[Any]) = rhs match {
     case s:DeliteOpSingleTask[_] =>
       //printlog("EMIT single "+s)
       // always wrap single tasks in methods to reduce JIT compilation unit size
-      Console.println("CGenDeliteOps::emitNode::DeliteOpSingleTask = " + s)
-      val b = s.block
-      emitBlock(b)
-      if (!isVoidType(sym.tp)) { 
-        stream.println(remap(sym.tp) + addRef(sym.tp) + quote(sym) + " = " + quote(getBlockResult(b)) + ";")
+      if (Config.autotuneEnabled) {
+        Console.println("CGenDeliteOps::emitNode::DeliteOpSingleTask = " + s)
       }
+//      if (!Config.autotuneEnabled ||
+//          (Config.autotuneEnabled && !symsAlreadySeen.contains(sym))) {
+//        symsAlreadySeen += sym
+        val b = s.block
+        emitBlock(b)
+        if (!isVoidType(sym.tp)) { 
+          stream.println(remap(sym.tp) + addRef(sym.tp) + quote(sym) + " = " + quote(getBlockResult(b)) + ";")
+        }
+//      }
 
     case op: AbstractLoop[_] =>
       // TODO: we'd like to always have fat loops but currently they are not allowed to have effects

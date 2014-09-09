@@ -1,108 +1,174 @@
 Delite Application Being Staged:[MatMultCompiler$]
 ******Generating the program******
-autotuneEnabled = 
-Generation 0
-population.keySet.size = 10
-error: write to non-mutable Sym(241) -> None
-at Sym(301)=Reflect(StructUpdate(Sym(241),List(_data),List(Sym(277)),Sym(300)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(241)),List(Sym(241))),List())
-error: write to non-mutable Sym(241) -> None
-at Sym(303)=Reflect(Range_foreach(Sym(254),Sym(270),1,Block(Sym(302)),Sym(273)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(241)),List(Sym(241))),List())
-error: write to non-mutable Sym(241) -> None
-at Sym(305)=Reflect(Range_foreach(Sym(249),Sym(263),1,Block(Sym(304)),Sym(266)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(241)),List(Sym(241))),List())
-error: write to non-mutable Sym(241) -> None
-at Sym(307)=Reflect(Range_foreach(Const(0),Sym(256),8,Block(Sym(306)),Sym(259)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(241)),List(Sym(241))),List())
-error: write to non-mutable Sym(241) -> None
-at Sym(309)=Reflect(Range_foreach(Const(0),Sym(251),8,Block(Sym(308)),Sym(254)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(241)),List(Sym(241))),List())
-error: write to non-mutable Sym(241) -> None
-at Sym(311)=Reflect(Range_foreach(Const(0),Sym(246),128,Block(Sym(310)),Sym(249)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(241)),List(Sym(241))),List())
-error: write to non-mutable Sym(241) -> None
-at Sym(314)=Reflect(Densematrix_matmult_autotune(Sym(239),Sym(240),Sym(241),List(128, 8, 8)),Summary(false,false,false,false,false,false,List(),List(),List(Sym(241)),List(Sym(241))),List())
-irnode = Densematrix_matmult_autotune(Sym(239),Sym(240),Sym(241),List(128, 8, 8))
-tmp = Sym(239)
-x is a symbol
-Sym(239)
-tmp = Sym(240)
-x is a symbol
-Sym(240)
-tmp = Sym(241)
-x is a symbol
-Sym(241)
-tmp = List(128, 8, 8)
-Not a symbol
-List(128, 8, 8)
-CGenDeliteOps::emitNode::DeliteOpSingleTask = Densematrix_matmult_autotune(Sym(239),Sym(240),Sym(241),List(128, 8, 8))
-Trying to get IR node for Sym(239)
-Was Sym(239) defined as a fresh? Doesn't have an IR node
-Trying to get IR node for Sym(240)
-Was Sym(240) defined as a fresh? Doesn't have an IR node
-Trying to get IR node for Sym(241)
-Was Sym(241) defined as a fresh? Doesn't have an IR node
-Exception in thread "main" java.io.IOException: Cannot run program "autotuneCode/auto_driver.cpp.0.out": error=2, No such file or directory
-	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1041)
-	at java.lang.Runtime.exec(Runtime.java:617)
-	at java.lang.Runtime.exec(Runtime.java:485)
-	at optiml.compiler.ops.DenseMatrixOpsExp$class.runThis(DenseMatrixOpsExp.scala:770)
-	at MatMultCompiler$.runThis(MatMult.scala:4)
-	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2.optiml$compiler$ops$DenseMatrixOpsExp$class$$anonfun$$matrixMult$1(DenseMatrixOpsExp.scala:881)
-	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2$$anonfun$72$$anonfun$apply$32.apply(DenseMatrixOpsExp.scala:1037)
-	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2$$anonfun$72$$anonfun$apply$32.apply(DenseMatrixOpsExp.scala:1037)
-	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2$$anonfun$autotune2$1$2$$anonfun$apply$27.apply(DenseMatrixOpsExp.scala:916)
-	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2$$anonfun$autotune2$1$2$$anonfun$apply$27.apply(DenseMatrixOpsExp.scala:915)
-	at scala.collection.TraversableLike$WithFilter$$anonfun$foreach$1.apply(TraversableLike.scala:772)
-	at scala.collection.Iterator$class.foreach(Iterator.scala:727)
-	at scala.collection.AbstractIterator.foreach(Iterator.scala:1157)
-	at scala.collection.MapLike$DefaultKeySet.foreach(MapLike.scala:174)
-	at scala.collection.TraversableLike$WithFilter.foreach(TraversableLike.scala:771)
-	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2$$anonfun$autotune2$1$2.apply(DenseMatrixOpsExp.scala:915)
-	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2$$anonfun$autotune2$1$2.apply(DenseMatrixOpsExp.scala:910)
-	at scala.Function1$class.apply$mcVI$sp(Function1.scala:39)
-	at scala.runtime.AbstractFunction1.apply$mcVI$sp(AbstractFunction1.scala:12)
-	at scala.collection.immutable.Range.foreach$mVc$sp(Range.scala:141)
-	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2.autotune2$1(DenseMatrixOpsExp.scala:910)
-	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2.apply(DenseMatrixOpsExp.scala:1037)
-	at optiml.compiler.ops.DenseMatrixOpsExp$$anonfun$densematrix_matmult$2.apply(DenseMatrixOpsExp.scala:786)
-	at scala.virtualization.lms.common.IfThenElse$class.__ifThenElse(IfThenElse.scala:13)
-	at MatMultCompiler$.__ifThenElse(MatMult.scala:4)
-	at optiml.compiler.ops.DenseMatrixOpsExp$class.densematrix_matmult(DenseMatrixOpsExp.scala:786)
-	at MatMultCompiler$.optiml$compiler$ops$BLASOpsExp$$super$densematrix_matmult(MatMult.scala:4)
-	at optiml.compiler.ops.BLASOpsExp$$anonfun$densematrix_matmult$3.apply(BLASOpsExp.scala:72)
-	at optiml.compiler.ops.BLASOpsExp$$anonfun$densematrix_matmult$3.apply(BLASOpsExp.scala:72)
-	at scala.virtualization.lms.common.IfThenElse$class.__ifThenElse(IfThenElse.scala:14)
-	at MatMultCompiler$.__ifThenElse(MatMult.scala:4)
-	at optiml.compiler.ops.BLASOpsExp$class.densematrix_matmult(BLASOpsExp.scala:64)
-	at MatMultCompiler$.densematrix_matmult(MatMult.scala:4)
-	at MatMultCompiler$.densematrix_matmult(MatMult.scala:4)
-	at optiml.shared.ops.DenseMatrixOps$DenseMatrixDenseMatrixDoubleOpsCls.$times(DenseMatrixOps.scala:174)
-	at MatMult$class.main(MatMult.scala:10)
-	at MatMultCompiler$.main(MatMult.scala:4)
-	at ppl.delite.framework.DeliteApplication$class.mainWithResult(DeliteApplication.scala:196)
-	at MatMultCompiler$.mainWithResult(MatMult.scala:4)
-	at ppl.delite.framework.DeliteApplication$class.liftedMain(DeliteApplication.scala:199)
-	at MatMultCompiler$.liftedMain(MatMult.scala:4)
-	at ppl.delite.framework.DeliteApplication$$anonfun$5.apply(DeliteApplication.scala:244)
-	at ppl.delite.framework.DeliteApplication$$anonfun$5.apply(DeliteApplication.scala:244)
-	at scala.virtualization.lms.internal.GenericCodegen$$anonfun$1.apply(GenericCodegen.scala:114)
-	at scala.virtualization.lms.internal.GenericCodegen$$anonfun$1.apply(GenericCodegen.scala:114)
-	at scala.virtualization.lms.internal.Expressions$class.reifySubGraph(Expressions.scala:128)
-	at MatMultCompiler$.reifySubGraph(MatMult.scala:4)
-	at scala.virtualization.lms.internal.Effects$class.reifyEffects(Effects.scala:581)
-	at MatMultCompiler$.reifyEffects(MatMult.scala:4)
-	at scala.virtualization.lms.internal.NestedBlockTraversal$class.reifyBlock(BlockTraversal.scala:41)
-	at ppl.delite.framework.DeliteApplication$$anon$1.reifyBlock(DeliteApplication.scala:52)
-	at ppl.delite.framework.DeliteApplication$$anon$1.reifyBlock(DeliteApplication.scala:52)
-	at scala.virtualization.lms.internal.GenericCodegen$class.emitSource(GenericCodegen.scala:114)
-	at ppl.delite.framework.DeliteApplication$$anon$1.emitSource(DeliteApplication.scala:52)
-	at ppl.delite.framework.DeliteApplication$class.emitRegisteredSource(DeliteApplication.scala:236)
-	at MatMultCompiler$.emitRegisteredSource(MatMult.scala:4)
-	at ppl.delite.framework.DeliteApplication$class.main(DeliteApplication.scala:134)
-	at MatMultCompiler$.main(MatMult.scala:4)
-	at MatMultCompiler.main(MatMult.scala)
-Caused by: java.io.IOException: error=2, No such file or directory
-	at java.lang.UNIXProcess.forkAndExec(Native Method)
-	at java.lang.UNIXProcess.<init>(UNIXProcess.java:186)
-	at java.lang.ProcessImpl.start(ProcessImpl.java:130)
-	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1022)
-	... 58 more
-Option parsed successfully, Autotune is enabled
-==  Generating DEG file with options: {'profile': False, 'xdebug': False, 'no_multidimgpu': False, 'xnocache': False, 'jar_app': False, 'debug': False, 'opencl': False, 'no_fusion': False, 'build_dir': '/usr/local/google/home/raghuprabhakar/work/stanford/everythingDelite/published/OptiML', 'cluster': False, 'dump_exception': False, 'autotune': True, 'no_soa': False, 'cpp': False, 'no_blas': True, 'cuda': False, 'optimize': 0, 'verbose': False}
-error: Delite compilation failed
+autotuneEnabled = false
+[raghu] [genEmitNode] sym = List(Sym(1)), rhs = ArrayApply(Sym(0),Const(0))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(1)), rhs = ArrayApply(Sym(0),Const(0))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(108)), rhs = ReadFirstLine(Sym(1))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(108)), rhs = ReadFirstLine(Sym(1))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(109)), rhs = FString2_Trim(Sym(108))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(109)), rhs = FString2_Trim(Sym(108))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(110)), rhs = ArrayStringSplit(Sym(109),Const(\s+),Const(0))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(110)), rhs = ArrayStringSplit(Sym(109),Const(\s+),Const(0))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(111)), rhs = DeliteArrayLength(Sym(110))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(111)), rhs = DeliteArrayLength(Sym(110))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(116)), rhs = ObjectUnsafeImmutable(Sym(111))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(116)), rhs = ObjectUnsafeImmutable(Sym(111))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(2)), rhs = DeliteFileStreamNew(WrappedArray(Sym(1)))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(2)), rhs = DeliteFileStreamNew(WrappedArray(Sym(1)))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(3)), rhs = DeliteFileStreamNumThreads(Sym(2))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(3)), rhs = DeliteFileStreamNumThreads(Sym(2))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(591)), rhs = SimpleFatLoop(Sym(3),Sym(4),List(DeliteCollectElem(Block(Sym(66)),List(),ParSimpleBuffer,DeliteBufferElem(Sym(68),Sym(69),Sym(67),Sym(72),Sym(70),Sym(71),Block(Sym(511)),Block(Sym(513)),Block(Sym(515)),Block(Const(true)),Block(Sym(531)),Block(Sym(539)),Block(Sym(541)),Block(Sym(543)),Block(Sym(67))),Some(Block(Sym(590))),Some(Sym(63)),Some(Block(Sym(65))),Some(Sym(64)),0)))
+[raghu] [genEmitNode] sym = List(Sym(591)), rhs = SimpleFatLoop(Sym(3),Sym(4),List(DeliteCollectElem(Block(Sym(66)),List(),ParSimpleBuffer,DeliteBufferElem(Sym(68),Sym(69),Sym(67),Sym(72),Sym(70),Sym(71),Block(Sym(511)),Block(Sym(513)),Block(Sym(515)),Block(Const(true)),Block(Sym(531)),Block(Sym(539)),Block(Sym(541)),Block(Sym(543)),Block(Sym(67))),Some(Block(Sym(590))),Some(Sym(63)),Some(Block(Sym(65))),Some(Sym(64)),0)))
+[raghu] [genEmitNode] sym = List(Sym(592)), rhs = DeliteArrayLength(Sym(591))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(592)), rhs = DeliteArrayLength(Sym(591))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(593)), rhs = Primitive2_Forge_int_divide(Sym(592),Sym(111))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(593)), rhs = Primitive2_Forge_int_divide(Sym(592),Sym(111))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(594)), rhs = ObjectUnsafeImmutable(Sym(593))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(594)), rhs = ObjectUnsafeImmutable(Sym(593))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(595)), rhs = ObjectUnsafeImmutable(Sym(591))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(595)), rhs = ObjectUnsafeImmutable(Sym(591))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(596)), rhs = SimpleStruct(ClassTag(DenseMatrixDouble),List((_numRows,Sym(594)), (_numCols,Sym(116)), (_data,Sym(595))))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(596)), rhs = SimpleStruct(ClassTag(DenseMatrixDouble),List((_numRows,Sym(594)), (_numCols,Sym(116)), (_data,Sym(595))))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(597)), rhs = LAio3_ReadMatrix(Sym(1),<function1>,Const(\s+))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(597)), rhs = LAio3_ReadMatrix(Sym(1),<function1>,Const(\s+))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(120)), rhs = ArrayApply(Sym(0),Const(1))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(120)), rhs = ArrayApply(Sym(0),Const(1))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(227)), rhs = ReadFirstLine(Sym(120))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(227)), rhs = ReadFirstLine(Sym(120))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(228)), rhs = FString2_Trim(Sym(227))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(228)), rhs = FString2_Trim(Sym(227))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(229)), rhs = ArrayStringSplit(Sym(228),Const(\s+),Const(0))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(229)), rhs = ArrayStringSplit(Sym(228),Const(\s+),Const(0))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(230)), rhs = DeliteArrayLength(Sym(229))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(230)), rhs = DeliteArrayLength(Sym(229))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(235)), rhs = ObjectUnsafeImmutable(Sym(230))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(235)), rhs = ObjectUnsafeImmutable(Sym(230))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(121)), rhs = DeliteFileStreamNew(WrappedArray(Sym(120)))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(121)), rhs = DeliteFileStreamNew(WrappedArray(Sym(120)))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(122)), rhs = DeliteFileStreamNumThreads(Sym(121))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(122)), rhs = DeliteFileStreamNumThreads(Sym(121))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(681)), rhs = SimpleFatLoop(Sym(122),Sym(123),List(DeliteCollectElem(Block(Sym(185)),List(),ParSimpleBuffer,DeliteBufferElem(Sym(187),Sym(188),Sym(186),Sym(191),Sym(189),Sym(190),Block(Sym(601)),Block(Sym(603)),Block(Sym(605)),Block(Const(true)),Block(Sym(621)),Block(Sym(629)),Block(Sym(631)),Block(Sym(633)),Block(Sym(186))),Some(Block(Sym(680))),Some(Sym(182)),Some(Block(Sym(184))),Some(Sym(183)),0)))
+[raghu] [genEmitNode] sym = List(Sym(681)), rhs = SimpleFatLoop(Sym(122),Sym(123),List(DeliteCollectElem(Block(Sym(185)),List(),ParSimpleBuffer,DeliteBufferElem(Sym(187),Sym(188),Sym(186),Sym(191),Sym(189),Sym(190),Block(Sym(601)),Block(Sym(603)),Block(Sym(605)),Block(Const(true)),Block(Sym(621)),Block(Sym(629)),Block(Sym(631)),Block(Sym(633)),Block(Sym(186))),Some(Block(Sym(680))),Some(Sym(182)),Some(Block(Sym(184))),Some(Sym(183)),0)))
+[raghu] [genEmitNode] sym = List(Sym(682)), rhs = DeliteArrayLength(Sym(681))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(682)), rhs = DeliteArrayLength(Sym(681))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(683)), rhs = Primitive2_Forge_int_divide(Sym(682),Sym(230))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(683)), rhs = Primitive2_Forge_int_divide(Sym(682),Sym(230))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(684)), rhs = ObjectUnsafeImmutable(Sym(683))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(684)), rhs = ObjectUnsafeImmutable(Sym(683))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(685)), rhs = ObjectUnsafeImmutable(Sym(681))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(685)), rhs = ObjectUnsafeImmutable(Sym(681))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(686)), rhs = SimpleStruct(ClassTag(DenseMatrixDouble),List((_numRows,Sym(684)), (_numCols,Sym(235)), (_data,Sym(685))))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(686)), rhs = SimpleStruct(ClassTag(DenseMatrixDouble),List((_numRows,Sym(684)), (_numCols,Sym(235)), (_data,Sym(685))))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(687)), rhs = LAio3_ReadMatrix(Sym(120),<function1>,Const(\s+))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(687)), rhs = LAio3_ReadMatrix(Sym(120),<function1>,Const(\s+))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(688)), rhs = FieldApply(Sym(597),_numRows)
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(688)), rhs = FieldApply(Sym(597),_numRows)
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(689)), rhs = FieldApply(Sym(687),_numCols)
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(689)), rhs = FieldApply(Sym(687),_numCols)
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(690)), rhs = IntTimes(Sym(688),Sym(689))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(690)), rhs = IntTimes(Sym(688),Sym(689))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(691)), rhs = FieldApply(Sym(597),_data)
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(691)), rhs = FieldApply(Sym(597),_data)
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(692)), rhs = FieldApply(Sym(597),_numCols)
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(692)), rhs = FieldApply(Sym(597),_numCols)
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(693)), rhs = FieldApply(Sym(687),_numRows)
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(693)), rhs = FieldApply(Sym(687),_numRows)
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(694)), rhs = IntTimes(Sym(689),Sym(693))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(694)), rhs = IntTimes(Sym(689),Sym(693))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(695)), rhs = FieldApply(Sym(687),_data)
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(695)), rhs = FieldApply(Sym(687),_data)
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(832)), rhs = Densematrix_matmult(Sym(597),Sym(687))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(832)), rhs = Densematrix_matmult(Sym(597),Sym(687))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(833)), rhs = Ordering218___equal(Sym(832),Const(null))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(833)), rhs = Ordering218___equal(Sym(832),Const(null))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(921)), rhs = DenseMatrix5_MakeString(Sym(832))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(921)), rhs = DenseMatrix5_MakeString(Sym(832))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(922)), rhs = FString49_Pl(Sym(921),Const(
+))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(922)), rhs = FString49_Pl(Sym(921),Const(
+))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(923)), rhs = Misc1_Println(Sym(922))
+Def[Any]
+[raghu] [genEmitNode] sym = List(Sym(923)), rhs = Misc1_Println(Sym(922))
+Def[Any]
+==  Generating DEG file with options: {'profile': False, 'xdebug': False, 'no_multidimgpu': False, 'xnocache': False, 'jar_app': False, 'debug': False, 'opencl': False, 'no_fusion': False, 'build_dir': '/usr/local/google/home/raghuprabhakar/work/stanford/everythingDelite/published/OptiML', 'cluster': False, 'dump_exception': False, 'autotune': False, 'no_soa': False, 'cpp': True, 'no_blas': True, 'cuda': False, 'optimize': 0, 'verbose': False}

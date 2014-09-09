@@ -2,6 +2,7 @@ package ppl.delite.framework.codegen.delite.overrides
 
 import ppl.delite.framework.ops.DeliteOpsExp
 import ppl.delite.framework.datastructures.ScalaGenDeliteStruct
+ import ppl.delite.framework.Config
 
 trait DeliteAllOverridesExp extends DeliteIfThenElseExp /*with DeliteOpMap*/ with DeliteWhileExp {
   this: DeliteOpsExp =>
@@ -36,4 +37,21 @@ trait DeliteOpenCLGenAllOverrides extends DeliteOpenCLGenVariables with DeliteOp
 
 trait DeliteCGenAllOverrides extends DeliteCGenVariables with DeliteCGenIfThenElse /*with DeliteCGenRange*/ with DeliteCGenWhile  {
   val IR: DeliteAllOverridesExp
+//  import IR._
+  // Gross hack for autotune mode - if a symbol has already been codegen'ed before, don't codegen it again
+//  var symsAlreadySeen = Set[Sym[Any]]()
+//
+//  override def emitNode(sym: Sym[Any], rhs: Def[Any]) = {
+//    if (Config.autotuneEnabled) {
+//      if (!symsAlreadySeen.contains(sym)) {
+//        Console.println("Emitting code for symbol %s".format(sym))
+//        symsAlreadySeen += sym
+//        super.emitNode(sym, rhs)
+//      }
+//    }
+//    else {
+//      super.emitNode(sym, rhs)
+//    }
+//  }
+  
 }

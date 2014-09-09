@@ -76,6 +76,8 @@ class Tunable[T](val tunable: scala.List[T], val geneList: scala.List[scala.List
     }
     new Tunable[T](newTunable.reverse, geneList)
 	}
+
+  def mkString(s: String) = this.tunable.mkString(s)
  
 	def getnew() = {
 		var newTunable =  scala.List[T]()
