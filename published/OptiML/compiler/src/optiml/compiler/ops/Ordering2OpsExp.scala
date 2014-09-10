@@ -233,7 +233,6 @@ trait CGenOrdering2Ops extends CGenFat {
         if (Config.traceEmitNode)
         Console.println("CGenOrdering2Ops::emitNode::Ordering2_Lt")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
-        stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" < "+quote(__arg1)+"")
         stream.println(";")
 

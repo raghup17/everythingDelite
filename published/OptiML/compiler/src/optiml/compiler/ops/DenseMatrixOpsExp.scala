@@ -798,8 +798,6 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
   def densematrix_matmult[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]])(implicit __pos: SourceContext,__imp0: Arith[T]) = {
     if (Config.autotuneEnabled) {
       // Code generator initialization
-      val symNumber = fresh[Int]
-      Console.println("Every symbol after %s must be purged in each autotune iteration".format(symNumber))
       val genFolderName="autotuneCode"
       val kernelFileName="auto_kernelcode.cpp"
       val driverFileName="auto_driver.cpp"
@@ -976,6 +974,8 @@ clean:
       def autotune2(f: scala.List[scala.Int] => Tunable[scala.Int] => scala.Double)
                                      (input: scala.List[scala.Int])
                                      (tunable: Tunable[Int]): Tunable[Int] = {
+        val symNumber = fresh[Int]
+        Console.println("Every symbol after %s must be purged in each autotune iteration".format(symNumber))
 
         // Some autotuning constants
         val numGenerations = 1
@@ -1121,6 +1121,7 @@ clean:
         val sortedTupleList = popList sortBy { _._2 }
         val sortedTunables = sortedTupleList map { x => x._1 }
         Console.println("Best tunables order: %s".format(sortedTupleList.toString))
+        purgeSymFromAll(symNumber)
         sortedTunables(0)
       }
 
@@ -1149,14 +1150,8 @@ clean:
       val sizes = List(mdim, pdim, ndim) 
       val tunables = getTunablesFromMatSizes(mdim, pdim, ndim)
       val bestTunable = autotune2(matrixMult)(sizes)(tunables)
-      Console.println("globalDefsCache before")
-      printSymStms
-      purgeSymFromAll(symNumber)
-      Console.println("globalDefsCache after")
-      printSymStms
       
       val out = reflectPure(Densematrix_new[T](self.numRows, __arg1.numCols)(implicitly[Manifest[T]],__pos,__imp0))
-      Console.println("out = %s".format(out))
 //      val out = fresh[DenseMatrix[T]] 
       reflectPure(Densematrix_matmult_autotune[T](self, __arg1, out, bestTunable)(implicitly[Manifest[T]],__pos,__imp0))
 //      reflectPure(Densematrix_matmult_autotune3[T](self, __arg1)(implicitly[Manifest[T]],__pos,__imp0))
@@ -1201,7 +1196,6 @@ clean:
             case _ => y
           }
         }
-        Console.println("Coming here")
         val stream2 = new PrintWriter(new FileWriter("del_code2.cpp"))
         codegen.withStream(stream2) {
           codegen.emitKernelHeader(List(lhs_sym), List(m1.asInstanceOf[Sym[Any]], m2.asInstanceOf[Sym[Any]]), List(), resType, false, false)

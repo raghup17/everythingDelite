@@ -179,13 +179,13 @@ trait Expressions extends Utils {
 //    }
 
     for (i <- fromNvars until currentNvars) {
-      Console.println("Finding symbol %d".format(i))
+//      Console.println("Finding symbol %d".format(i))
       val sym = Sym[T](i)
       // Remove from globalDefsCache
       val stm = globalDefsCache.get(sym)
       stm match {
         case Some(s) =>
-          Console.println("Removing symbol %d".format(i))
+//          Console.println("Removing symbol %d".format(i))
           globalDefsCache -= sym
           globalDefs = globalDefs diff List(s)
           localDefs = localDefs diff List(s)

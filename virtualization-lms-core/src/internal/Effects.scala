@@ -512,8 +512,8 @@ trait Effects extends Expressions with Blocks with Utils {
       val writeDeps = if (write.isEmpty) Nil else scope filter { case e@Def(Reflect(_, u, _)) => mayWrite(u, write) || write.contains(e) }
       val simpleDeps = if (!u.maySimple) Nil else scope filter { case e@Def(Reflect(_, u, _)) => u.maySimple }
       val controlDeps = if (!u.control) Nil else scope filter { case e@Def(Reflect(_, u, _)) => u.control }
-      Console.println("[calculateDependencies] scope = %s".format(scope))
-      Console.println("[calculateDependencies] summary = %s".format(u))
+//      Console.println("[calculateDependencies] scope = %s".format(scope))
+//      Console.println("[calculateDependencies] summary = %s".format(u))
       val globalDeps = scope filter { case e@Def(Reflect(_, u, _)) => u.mayGlobal }
 
       // TODO: write-on-read deps should be weak
@@ -544,12 +544,18 @@ trait Effects extends Expressions with Blocks with Utils {
   }
 
   def purgeSymFromAll[T:Manifest](from:Sym[T]) = {
+    // Remove from context
+    val currentNvars = nVars
+    val fromNvars = from.id
+//    Console.println("[purgeSymFromAll] before: %s".format(context))
+    for (i <- fromNvars until currentNvars) {
+      val sym = Sym[T](i)
+      context = context diff List(sym)
+    }
+
+//    Console.println("[purgeSymFromAll] after: %s".format(context))
     // Remove from globalDefsCache, globalDefs, localDefs
     purgeAndReset(from)
-
-    // Remove from context
-    context = context diff List(from)
-
   }
 
   def checkContext() {
