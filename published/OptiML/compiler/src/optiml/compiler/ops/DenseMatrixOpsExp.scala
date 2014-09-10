@@ -215,7 +215,6 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
 
   case class Densematrix_matmult[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]])(implicit val __pos: SourceContext,val __imp0: Arith[T]) extends DeliteOpSingleTask[DenseMatrix[T]](reifyEffectsHere(densematrix_matmult_impl62[T](self,__arg1)(implicitly[Manifest[T]],__pos,__imp0))) {
     val _mT = implicitly[Manifest[T]]
-
     override def autotune = Config.autotuneEnabled
   }
 
@@ -799,6 +798,8 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
   def densematrix_matmult[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]])(implicit __pos: SourceContext,__imp0: Arith[T]) = {
     if (Config.autotuneEnabled) {
       // Code generator initialization
+      val symNumber = fresh[Int]
+      Console.println("Every symbol after %s must be purged in each autotune iteration".format(symNumber))
       val genFolderName="autotuneCode"
       val kernelFileName="auto_kernelcode.cpp"
       val driverFileName="auto_driver.cpp"
@@ -818,13 +819,20 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
         val M = fresh[Int]
         val P = fresh[Int]
         val N = fresh[Int]
-        val m1 = reflectPure(Densematrix_new[T](M, P)(implicitly[Manifest[T]],__pos,__imp0))
         val m1_fresh = fresh[DenseMatrix[T]]
-        val m2 = reflectPure(Densematrix_new[T](P, N)(implicitly[Manifest[T]],__pos,__imp0))
         val m2_fresh = fresh[DenseMatrix[T]]
-        val out = reflectPure(Densematrix_new[T](M, N)(implicitly[Manifest[T]],__pos,__imp0))
         val out_fresh = fresh[DenseMatrix[T]]
+
+        val m1 = reflectPure(Densematrix_new[T](M, P)(implicitly[Manifest[T]],__pos,__imp0))
+        val m2 = reflectPure(Densematrix_new[T](P, N)(implicitly[Manifest[T]],__pos,__imp0))
+        val out = reflectPure(Densematrix_new[T](M, N)(implicitly[Manifest[T]],__pos,__imp0))
         val lhs = reflectPure(Densematrix_matmult_autotune[T](m1_fresh, m2_fresh, out_fresh, tunables)(implicitly[Manifest[T]],__pos,__imp0))
+
+
+        Console.println("Just created %s".format(m1))
+        Console.println("Just created %s".format(m2))
+        Console.println("Just created %s".format(out))
+        Console.println("Just created %s".format(lhs))
 
         // There must be a better way to do this because:
         // 1. Basic functionality - find the definition, given a symbol. The 'rhs' operator isn't working
@@ -843,6 +851,13 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
           irnode
         }
 
+        def getDepsFromIRNode(irnode: Def[Any]): List[Exp[Any]] = {
+          irnode match {
+            case Reflect(_, _, deps) => deps
+            case _ => List[Exp[Any]]() 
+          }
+        }
+
         val m1_sym = m1.asInstanceOf[Sym[Any]]
         val m2_sym = m2.asInstanceOf[Sym[Any]]
         val out_sym = out.asInstanceOf[Sym[Any]]
@@ -851,6 +866,19 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
         val irnode_m1 = getIRNode(m1_sym)
         val irnode_m2 = getIRNode(m2_sym)
         val irnode_out = getIRNode(out_sym)
+
+
+//        var listToBeErased: List[Sym[Any]] = List[Sym[Any]]()
+
+        val m1Deps = getDepsFromIRNode(irnode_m1)
+        val m2Deps = getDepsFromIRNode(irnode_m2)
+        val outDeps = getDepsFromIRNode(irnode_out)
+        val irnodeDeps = getDepsFromIRNode(irnode)
+
+        Console.println("m1Deps = %s".format(m1Deps))
+        Console.println("m2Deps = %s".format(m2Deps))
+        Console.println("outDeps = %s".format(outDeps))
+        Console.println("irnodeDeps = %s".format(irnodeDeps))
 
 //        Console.println("irnode = %s".format(irnode.toString))
 //        irnode match {
@@ -929,16 +957,18 @@ clean:
         // Compile the native code
         val nativeCompileCmd = scala.Array("make", "-C", folderName)
         val nativeCompileOut = runThis(nativeCompileCmd)
-        Console.println("[make] %s".format(nativeCompileOut))
+//        Console.println("[make] %s".format(nativeCompileOut))
 
         // Run the native code
         val arg0 = sizes(0).toString
         val arg1 = sizes(1).toString
         val arg2 = sizes(2).toString
         val nativeRunCmd = scala.Array("%s/%s.%d.out".format(folderName, driverFileName, executableNum), arg0, arg1, arg2)
-        Console.println("[run] %s".format(nativeRunCmd))
+//        Console.println("[run] %s".format(nativeRunCmd))
         val nativeRunOut = runThis(nativeRunCmd)
-        Console.println("[run] %s".format(nativeRunOut))
+//        Console.println("[run] %s".format(nativeRunOut))
+
+        // reset symbol table
         nativeRunOut.toDouble
       }
       
@@ -1119,15 +1149,68 @@ clean:
       val sizes = List(mdim, pdim, ndim) 
       val tunables = getTunablesFromMatSizes(mdim, pdim, ndim)
       val bestTunable = autotune2(matrixMult)(sizes)(tunables)
+      Console.println("globalDefsCache before")
+      printSymStms
+      purgeSymFromAll(symNumber)
+      Console.println("globalDefsCache after")
+      printSymStms
       
-//      val out = reflectPure(Densematrix_new[T](self.numRows, __arg1.numCols)(implicitly[Manifest[T]],__pos,__imp0))
-      val out = fresh[DenseMatrix[T]] 
+      val out = reflectPure(Densematrix_new[T](self.numRows, __arg1.numCols)(implicitly[Manifest[T]],__pos,__imp0))
+      Console.println("out = %s".format(out))
+//      val out = fresh[DenseMatrix[T]] 
       reflectPure(Densematrix_matmult_autotune[T](self, __arg1, out, bestTunable)(implicitly[Manifest[T]],__pos,__imp0))
 //      reflectPure(Densematrix_matmult_autotune3[T](self, __arg1)(implicitly[Manifest[T]],__pos,__imp0))
 //      reflectPure(Densematrix_matmult[T](self,__arg1)(implicitly[Manifest[T]],__pos,__imp0))
     }
     else {
-      reflectPure(Densematrix_matmult[T](self,__arg1)(implicitly[Manifest[T]],__pos,__imp0))
+        val m1 = fresh[DenseMatrix[T]]
+        val m2 = fresh[DenseMatrix[T]]
+//        val (result, defs) = reifySubGraph(densematrix_matmult_impl62c[T](m1, m2)(implicitly[Manifest[T]],__pos,__imp0))
+//        Console.println("result = %s".format(result.toString))
+//        Console.println("defs = %s".format(defs.toString))
+ 
+        // Attempt to codegen
+        val codegen = new OptiMLCodegenC{val IR: DenseMatrixOpsExp.this.type = DenseMatrixOpsExp.this} 
+        codegen.headerStream = new PrintWriter(new FileWriter("del_avoidNullptrException.h"))
+//        val resType = codegen.remap(result.tp)
+//        val stream = new PrintWriter(new FileWriter("del_code.cpp"))
+//        codegen.withStream(stream) {
+//          codegen.emitKernelHeader(List(result.asInstanceOf[Sym[Any]]), List(m1.asInstanceOf[Sym[Any]], m2.asInstanceOf[Sym[Any]]), List(), resType, false, false)
+//          for (stm <- defs) {
+//            val lhsRhs = stm match {
+//              case TP(lhs, rhs) => (lhs,rhs)
+//            }
+//            Console.println("Calling emitNode on %s".format(stm.toString))
+//            try {
+//              codegen.emitNode(lhsRhs._1, lhsRhs._2)
+//            }
+//            catch {
+//              case e: GenerationFailedException => Console.println("GenerationFailedException. Moving on..")
+//              case e: Exception => Console.println("Some other exception")
+//            }
+//          }
+//          codegen.emitKernelFooter(List(result.asInstanceOf[Sym[Any]]), List(m1.asInstanceOf[Sym[Any]], m2.asInstanceOf[Sym[Any]]), List(), resType, false, false)
+//        }
+//
+        val lhs = reflectPure(Densematrix_matmult[T](m1, m2)(implicitly[Manifest[T]],__pos,__imp0))
+        val lhs_sym = lhs.asInstanceOf[Sym[Any]]
+        val resType = codegen.remap(lhs_sym.tp)
+        val lhs_def = findDefinition(lhs_sym).get match {
+          case TP(x, y) => y match {
+            case Reflect(z, _, _) => z
+            case _ => y
+          }
+        }
+        Console.println("Coming here")
+        val stream2 = new PrintWriter(new FileWriter("del_code2.cpp"))
+        codegen.withStream(stream2) {
+          codegen.emitKernelHeader(List(lhs_sym), List(m1.asInstanceOf[Sym[Any]], m2.asInstanceOf[Sym[Any]]), List(), resType, false, false)
+          codegen.emitNode(lhs_sym, lhs_def)
+          codegen.emitKernelFooter(List(lhs_sym), List(m1.asInstanceOf[Sym[Any]], m2.asInstanceOf[Sym[Any]]), List(), resType, false, false)
+        }
+
+        throw new Exception("stop here")
+        reflectPure(Densematrix_matmult[T](self,__arg1)(implicitly[Manifest[T]],__pos,__imp0))
     }
   }
   def densematrix_matvecmult[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseVector[T]])(implicit __pos: SourceContext,__imp0: Arith[T]) = {

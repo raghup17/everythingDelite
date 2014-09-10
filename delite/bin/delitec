@@ -25,6 +25,7 @@ def main():
     parser = OptionParser(usage)
     parser.add_option("-v", "--verbose", dest="verbose", action="store_true", default=False, help="print delitec environment settings")
     parser.add_option("--autotune", dest="autotune", action="store_true", default=False, help="Enable autotuner mode")
+    parser.add_option("--traceEmitNode", dest="traceEmitNode", action="store_true", default=False, help="Print trace all the emitNode calls to C++ backend")
     parser.add_option("--nb", dest="no_blas", action="store_true", default=False, help="disable blas calls")
     parser.add_option("--nf", dest="no_fusion", action="store_true", default=False, help="disables op fusion")
     parser.add_option("--ns", dest="no_soa", action="store_true", default=False, help="disables soa transform")
@@ -74,6 +75,9 @@ def stage(runner, params, opts):
     if opts.autotune == True:
         print("Option parsed successfully, Autotune is enabled")
         java_opts = java_opts + " -Ddelite.enable.autotune"
+    if opts.traceEmitNode == True:
+        print("Option parsed successfully, emitNode tracing is enabled")
+        java_opts = java_opts + " -Ddelite.enable.traceEmitNode"
     if opts.no_blas == False:
         java_opts = java_opts + " -Ddelite.extern.blas"
     if opts.cuda == True:

@@ -116,13 +116,16 @@ trait CLikeGenForgeArrayOps extends CLikeGenBase {
   override def emitNode(sym: Sym[Any], rhs: Def[Any]) = {
     rhs match {
       case ArrayApply(x,n) => 
-//        Console.println("CLikeGenForgeArrayOps::emitNode::ArrayApply")
+        if (Config.traceEmitNode)
+          Console.println("CLikeGenForgeArrayOps::emitNode::ArrayApply")
         emitValDef(sym, quote(x) + ".apply(" + quote(n) + ")")
       case ArrayLength(x) => 
-//        Console.println("CLikeGenForgeArrayOps::emitNode::ArrayLength")
+        if (Config.traceEmitNode)
+        Console.println("CLikeGenForgeArrayOps::emitNode::ArrayLength")
         emitValDef(sym, quote(x) + ".length")
       case _ => 
-//      Console.println("CLikeGenForgeArrayOps::emitNode - going elsewhere")
+        if (Config.traceEmitNode)
+      Console.println("CLikeGenForgeArrayOps::emitNode - going elsewhere")
         super.emitNode(sym, rhs)
     }
   }
@@ -136,17 +139,21 @@ trait CGenForgeArrayOps extends CGenDeliteArrayOps with CGenObjectOps {
   override def emitNode(sym: Sym[Any], rhs: Def[Any]) = { 
     rhs match {
       case ArrayApply(x,n) => 
-//        Console.println("CForgeArrayOps::emitNode::ArrayApply")
+        if (Config.traceEmitNode)
+        Console.println("CForgeArrayOps::emitNode::ArrayApply")
         emitValDef(sym, quote(x) + "->apply(" + quote(n) + ")")
       case ArrayLength(x) => 
-//        Console.println("CForgeArrayOps::emitNode::ArrayLength")
+        if (Config.traceEmitNode)
+        Console.println("CForgeArrayOps::emitNode::ArrayLength")
         emitValDef(sym, quote(x) + "->length")
       //TODO: enable ArrayStringSplit in cluster mode
       case ArrayStringSplit(a,b,l) if (!Config.generateSerializable) => 
-//        Console.println("CForgeArrayOps::emitNode::ArrayStringSplit")
+        if (Config.traceEmitNode)
+        Console.println("CForgeArrayOps::emitNode::ArrayStringSplit")
         emitValDef(sym, "string_split(resourceInfo," + quote(a) + "," + quote(b) + "," + quote(l) + ")")
       case _ => 
-//        Console.println("CForgeArrayOps::emitNode - going elsewhere")
+        if (Config.traceEmitNode)
+        Console.println("CForgeArrayOps::emitNode - going elsewhere")
         super.emitNode(sym, rhs)
     }
   }

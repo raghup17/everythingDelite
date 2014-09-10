@@ -660,6 +660,8 @@ trait DenseMatrixOpsImpl {
 
 
   def densematrix_new[T:Manifest](r: Rep[Int], c: Rep[Int])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
+    Console.println("r = %s".format(r))
+    Console.println("c = %s".format(c))
     val out = DenseMatrix[T](r, c)
     out.unsafeMutable
   }
@@ -840,18 +842,30 @@ def densematrix_matmult_impl62b[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
   def densematrix_matmult_impl62[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
     fassert(self.numCols == __arg1.numRows, "dimension mismatch: matrix multiply")
 
-    val out = DenseMatrix[T](self.numRows, __arg1.numCols)
-    val yT = __arg1.t
+//    val out = DenseMatrix[T](self.numRows, __arg1.numCols)
+//    val yT = __arg1.t
+    val yT = __arg1
       for (rowIdx <- 0 until self.numRows) {
         for (i <- 0 until __arg1.numCols) {
           var acc = self(rowIdx, 0) * yT(i, 0)
           for (j <- 1 until yT.numCols) {
             acc += self(rowIdx, j) * yT(i, j)
           }
-          out(rowIdx, i) = acc
+//          out(rowIdx, i) = acc
+          __arg1(rowIdx, i) = acc
         }
       }
-    out.unsafeImmutable
+    __arg1.unsafeImmutable
+  }
+
+  def densematrix_matmult_impl62c[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
+
+      var acc = self(0, 0)
+      for (rowIdx <- 0 until self.numRows) {
+        acc += self(rowIdx, 0)
+        __arg1(rowIdx, 0) = acc
+      }
+    __arg1.unsafeImmutable
   }
 
   def densematrix_matvecmult_impl63[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseVector[T]])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseVector[T]] = {

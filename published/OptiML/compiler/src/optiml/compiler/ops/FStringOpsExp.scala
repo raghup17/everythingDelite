@@ -15,6 +15,7 @@ import optiml.shared.typeclass._
 import optiml.compiler._
 import optiml.compiler.ops._
 
+import ppl.delite.framework.Config
 /**
  * IR Definitions
  */
@@ -299,115 +300,134 @@ trait CGenFStringOps extends CGenFat {
   override def emitNode(sym: Sym[Any], rhs: Def[Any]) = { 
       rhs match {
       case mn@FString3_ToInt(__arg0) => 
-//        Console.println("CGenFStringOps::emitNode::FString3_ToInt")
+        if (Config.traceEmitNode)
+        Console.println("CGenFStringOps::emitNode::FString3_ToInt")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("string_toInt("+quote(__arg0)+")")
         stream.println(";")
 
       case mn@FString2_ToLong(__arg0) => 
-//        Console.println("CGenFStringOps::emitNode::FString2_ToLong")
+        if (Config.traceEmitNode)
+        Console.println("CGenFStringOps::emitNode::FString2_ToLong")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("string_toLong("+quote(__arg0)+")")
         stream.println(";")
 
       case mn@FString3_ToFloat(__arg0) => 
-//        Console.println("CGenFStringOps::emitNode::FString3_ToFloat")
+        if (Config.traceEmitNode)
+        Console.println("CGenFStringOps::emitNode::FString3_ToFloat")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("string_toFloat("+quote(__arg0)+")")
         stream.println(";")
 
       case mn@FString3_ToDouble(__arg0) => 
-//        Console.println("CGenFStringOps::emitNode::FString3_ToDouble")
+        if (Config.traceEmitNode)
+        Console.println("CGenFStringOps::emitNode::FString3_ToDouble")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("string_toDouble("+quote(__arg0)+")")
         stream.println(";")
 
       case mn@FString2_ToBoolean(__arg0) => 
-//        Console.println("CGenFStringOps::emitNode::FString2_ToBoolean")
+        if (Config.traceEmitNode)
+        Console.println("CGenFStringOps::emitNode::FString2_ToBoolean")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("string_toBoolean("+quote(__arg0)+")")
         stream.println(";")
 
       case mn@FString2_Trim(__arg0) => 
-//        Console.println("CGenFStringOps::emitNode::FString2_Trim")
+        if (Config.traceEmitNode)
+        Console.println("CGenFStringOps::emitNode::FString2_Trim")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("string_trim("+quote(__arg0)+")")
         stream.println(";")
 
       case mn@FString_FcharAt(__arg0,__arg1) => 
-//        Console.println("CGenFStringOps::emitNode::FString_FcharAt")
+        if (Config.traceEmitNode)
+        Console.println("CGenFStringOps::emitNode::FString_FcharAt")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("string_charAt("+quote(__arg0)+","+quote(__arg1)+")")
         stream.println(";")
 
       case mn@FString_StartsWith(__arg0,__arg1) => 
-//        Console.println("CGenFStringOps::emitNode::FString_StartsWith")
+        if (Config.traceEmitNode)
+        Console.println("CGenFStringOps::emitNode::FString_StartsWith")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("string_startsWith("+quote(__arg0)+","+quote(__arg1)+")")
         stream.println(";")
 
       case mn@FString3_Slice(__arg0,__arg1,__arg2) => 
-//        Console.println("CGenFStringOps::emitNode::FString3_Slice")
+        if (Config.traceEmitNode)
+        Console.println("CGenFStringOps::emitNode::FString3_Slice")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("string_substr("+quote(__arg0)+","+quote(__arg1)+","+quote(__arg2)+")")
         stream.println(";")
 
       case mn@FString4_Length(__arg0) => 
-//        Console.println("CGenFStringOps::emitNode::FString4_Length")
+        if (Config.traceEmitNode)
+        Console.println("CGenFStringOps::emitNode::FString4_Length")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("string_length("+quote(__arg0)+")")
         stream.println(";")
 
       case mn@FString_EndsWith(__arg0,__arg1) => 
-//        Console.println("CGenFStringOps::emitNode::FString_EndsWith")
+        if (Config.traceEmitNode)
+        Console.println("CGenFStringOps::emitNode::FString_EndsWith")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("string_endsWith("+quote(__arg0)+","+quote(__arg1)+")")
         stream.println(";")
 
       case mn@FString5_Contains(__arg0,__arg1) => 
-//        Console.println("CGenFStringOps::emitNode::FString5_Contains")
+        if (Config.traceEmitNode)
+        Console.println("CGenFStringOps::emitNode::FString5_Contains")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("string_contains("+quote(__arg0)+","+quote(__arg1)+")")
         stream.println(";")
 
       case mn@FString1_Substring(__arg0,__arg1) => 
-//        Console.println("CGenFStringOps::emitNode::FString1_Substring")
+        if (Config.traceEmitNode)
+        Console.println("CGenFStringOps::emitNode::FString1_Substring")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("string_substr("+quote(__arg0)+","+quote(__arg1)+")")
         stream.println(";")
 
       case mn@FString2_Substring(__arg0,__arg1,__arg2) => 
-//        Console.println("CGenFStringOps::emitNode::FString2_Substring")
+        if (Config.traceEmitNode)
+        Console.println("CGenFStringOps::emitNode::FString2_Substring")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("string_substr("+quote(__arg0)+","+quote(__arg1)+","+quote(__arg2)+")")
         stream.println(";")
 
       case mn@FString43_Pl(__arg0,__arg1) => 
-//        Console.println("CGenFStringOps::emitNode::FString43_Pl")
+        if (Config.traceEmitNode)
+        Console.println("CGenFStringOps::emitNode::FString43_Pl")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("string_plus( convert_to_string< "+remapWithRef(__arg0.tp)+">("+quote(__arg0)+"), convert_to_string< "+remapWithRef(__arg1.tp)+">("+quote(__arg1)+"))")
         stream.println(";")
 
       case mn@FString49_Pl(__arg0,__arg1) => 
-//        Console.println("CGenFStringOps::emitNode::FString49_Pl")
+        if (Config.traceEmitNode)
+        Console.println("CGenFStringOps::emitNode::FString49_Pl")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("string_plus( convert_to_string< "+remapWithRef(__arg0.tp)+">("+quote(__arg0)+"), convert_to_string< "+remapWithRef(__arg1.tp)+">("+quote(__arg1)+"))")
         stream.println(";")
 
       case mn@FString54_Pl(__arg0,__arg1) => 
-//        Console.println("CGenFStringOps::emitNode::FString54_Pl")
+        if (Config.traceEmitNode)
+        Console.println("CGenFStringOps::emitNode::FString54_Pl")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("string_plus( convert_to_string< "+remapWithRef(__arg0.tp)+">("+quote(__arg0)+"), convert_to_string< "+remapWithRef(__arg1.tp)+">("+quote(__arg1)+"))")
         stream.println(";")
 
       case mn@FString_Optila_fmt_str(__arg0) => 
-//        Console.println("CGenFStringOps::emitNode::FString_Optila_fmt_str")
+        if (Config.traceEmitNode)
+        Console.println("CGenFStringOps::emitNode::FString_Optila_fmt_str")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("convert_to_string<"+remapWithRef(__arg0.tp)+" >("+quote(__arg0)+")")
         stream.println(";")
 
       case _ => 
-//        Console.println("CGenFStringOps::emitNode - going elsewhere")
+        if (Config.traceEmitNode)
+        Console.println("CGenFStringOps::emitNode - going elsewhere")
         super.emitNode(sym, rhs)
     }
   }

@@ -15,6 +15,7 @@ import optiml.shared.typeclass._
 import optiml.compiler._
 import optiml.compiler.ops._
 
+import ppl.delite.framework.Config
 /**
  * IR Definitions
  */
@@ -214,46 +215,53 @@ trait CGenOrdering2Ops extends CGenFat {
   override def emitNode(sym: Sym[Any], rhs: Def[Any]) = { 
       rhs match {
       case mn@Ordering218___equal(__arg0,__arg1) => 
-//        Console.println("CGenOrdering2Ops::emitNode::Ordering218___equal")
+        if (Config.traceEmitNode)
+        Console.println("CGenOrdering2Ops::emitNode::Ordering218___equal")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" == "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Ordering21_Bangeq(__arg0,__arg1) => 
-//        Console.println("CGenOrdering2Ops::emitNode::Ordering21_Bangeq")
+        if (Config.traceEmitNode)
+        Console.println("CGenOrdering2Ops::emitNode::Ordering21_Bangeq")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" != "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Ordering2_Lt(__arg0,__arg1) => 
-//        Console.println("CGenOrdering2Ops::emitNode::Ordering2_Lt")
+        if (Config.traceEmitNode)
+        Console.println("CGenOrdering2Ops::emitNode::Ordering2_Lt")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" < "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Ordering2_Lteq(__arg0,__arg1) => 
-//        Console.println("CGenOrdering2Ops::emitNode::Ordering2_Lteq")
+        if (Config.traceEmitNode)
+        Console.println("CGenOrdering2Ops::emitNode::Ordering2_Lteq")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" <= "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Ordering2_Gt(__arg0,__arg1) => 
-//        Console.println("CGenOrdering2Ops::emitNode::Ordering2_Gt")
+        if (Config.traceEmitNode)
+        Console.println("CGenOrdering2Ops::emitNode::Ordering2_Gt")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" > "+quote(__arg1)+"")
         stream.println(";")
 
       case mn@Ordering2_Gteq(__arg0,__arg1) => 
-//        Console.println("CGenOrdering2Ops::emitNode::Ordering2_Gteq")
+        if (Config.traceEmitNode)
+        Console.println("CGenOrdering2Ops::emitNode::Ordering2_Gteq")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print(""+quote(__arg0)+" >= "+quote(__arg1)+"")
         stream.println(";")
 
       case _ => 
-//        Console.println("CGenOrdering2Ops::emitNode - going elsewhere")
+        if (Config.traceEmitNode)
+        Console.println("CGenOrdering2Ops::emitNode - going elsewhere")
         super.emitNode(sym, rhs)
     }
   }

@@ -163,15 +163,18 @@ trait CGenRangeOps extends CGenFat {
   override def emitNode(sym: Sym[Any], rhs: Def[Any]) = {
       rhs match {
       case mn@Range_foreach(start,end,step, func,f_func___arg0) => 
-//        Console.println("CGenRangeOps::emitNode::Range_foreach")
+        if (Config.traceEmitNode)
+        Console.println("CGenRangeOps::emitNode::Range_foreach")
         stream.print("for(int i="+quote(start)+" ; i<"+quote(end)+" ; i+="+ step + ") {\n  { ")
         emitValDef(f_func___arg0.asInstanceOf[Sym[Any]],"i")
+        Console.println("func = %s".format(func))
         emitBlock(func)
         stream.print( " }\n \n}")
         stream.println(";")
 
       case _ => 
-//        Console.println("CGenRangeOps::emitNode - going elsewhere")
+        if (Config.traceEmitNode)
+        Console.println("CGenRangeOps::emitNode - going elsewhere")
         super.emitNode(sym, rhs)
 
     }

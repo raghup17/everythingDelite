@@ -15,6 +15,7 @@ import optiml.shared.typeclass._
 import optiml.compiler._
 import optiml.compiler.ops._
 
+import ppl.delite.framework.Config
 /**
  * IR Definitions
  */
@@ -150,13 +151,15 @@ trait CGenLAioOps extends CGenFat {
   override def emitNode(sym: Sym[Any], rhs: Def[Any]) = { 
       rhs match {
       case mn@ReadFirstLine(path) => 
-//        Console.println("CGenLAioOps::emitNode::ReadFirstLine")
+        if (Config.traceEmitNode)
+        Console.println("CGenLAioOps::emitNode::ReadFirstLine")
         stream.print(remapWithRef(sym.tp) + " " + quote(sym) + " = ")
         stream.print("readFirstLineFile("+quote(path)+")")
         stream.println(";")
 
       case _ => 
-//        Console.println("CGenLAioOps::emitNode - going elsewhere")
+        if (Config.traceEmitNode)
+        Console.println("CGenLAioOps::emitNode - going elsewhere")
         super.emitNode(sym, rhs)
     }
   }

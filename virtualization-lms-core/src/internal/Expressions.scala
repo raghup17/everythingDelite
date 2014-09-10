@@ -45,6 +45,7 @@ trait Expressions extends Utils {
     cs.map(c => all(c).reverse.map(c => c.fileName.split("/").last + ":" + c.line).mkString("//")).mkString(";")
   }
 
+
 /*
   def fresh[T:Manifest] = {
     val (name, id, nameId) = nextName("x")
@@ -119,17 +120,20 @@ trait Expressions extends Utils {
   var globalDefs: List[Stm] = Nil
   var localDefs: List[Stm] = Nil
   var globalDefsCache: Map[Sym[Any],Stm] = Map.empty
+  var numToSym: Map[Int, Sym[Any]] = Map.empty
 
   def reifySubGraph[T](b: =>T): (T, List[Stm]) = {
     val saveLocal = localDefs
     val saveGlobal = globalDefs
     val saveGlobalCache = globalDefsCache
+    val saveNumToSym = numToSym
     localDefs = Nil
     val r = b
     val defs = localDefs
     localDefs = saveLocal
     globalDefs = saveGlobal
     globalDefsCache = saveGlobalCache
+    numToSym = saveNumToSym
     (r, defs)
   }
 
@@ -143,7 +147,53 @@ trait Expressions extends Utils {
     for (stm <- ds; s <- stm.lhs) {
 //      println("[raghu] reflectSubGraph " + s + " = " + stm)
       globalDefsCache += (s->stm)
+      numToSym += (s.id -> s)
     }
+  }
+
+  def printSymStms = {
+    for (s <- globalDefsCache.keySet) {
+      val stm = globalDefsCache(s)
+      Console.println("%s = %s".format(s, stm))
+    }
+  }
+
+  def purgeAndReset[T: Manifest](from: Sym[T]): Unit = {
+    val currentNvars = nVars
+    val fromNvars = from.id
+//    for (i <- fromNvars until currentNvars) {
+//      Console.println("Finding symbol %d".format(i))
+//      val sym = numToSym.get(i)
+//      sym match {
+//        case Some(s: Sym[T]) => 
+//          // Remove from globalDefsCache
+//          Console.println("Removing symbol %d".format(i))
+//          val stm = globalDefsCache(s)
+//          globalDefsCache -= s
+//          globalDefs -= stm
+//          localDefs -= stm
+//
+//        case None => 
+//          Console.println("No symbol found, skipping")
+//      }
+//    }
+
+    for (i <- fromNvars until currentNvars) {
+      Console.println("Finding symbol %d".format(i))
+      val sym = Sym[T](i)
+      // Remove from globalDefsCache
+      val stm = globalDefsCache.get(sym)
+      stm match {
+        case Some(s) =>
+          Console.println("Removing symbol %d".format(i))
+          globalDefsCache -= sym
+          globalDefs = globalDefs diff List(s)
+          localDefs = localDefs diff List(s)
+        case None => // Do nothing
+      }
+    }
+
+    nVars = fromNvars
   }
 
   def findDefinition[T](s: Sym[T]): Option[Stm] =
@@ -282,6 +332,7 @@ trait Expressions extends Utils {
     globalDefs = Nil
     localDefs = Nil
     globalDefsCache = Map.empty
+    numToSym = Map.empty
   }
 
 }

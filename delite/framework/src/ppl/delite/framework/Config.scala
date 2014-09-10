@@ -18,6 +18,7 @@ object Config {
   var opfusionEnabled = getProperty("delite.enable.fusion", "true") != "false"
   var soaEnabled = getProperty("delite.enable.soa", "true") != "false"
   var autotuneEnabled = { val x = getProperty("delite.enable.autotune", "false"); println("autotuneEnabled = " + x); x != "false" } 
+  var traceEmitNode = { val x = getProperty("delite.enable.traceEmitNode", "false"); x != "false" } 
   var generateCUDA = getProperty("delite.generate.cuda", "false") != "false"
   var generateCpp = getProperty("delite.generate.cpp", "false") != "false"
   var generateOpenCL = getProperty("delite.generate.opencl", "false") != "false"

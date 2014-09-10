@@ -275,7 +275,7 @@ trait DeliteOpsExp extends BaseFatExp with EffectExp with VariablesExp with Loop
     val mCV = manifest[CV]
   }
 
-  def unusedBlock() = reifyEffectsHere(fatal(unit("emitted unused block in Multiloop")))
+  def unusedBlock() = { reifyEffectsHere(fatal(unit("emitted unused block in Multiloop"))) }
   def unusedSym() = Sym(-10)
 
 
