@@ -806,7 +806,8 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
       codegen.headerStream = new PrintWriter(new FileWriter("%s/avoidNullptrException.h".format(genFolderName)))
 
       // Clear all the previous runs
-      runThis(scala.Array("rm", "-rf", "%s/a_*".format(genFolderName)))
+      val output = runThis(scala.Array("rm", "-r", "%s/a_*".format(genFolderName)))
+      Console.println("[rm -rf output] %s".format(output))
       var executableNum = -1
       def matrixMult(sizes: scala.List[scala.Int])(tunables: Tunable[scala.Int]): Double = {
         // Create IR nodes to perform m3 = m1 x m2 for the given tunables 
@@ -827,11 +828,6 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
         val lhs = reflectPure(Densematrix_matmult_autotune[T](m1_fresh, m2_fresh, out_fresh, tunables)(implicitly[Manifest[T]],__pos,__imp0))
 
 
-        Console.println("Just created %s".format(m1))
-        Console.println("Just created %s".format(m2))
-        Console.println("Just created %s".format(out))
-        Console.println("Just created %s".format(lhs))
-
         // There must be a better way to do this because:
         // 1. Basic functionality - find the definition, given a symbol. The 'rhs' operator isn't working
         // 2. Repeated again near the 'generateDriver' function, defined currently in OptiML.scala
@@ -849,13 +845,6 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
           irnode
         }
 
-        def getDepsFromIRNode(irnode: Def[Any]): List[Exp[Any]] = {
-          irnode match {
-            case Reflect(_, _, deps) => deps
-            case _ => List[Exp[Any]]() 
-          }
-        }
-
         val m1_sym = m1.asInstanceOf[Sym[Any]]
         val m2_sym = m2.asInstanceOf[Sym[Any]]
         val out_sym = out.asInstanceOf[Sym[Any]]
@@ -864,45 +853,6 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
         val irnode_m1 = getIRNode(m1_sym)
         val irnode_m2 = getIRNode(m2_sym)
         val irnode_out = getIRNode(out_sym)
-
-
-//        var listToBeErased: List[Sym[Any]] = List[Sym[Any]]()
-
-        val m1Deps = getDepsFromIRNode(irnode_m1)
-        val m2Deps = getDepsFromIRNode(irnode_m2)
-        val outDeps = getDepsFromIRNode(irnode_out)
-        val irnodeDeps = getDepsFromIRNode(irnode)
-
-        Console.println("m1Deps = %s".format(m1Deps))
-        Console.println("m2Deps = %s".format(m2Deps))
-        Console.println("outDeps = %s".format(outDeps))
-        Console.println("irnodeDeps = %s".format(irnodeDeps))
-
-//        Console.println("irnode = %s".format(irnode.toString))
-//        irnode match {
-//              case p: Product => 
-//                val iter = p.productIterator
-//                while (iter.hasNext) {
-//                  val tmp = iter.next
-//                  Console.println("tmp = %s".format(tmp.toString))
-//                  tmp match {
-//                    case x: Sym[Any] => 
-//                      Console.println("x is a symbol")
-//                      Console.println(x)
-////                      val v = tmp.asInstanceOf[IR.Sym[Any]]
-////                      val arg = quote(x)
-////                      val tpe = remap(x.tp)
-//                    case y: Any =>
-//                      Console.println("Not a symbol")
-//                      Console.println(y)
-//                    case _ =>
-//                      throw new Exception("Unknown type, don't know what I'm dealing with. ABORT!")
-//                  }
-//                }
-//                // Main function needs to read p.productArity number of arguments from command line
-//              case _ => throw new Exception("Expecting only product here, ABORT!")
-//            }
-
 
         val resType = codegen.remap(lhs.tp)
 
@@ -996,40 +946,40 @@ clean:
           population += (t -> invalidScore)
         }
         
-        Console.println("Initial population = %s".format(population))
+//        Console.println("Initial population = %s".format(population))
 
         // Genetic search for 'numGenerations' generations
         for (gen <- 0 until numGenerations) {
           Console.println("Generation %d".format(gen))
 
           // Profile run each of the tunables in population
-          Console.println("population.keySet.size = %d".format(population.keySet.size))
+//          Console.println("population.keySet.size = %d".format(population.keySet.size))
           for (t: Tunable[Int] <- population.keySet) {
-            Console.println("Tunable: %s".format(t.toString))
+//            Console.println("Tunable: %s".format(t.toString))
             val elapsed = f(input)(t)
             population += (t -> elapsed)
           }
 
           // Get sorted list of tunables by rank
           val popList = population.toList
-          Console.println("popList")
-          Console.println(popList)
+//          Console.println("popList")
+//          Console.println(popList)
 //          val sortedTupleList  = popList.sortBy(x => (x._2, x._1))
 //          val sortedTunables: scala.List[Tunable[Int]] = sortedTupleList map { x => x._1 }
           val scoreList: scala.List[Double] = population.values.toList.sorted
-          Console.println("scoreList: ")
-          Console.println(scoreList)
+//          Console.println("scoreList: ")
+//          Console.println(scoreList)
           var sortedTunables = List[Tunable[Int]]()
           // Using 'sortBy' is blowing up in my face, so doing this manually
-          Console.println("population=")
-          Console.println(population)
+//          Console.println("population=")
+//          Console.println(population)
           for (s: Double <- scoreList) {
              for (k: Tunable[Int] <- population.keySet) {
-               Console.println("Checking score=%f, tunable = %s".format(s, k.toString))
+//               Console.println("Checking score=%f, tunable = %s".format(s, k.toString))
                if (population(k) == s) {
                  if (!sortedTunables.contains(k)) {
-                   Console.println("Adding ")
-                   Console.println(k)
+//                   Console.println("Adding ")
+//                   Console.println(k)
                    sortedTunables :+= k 
                  }
                }
@@ -1042,21 +992,20 @@ clean:
           // Time for deletions - keep only the top half
           val bestList: scala.List[Tunable[Int]] = sortedTunables take (populationSize/2)
      
-          Console.println("bestList:")
-          Console.println(bestList)
-//          throw new Exception("stop here")
+//          Console.println("bestList:")
+//          Console.println(bestList)
 
-          Console.println("Pop adjustment begin")
+//          Console.println("Pop adjustment begin")
           // Remove the bottom entries from the population map\
-          Console.println("sortedTunables.length = %d".format(sortedTunables.length))
-          Console.println(sortedTunables)
-          Console.println("bestList.length = %d".format(bestList.length))
+//          Console.println("sortedTunables.length = %d".format(sortedTunables.length))
+//          Console.println(sortedTunables)
+//          Console.println("bestList.length = %d".format(bestList.length))
           val badTunables: scala.List[Tunable[Int]] = sortedTunables diff bestList
-          Console.println("Removing %d tunables from population".format(badTunables.length))
+//          Console.println("Removing %d tunables from population".format(badTunables.length))
           for (bad: Tunable[Int] <- badTunables) {
             population -= bad
           }
-          Console.println("population.keySet.size = %d".format(population.keySet.size))
+//          Console.println("population.keySet.size = %d".format(population.keySet.size))
 
           // We need to make up new members of population
           val numNew: scala.Int = badTunables.length
@@ -1078,8 +1027,8 @@ clean:
               populationCache += res
               res
           }).toList
-          Console.println("Number of crossvers required: %d".format(numCrossovers))
-          Console.println("crossoverList.length = %d".format(crossoverList.length))
+//          Console.println("Number of crossvers required: %d".format(numCrossovers))
+//          Console.println("crossoverList.length = %d".format(crossoverList.length))
 
           // Mutations - restricting to upper half of bestList tunables
           val mutationList: scala.List[Tunable[Int]] = (for (i <- 0 to numMutation-1) yield {
@@ -1092,8 +1041,8 @@ clean:
             populationCache += res
             res
           }).toList
-          Console.println("Number of mutations required: %d".format(numMutation))
-          Console.println("mutationList.length = %d".format(mutationList.length))
+//          Console.println("Number of mutations required: %d".format(numMutation))
+//          Console.println("mutationList.length = %d".format(mutationList.length))
 
           // - completely random tunables
           val newList: scala.List[Tunable[Int]] = (for (i <- 0 to numRandomNew-1) yield {
@@ -1108,11 +1057,11 @@ clean:
           
           // Add all the new guys into population
           val newMembers: scala.List[Tunable[Int]] = crossoverList ::: mutationList ::: newList
-          Console.println("Number of new members = %d".format(newMembers.length))
+//          Console.println("Number of new members = %d".format(newMembers.length))
           for (t: Tunable[Int] <- newMembers) {
               population += (t -> invalidScore)
           }
-          Console.println("Pop adjustment end")
+//          Console.println("Pop adjustment end")
           Console.println("\tBest so far: %s -> %s".format(bestList(0).toString, population(bestList(0)).toString))
         }  // End for loop on generations
 
@@ -1144,66 +1093,17 @@ clean:
  				new Tunable (List(bmRange(0), bpRange(0), bnRange(0)), List(bmRange, bpRange, bnRange))
  			}
 
-      val mdim = 128 
-      val pdim = 128 
-      val ndim = 128 
+      val mdim = 512
+      val pdim = 512
+      val ndim = 512
       val sizes = List(mdim, pdim, ndim) 
       val tunables = getTunablesFromMatSizes(mdim, pdim, ndim)
       val bestTunable = autotune2(matrixMult)(sizes)(tunables)
       
       val out = reflectPure(Densematrix_new[T](self.numRows, __arg1.numCols)(implicitly[Manifest[T]],__pos,__imp0))
-//      val out = fresh[DenseMatrix[T]] 
       reflectPure(Densematrix_matmult_autotune[T](self, __arg1, out, bestTunable)(implicitly[Manifest[T]],__pos,__imp0))
-//      reflectPure(Densematrix_matmult_autotune3[T](self, __arg1)(implicitly[Manifest[T]],__pos,__imp0))
-//      reflectPure(Densematrix_matmult[T](self,__arg1)(implicitly[Manifest[T]],__pos,__imp0))
     }
     else {
-        val m1 = fresh[DenseMatrix[T]]
-        val m2 = fresh[DenseMatrix[T]]
-//        val (result, defs) = reifySubGraph(densematrix_matmult_impl62c[T](m1, m2)(implicitly[Manifest[T]],__pos,__imp0))
-//        Console.println("result = %s".format(result.toString))
-//        Console.println("defs = %s".format(defs.toString))
- 
-        // Attempt to codegen
-        val codegen = new OptiMLCodegenC{val IR: DenseMatrixOpsExp.this.type = DenseMatrixOpsExp.this} 
-        codegen.headerStream = new PrintWriter(new FileWriter("del_avoidNullptrException.h"))
-//        val resType = codegen.remap(result.tp)
-//        val stream = new PrintWriter(new FileWriter("del_code.cpp"))
-//        codegen.withStream(stream) {
-//          codegen.emitKernelHeader(List(result.asInstanceOf[Sym[Any]]), List(m1.asInstanceOf[Sym[Any]], m2.asInstanceOf[Sym[Any]]), List(), resType, false, false)
-//          for (stm <- defs) {
-//            val lhsRhs = stm match {
-//              case TP(lhs, rhs) => (lhs,rhs)
-//            }
-//            Console.println("Calling emitNode on %s".format(stm.toString))
-//            try {
-//              codegen.emitNode(lhsRhs._1, lhsRhs._2)
-//            }
-//            catch {
-//              case e: GenerationFailedException => Console.println("GenerationFailedException. Moving on..")
-//              case e: Exception => Console.println("Some other exception")
-//            }
-//          }
-//          codegen.emitKernelFooter(List(result.asInstanceOf[Sym[Any]]), List(m1.asInstanceOf[Sym[Any]], m2.asInstanceOf[Sym[Any]]), List(), resType, false, false)
-//        }
-//
-        val lhs = reflectPure(Densematrix_matmult[T](m1, m2)(implicitly[Manifest[T]],__pos,__imp0))
-        val lhs_sym = lhs.asInstanceOf[Sym[Any]]
-        val resType = codegen.remap(lhs_sym.tp)
-        val lhs_def = findDefinition(lhs_sym).get match {
-          case TP(x, y) => y match {
-            case Reflect(z, _, _) => z
-            case _ => y
-          }
-        }
-        val stream2 = new PrintWriter(new FileWriter("del_code2.cpp"))
-        codegen.withStream(stream2) {
-          codegen.emitKernelHeader(List(lhs_sym), List(m1.asInstanceOf[Sym[Any]], m2.asInstanceOf[Sym[Any]]), List(), resType, false, false)
-          codegen.emitNode(lhs_sym, lhs_def)
-          codegen.emitKernelFooter(List(lhs_sym), List(m1.asInstanceOf[Sym[Any]], m2.asInstanceOf[Sym[Any]]), List(), resType, false, false)
-        }
-
-        throw new Exception("stop here")
         reflectPure(Densematrix_matmult[T](self,__arg1)(implicitly[Manifest[T]],__pos,__imp0))
     }
   }

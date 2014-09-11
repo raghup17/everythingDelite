@@ -167,7 +167,7 @@ trait CGenRangeOps extends CGenFat {
         Console.println("CGenRangeOps::emitNode::Range_foreach")
         stream.print("for(int i="+quote(start)+" ; i<"+quote(end)+" ; i+="+ step + ") {\n  { ")
         emitValDef(f_func___arg0.asInstanceOf[Sym[Any]],"i")
-        Console.println("func = %s".format(func))
+//        Console.println("func = %s".format(func))
         emitBlock(func)
         stream.print( " }\n \n}")
         stream.println(";")

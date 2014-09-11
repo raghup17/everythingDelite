@@ -163,12 +163,12 @@ def stage(runner, params, opts):
     if ecode != 0:
         err("Delite compilation failed")
 
-    if (opts.autotune == True):
-        deliteCmd = delitecommon.DELITE_HOME + "/bin/delite " + "--cpp=1 " + runner
-        print "Autotune mode, executing cmd: %s" %(deliteCmd)
-        ecode = os.system(deliteCmd)
-        if ecode != 0:
-            err("Runtime failed during autotuning")
+#    if (opts.autotune == True):
+#        deliteCmd = delitecommon.DELITE_HOME + "/bin/delite " + "--cpp=1 " + runner
+#        print "Autotune mode, executing cmd: %s" %(deliteCmd)
+#        ecode = os.system(deliteCmd)
+#        if ecode != 0:
+#            err("Runtime failed during autotuning")
 
     #jar generated code
     if opts.jar_app == True:

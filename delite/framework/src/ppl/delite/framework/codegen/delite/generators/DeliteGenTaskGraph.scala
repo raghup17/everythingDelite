@@ -201,7 +201,6 @@ trait DeliteGenTaskGraph extends DeliteCodegen with LoopFusionOpt with LoopSoAOp
           case fd: FatDef => gen.withStream(genStream)(gen.emitFatNode(sym, fd))
           case d: Def[Any] => {
             assert(sym.length == 1)
-            println("Def[Any]")
             gen.withStream(genStream)(gen.emitNode(sym(0), d))
           }
         }
@@ -210,7 +209,9 @@ trait DeliteGenTaskGraph extends DeliteCodegen with LoopFusionOpt with LoopSoAOp
         gen.kernelInit(sym, inVals, inVars, resultIsVar)
 
         // emit kernel to bodyStream //TODO: must kernel body be emitted before kernel header?
-        Console.println("[raghu] [genEmitNode] sym = " + sym + ", rhs = " + rhs)
+        if (Config.traceEmitNode) {
+          Console.println("[raghu] [genEmitNode] sym = " + sym + ", rhs = " + rhs)
+        }
         genEmitNode(gen)(sym, rhs)(bodyStream)
         bodyStream.flush
 

@@ -660,8 +660,6 @@ trait DenseMatrixOpsImpl {
 
 
   def densematrix_new[T:Manifest](r: Rep[Int], c: Rep[Int])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
-    Console.println("r = %s".format(r))
-    Console.println("c = %s".format(c))
     val out = DenseMatrix[T](r, c)
     out.unsafeMutable
   }
@@ -707,6 +705,8 @@ trait DenseMatrixOpsImpl {
 //    out.unsafeImmutable
 //  }
 
+
+
 def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[DenseMatrix[T]], out: Rep[DenseMatrix[T]])(tunables: Tunable[scala.Int])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
 //    val m1 = DenseMatrix[T](M, P)
 //    val m2 = DenseMatrix[T](P, N)
@@ -721,45 +721,105 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
 //      Console.println("[AUTOTUNER] Autotunable parameters at this level:")
 //      Console.println("[AUTOTUNER] #blocking levels, blockSize, double buffering, block location, transpose")
 
-      val m: scala.Int = tunables(0)
-      val p: scala.Int = tunables(1)
-      val n: scala.Int = tunables(2)
-
+      
 //      val u1: scala.Int = tunables(3)
 //      val u2: scala.Int = tunables(4)
 //      val u3: scala.Int = tunables(5)
 //      val u4: scala.Int = tunables(6)
 //      val u5: scala.Int = tunables(7)
 //      val u6: scala.Int = tunables(8)
-
-      val u1: scala.Int = 1 
-      val u2: scala.Int = 1 
-      val u3: scala.Int = 1 
-      val u4: scala.Int = 1 
-      val u5: scala.Int = 1 
-      val u6: scala.Int = 1
-
+      
       // Note: Don't add any prints here - that adds a 'Misc1_Println' node in the IR which has a 'Simple' summary. This
       // inadvertently adds a dependency on previously created IR nodes, even if the string to be printed doesn't depend 
       // on anything. If you are unconvinced, add a println("blah") and see how the generated code explodes in size due to
       // all the dependencies
 
+//      unroll(u1) (0, M, m) { blockm => {
+//        unroll(u2) (0, N, n) { blockn => { 
+//          unroll(u3) (0, P, p) { blockp => {
+//          
+//            unroll(u4) (blockm, blockm+m, 1) { rowIdx => {
+//              unroll(u5) (blockn ,blockn+n, 1) { colIdx => {
+//                var acc = out(rowIdx, colIdx)
+//                unroll(u6) (blockp, blockp + p, 1) { tempIter => {
+//                  acc += m1(rowIdx, tempIter) * m2(tempIter, colIdx)
+//                }}
+//                out(rowIdx, colIdx) = acc
+//              }}
+//            }}
+//          }}
+//        }}
+//      }}
+
+      def bmm[T:Manifest](startm: Rep[Int], endm: Rep[Int], startn: Rep[Int], endn: Rep[Int], startp: Rep[Int], endp: Rep[Int], unrollFactorList: scala.List[scala.Int])(implicit __pos: SourceContext,__imp0: Arith[T]) = {
+        val bm: scala.Int = bsizeList(0)
+        val bn: scala.Int = bsizeList(1)
+        val bp: scala.Int = bsizeList(2)
+        val um: scala.Int = unrollFactorList(0)
+        val un: scala.Int = unrollFactorList(1)
+        val up: scala.Int = unrollFactorList(2)
+
+         unroll(um) (startm, endm, 1) { rowIdx => {
+           unroll(un) (startn, endn, 1) { colIdx => {
+             var acc = out(rowIdx, colIdx) // What a weird way to initialize it to zero
+             unroll(up) (startp, endp, 1) { tempIter => {
+               acc += m1(rowIdx, tempIter) * m2(tempIter, colIdx)
+             }}
+            out(rowIdx, colIdx) = acc
+           }}
+         }}
+      }
+      
+      // Won't compile, yet to modify the Tunables interface. Maybe each element in the 'tunables' list must be 
+      // a separate 'Element' class, where Element is parameterized?
+      val numLevels:scala.Int = tunables(0).get
+      val blockSizes:scala.List[scala.List[scala.Int]] = tunables(1).get
+      val unrollFactors:scala.List[scala.List[scala.Int]] = tunables(2).get 
+
+      // Generate <m,n,p> loop
+      def levelGen(level: scala.Int, bsizeList: scala.List[scala.Int], unrollFactorList: scala.List[scala.Int]]) // Level specific information
+                  (startm: Rep[Int], endm: Rep[Int], startn: Rep[Int], endn: Rep[Int], startp: Rep[Int], endp: Rep[Int])
+                  (f0: (Rep[Int],Rep[Int],Rep[Int],scala.List[scala.Int]) => scala.Unit): scala.Unit = {
+        if (level == 0) {
+          f0(startm, endm, startn, endn, startp, endp, bsizeList, unrollFactorList)
+        }
+        else {
+          val stepm = bsizeList(0)
+          val stepn = bsizeList(1)
+          val stepp = bsizeList(2)
+          for (m <- startm until endm by stepm) {
+            for (n <- startn until endn by stepn) {
+              for (p <- startp until endp by stepp) {
+                val nextLevel: scala.Int = level-1
+                levelGen(nextLevel, blockSizes(nextLevel), unrollFactors(nextLevel))(m, m+stepm, n, n+stepn, p, p+stepp)(f0)
+              }
+            }
+          }
+        }
+      }
+
+//      val m: scala.Int = tunables(0)
+//      val p: scala.Int = tunables(1)
+//      val n: scala.Int = tunables(2)
+//      val u1: scala.Int = 1 
+//      val u2: scala.Int = 1 
+//      val u3: scala.Int = 1 
+//      val u4: scala.Int = 1 
+//      val u5: scala.Int = 1 
+//      val u6: scala.Int = 1
+
+      levelGen(numLevels)(0, M, 0, N, 0, P
+
+
       unroll(u1) (0, M, m) { blockm => {
         unroll(u2) (0, N, n) { blockn => { 
           unroll(u3) (0, P, p) { blockp => {
-          
-            unroll(u4) (blockm, blockm+m, 1) { rowIdx => {
-              unroll(u5) (blockn ,blockn+n, 1) { colIdx => {
-                var acc = out(rowIdx, colIdx)
-                unroll(u6) (blockp, blockp + p, 1) { tempIter => {
-                  acc += m1(rowIdx, tempIter) * m2(tempIter, colIdx)
-                }}
-                out(rowIdx, colIdx) = acc
-              }}
-            }}
+            bmm(m1, m2, out, blockm, blockn, blockp)(scala.List(m, p, n, u4, u5, u6))
           }}
         }}
       }}
+
+
 
     }
     else {
@@ -816,10 +876,10 @@ def densematrix_matmult_impl62b[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
         for (blockn <- 0 until N by n) { 
           for (blockp <- 0 until P by p) {
           
-            for (rowIdx <- blockm until blockm+m) {
-              for (colIdx <- blockn until blockn+n) {
+            for (rowIdx <- blockm until (blockm+m)) {
+              for (colIdx <- blockn until (blockn+n)) {
                 var acc = out(rowIdx, colIdx)
-                for (tempIter <- blockp until blockp+p) {
+                for (tempIter <- blockp until (blockp+p)) {
                   acc += m1(rowIdx, tempIter) * m2(tempIter, colIdx)
                 }
                 out(rowIdx, colIdx) = acc
