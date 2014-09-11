@@ -708,10 +708,6 @@ trait DenseMatrixOpsImpl {
 
 
 def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[DenseMatrix[T]], out: Rep[DenseMatrix[T]])(tunables: Tunable[scala.Int])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
-//    val m1 = DenseMatrix[T](M, P)
-//    val m2 = DenseMatrix[T](P, N)
-//    val out = DenseMatrix[T](M, N)
-
     val M = m1.numRows
     val P = m1.numCols
     val N = m2.numRows
@@ -728,29 +724,40 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
 //      val u4: scala.Int = tunables(6)
 //      val u5: scala.Int = tunables(7)
 //      val u6: scala.Int = tunables(8)
-      
+    
       // Note: Don't add any prints here - that adds a 'Misc1_Println' node in the IR which has a 'Simple' summary. This
       // inadvertently adds a dependency on previously created IR nodes, even if the string to be printed doesn't depend 
       // on anything. If you are unconvinced, add a println("blah") and see how the generated code explodes in size due to
       // all the dependencies
 
-//      unroll(u1) (0, M, m) { blockm => {
-//        unroll(u2) (0, N, n) { blockn => { 
-//          unroll(u3) (0, P, p) { blockp => {
-//          
-//            unroll(u4) (blockm, blockm+m, 1) { rowIdx => {
-//              unroll(u5) (blockn ,blockn+n, 1) { colIdx => {
-//                var acc = out(rowIdx, colIdx)
-//                unroll(u6) (blockp, blockp + p, 1) { tempIter => {
-//                  acc += m1(rowIdx, tempIter) * m2(tempIter, colIdx)
-//                }}
-//                out(rowIdx, colIdx) = acc
-//              }}
-//            }}
-//          }}
-//        }}
-//      }}
+      val m: scala.Int = tunables(0)
+      val p: scala.Int = tunables(1)
+      val n: scala.Int = tunables(2)
+      val u1: scala.Int = 1 
+      val u2: scala.Int = 1 
+      val u3: scala.Int = 1 
+      val u4: scala.Int = 1 
+      val u5: scala.Int = 1 
+      val u6: scala.Int = 1
 
+      unroll(u1) (0, M, m) { blockm => {
+        unroll(u2) (0, N, n) { blockn => { 
+          unroll(u3) (0, P, p) { blockp => {
+          
+            unroll(u4) (blockm, blockm+m, 1) { rowIdx => {
+              unroll(u5) (blockn ,blockn+n, 1) { colIdx => {
+                var acc = out(rowIdx, colIdx)
+                unroll(u6) (blockp, blockp + p, 1) { tempIter => {
+                  acc += m1(rowIdx, tempIter) * m2(tempIter, colIdx)
+                }}
+                out(rowIdx, colIdx) = acc
+              }}
+            }}
+          }}
+        }}
+      }}
+
+/*
       def bmm[T:Manifest](startm: Rep[Int], endm: Rep[Int], startn: Rep[Int], endn: Rep[Int], startp: Rep[Int], endp: Rep[Int], unrollFactorList: scala.List[scala.Int])(implicit __pos: SourceContext,__imp0: Arith[T]) = {
         val bm: scala.Int = bsizeList(0)
         val bn: scala.Int = bsizeList(1)
@@ -798,18 +805,8 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
         }
       }
 
-//      val m: scala.Int = tunables(0)
-//      val p: scala.Int = tunables(1)
-//      val n: scala.Int = tunables(2)
-//      val u1: scala.Int = 1 
-//      val u2: scala.Int = 1 
-//      val u3: scala.Int = 1 
-//      val u4: scala.Int = 1 
-//      val u5: scala.Int = 1 
-//      val u6: scala.Int = 1
-
+      // Invocation
       levelGen(numLevels)(0, M, 0, N, 0, P
-
 
       unroll(u1) (0, M, m) { blockm => {
         unroll(u2) (0, N, n) { blockn => { 
@@ -819,6 +816,7 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
         }}
       }}
 
+*/
 
 
     }
