@@ -7,6 +7,7 @@ import optiml.shared.typeclass._
 import optiml.compiler._
 import optiml.compiler.ops._
 import ppl.delite.framework.Config
+import scala.collection.mutable.ListBuffer
 
 /**
  * Op Impls
@@ -730,6 +731,7 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
       // on anything. If you are unconvinced, add a println("blah") and see how the generated code explodes in size due to
       // all the dependencies
 
+/*
       val m: scala.Int = tunables(0)
       val p: scala.Int = tunables(1)
       val n: scala.Int = tunables(2)
@@ -757,14 +759,13 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
         }}
       }}
 
-/*
-      def bmm[T:Manifest](startm: Rep[Int], endm: Rep[Int], startn: Rep[Int], endn: Rep[Int], startp: Rep[Int], endp: Rep[Int], unrollFactorList: scala.List[scala.Int])(implicit __pos: SourceContext,__imp0: Arith[T]) = {
-        val bm: scala.Int = bsizeList(0)
-        val bn: scala.Int = bsizeList(1)
-        val bp: scala.Int = bsizeList(2)
-        val um: scala.Int = unrollFactorList(0)
-        val un: scala.Int = unrollFactorList(1)
-        val up: scala.Int = unrollFactorList(2)
+*/
+
+      def bmm(startm: Rep[Int], endm: Rep[Int], startn: Rep[Int], endn: Rep[Int], startp: Rep[Int], endp: Rep[Int], tunablesList: scala.List[scala.Int]) = { // (implicit __pos: SourceContext,__imp0: Arith[T]) 
+        // Ignore block sizes here
+        val um: scala.Int = tunablesList(3)
+        val un: scala.Int = tunablesList(4)
+        val up: scala.Int = tunablesList(5)
 
          unroll(um) (startm, endm, 1) { rowIdx => {
            unroll(un) (startn, endn, 1) { colIdx => {
@@ -777,28 +778,39 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
          }}
       }
       
-      // Won't compile, yet to modify the Tunables interface. Maybe each element in the 'tunables' list must be 
-      // a separate 'Element' class, where Element is parameterized?
-      val numLevels:scala.Int = tunables(0).get
-      val blockSizes:scala.List[scala.List[scala.Int]] = tunables(1).get
-      val unrollFactors:scala.List[scala.List[scala.Int]] = tunables(2).get 
+      val numLevels:scala.Int = tunables(0)
+      val tunableParamsPerLevel = 6 // bm, bn, bp, um, un, up      
+
+      def getTunablesForLevel(level: scala.Int): scala.List[scala.Int] = {
+        val startIdx: scala.Int = level * tunableParamsPerLevel + 1
+        val endIdx: scala.Int = startIdx + tunableParamsPerLevel - 1
+        val tunablesList = new ListBuffer[scala.Int]
+        for (i: scala.Int <- startIdx to endIdx) {
+          tunablesList.append(tunables(i))
+        }
+        tunablesList.toList
+      }
 
       // Generate <m,n,p> loop
-      def levelGen(level: scala.Int, bsizeList: scala.List[scala.Int], unrollFactorList: scala.List[scala.Int]]) // Level specific information
+      def levelGen(level: scala.Int, tunablesList: scala.List[scala.Int]) // Level specific information
                   (startm: Rep[Int], endm: Rep[Int], startn: Rep[Int], endn: Rep[Int], startp: Rep[Int], endp: Rep[Int])
-                  (f0: (Rep[Int],Rep[Int],Rep[Int],scala.List[scala.Int]) => scala.Unit): scala.Unit = {
-        if (level == 0) {
-          f0(startm, endm, startn, endn, startp, endp, bsizeList, unrollFactorList)
+                  (f0: (Rep[Int],Rep[Int],Rep[Int],Rep[Int],Rep[Int],Rep[Int],scala.List[scala.Int]) => scala.Unit)
+                  (implicit __pos: SourceContext,__imp0: Arith[T]): scala.Unit = {
+        Console.println("numLevels = %d, level = %d".format(numLevels, level))
+        if (level == numLevels) {
+          f0(startm, endm, startn, endn, startp, endp, tunablesList)
         }
         else {
-          val stepm = bsizeList(0)
-          val stepn = bsizeList(1)
-          val stepp = bsizeList(2)
+          val stepm = tunablesList(0)
+          val stepn = tunablesList(1)
+          val stepp = tunablesList(2)
+
           for (m <- startm until endm by stepm) {
             for (n <- startn until endn by stepn) {
               for (p <- startp until endp by stepp) {
-                val nextLevel: scala.Int = level-1
-                levelGen(nextLevel, blockSizes(nextLevel), unrollFactors(nextLevel))(m, m+stepm, n, n+stepn, p, p+stepp)(f0)
+                val nextLevel: scala.Int = level+1
+                val nextTunables: scala.List[scala.Int] = getTunablesForLevel(nextLevel)
+                levelGen(nextLevel, nextTunables)(m, m+stepm, n, n+stepn, p, p+stepp)(f0)
               }
             }
           }
@@ -806,19 +818,25 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
       }
 
       // Invocation
-      levelGen(numLevels)(0, M, 0, N, 0, P
+      val tunablesList: scala.List[scala.Int] = getTunablesForLevel(0)
+      levelGen(0, tunablesList)(0, M, 0, N, 0, P)(bmm)
 
-      unroll(u1) (0, M, m) { blockm => {
-        unroll(u2) (0, N, n) { blockn => { 
-          unroll(u3) (0, P, p) { blockp => {
-            bmm(m1, m2, out, blockm, blockn, blockp)(scala.List(m, p, n, u4, u5, u6))
-          }}
-        }}
-      }}
-
-*/
-
-
+//      val m: scala.Int = tunablesList(0)
+//      val n: scala.Int = tunablesList(1)
+//      val p: scala.Int = tunablesList(2)
+//      val u1: scala.Int = 1
+//      val u2: scala.Int = 1
+//      val u3: scala.Int = 1
+//      val u4: scala.Int = 1
+//      val u5: scala.Int = 1
+//      val u6: scala.Int = 1
+//      unroll(u1) (0, M, m) { blockm => {
+//        unroll(u2) (0, N, n) { blockn => { 
+//          unroll(u3) (0, P, p) { blockp => {
+//            bmm(blockm, blockm+m, blockn, blockn+n, blockp, blockp+p, scala.List(m, p, n, u4, u5, u6))
+//          }}
+//        }}
+//      }}
     }
     else {
       throw new Exception("Non-autotuned version should not use this implementation! ABORT!!")

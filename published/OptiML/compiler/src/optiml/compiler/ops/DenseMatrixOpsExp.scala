@@ -1084,24 +1084,76 @@ clean:
       } 
 
       // Tunables order:
-      // (bm, bp, bn)
-      // Ignoring (u1, u2, u3, u4, u5, u6)
+      // (numLevels, bm, bn, bp, um, un, up, bm1, bn1, bp1, um1, un1, up1, ...)
  			def getTunablesFromMatSizes(M: Int, P: Int, N: Int) = {
+        val numLevelRange = 0 to 2 toList
  				val bmRange = getBlockSizes(M)
  				val bpRange = getBlockSizes(P)
  				val bnRange = getBlockSizes(N)
- 				new Tunable (List(bmRange(0), bpRange(0), bnRange(0)), List(bmRange, bpRange, bnRange))
+        val umRange = scala.List(1)
+        val unRange = scala.List(1)
+        val upRange = scala.List(1)
+ 				new Tunable (List(numLevelRange(0), bmRange(4), bnRange(4), bpRange(4), umRange(0), unRange(0), upRange(0), bmRange(2), bnRange(2), bpRange(2), umRange(0), unRange(0), upRange(0), bmRange(0), bnRange(0), bpRange(0), umRange(0), unRange(0), upRange(0)), List(numLevelRange, bmRange, bnRange, bpRange, umRange, unRange, upRange, bmRange, bnRange, bpRange, umRange, unRange, upRange, bmRange, bnRange, bpRange, umRange, unRange, upRange))
  			}
+
+      def posRand(limit: Int) = {
+        Math.abs(Random.nextInt) % limit
+      }                                               //> posRand: (limit: Int)Int
+      def getNewTunable(M: Int, N: Int, P: Int, maxLevels: Int) = {
+        val numLevelsRange = 0 to maxLevels toList
+        val allRanges = new ListBuffer[List[Int]]
+        val allValues = new ListBuffer[Int]
+        val levels = numLevelsRange(posRand(numLevelsRange.length))
+        allValues.append(levels)
+        allRanges.append(numLevelsRange.toList)
+        
+        var loopm = M
+        var loopn = N
+        var loopp = P
+        
+        for (l <- 0 to levels) {
+          var bmRange = List[Int]()
+          var bnRange = List[Int]()
+          var bpRange = List[Int]()
+          if (l == levels) {
+            bmRange = List(1)
+            bnRange = List(1)
+            bpRange = List(1)
+          }
+          else {
+            bmRange = factors(loopm).distinct.toList
+            bnRange = factors(loopn).distinct.toList
+            bpRange = factors(loopp).distinct.toList
+          }
+          val bm = bmRange(posRand(bmRange.length))
+          val bn = bnRange(posRand(bnRange.length))
+          val bp = bpRange(posRand(bpRange.length))
+          val umRange = factors(loopm/bm).distinct.toList
+          val unRange = factors(loopn/bn).distinct.toList
+          val upRange = factors(loopp/bp).distinct.toList
+          val um = umRange(posRand(umRange.length))
+          val un = unRange(posRand(unRange.length))
+          val up = upRange(posRand(upRange.length))
+          allValues.append(bm, bn, bp, um, un, up)
+          allRanges.append(bmRange, bnRange, bpRange, umRange, unRange, upRange)
+        }
+        
+        new Tunable(allValues.toList, allRanges.toList)
+      }
 
       val mdim = 512
       val pdim = 512
       val ndim = 512
+      val maxLevels = 2
       val sizes = List(mdim, pdim, ndim) 
-      val tunables = getTunablesFromMatSizes(mdim, pdim, ndim)
-      val bestTunable = autotune2(matrixMult)(sizes)(tunables)
+      val tunable = getTunablesFromMatSizes(mdim, pdim, ndim, maxLevels)
+//      val bestTunable = autotune2(matrixMult)(sizes)(tunables)
+      val time = matrixMult(sizes)(tunable)
+      throw new Exception("stop here")
       
-      val out = reflectPure(Densematrix_new[T](self.numRows, __arg1.numCols)(implicitly[Manifest[T]],__pos,__imp0))
-      reflectPure(Densematrix_matmult_autotune[T](self, __arg1, out, bestTunable)(implicitly[Manifest[T]],__pos,__imp0))
+//      val out = reflectPure(Densematrix_new[T](self.numRows, __arg1.numCols)(implicitly[Manifest[T]],__pos,__imp0))
+//      reflectPure(Densematrix_matmult_autotune[T](self, __arg1, out, bestTunable)(implicitly[Manifest[T]],__pos,__imp0))
+        reflectPure(Densematrix_matmult[T](self,__arg1)(implicitly[Manifest[T]],__pos,__imp0))
     }
     else {
         reflectPure(Densematrix_matmult[T](self,__arg1)(implicitly[Manifest[T]],__pos,__imp0))

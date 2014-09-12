@@ -1,6 +1,11 @@
 package optiml.compiler.ops
 import scala.util.Random
 
+
+class Element[T](val item: T, val itemList: scala.List[T]) {
+
+}
+
 /**  Class Tunable - represents an n-tuple of values of type T that need to be tuned.
  *   This class is typically used with the Autotuner function to represent arguments
  *   tunable arguments from a search space of possibilities. Currently, all members of
