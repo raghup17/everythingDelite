@@ -1097,7 +1097,7 @@ clean:
  			}
 
       def posRand(limit: Int) = {
-        Math.abs(Random.nextInt) % limit
+        scala.math.abs(Random.nextInt) % limit
       }                                               //> posRand: (limit: Int)Int
       def getNewTunable(M: Int, N: Int, P: Int, maxLevels: Int) = {
         val numLevelsRange = 0 to maxLevels toList
