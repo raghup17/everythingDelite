@@ -708,7 +708,7 @@ trait DenseMatrixOpsImpl {
 
 
 
-def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[DenseMatrix[T]], out: Rep[DenseMatrix[T]])(tunables: Tunable[scala.Int])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
+def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[DenseMatrix[T]], out: Rep[DenseMatrix[T]])(tunables: Tunable)(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
     val M = m1.numRows
     val P = m1.numCols
     val N = m2.numRows
@@ -844,7 +844,7 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
     out.unsafeImmutable
   }
 
-def densematrix_matmult_impl62b[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[DenseMatrix[T]])(tunables: Tunable[scala.Int])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
+def densematrix_matmult_impl62b[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[DenseMatrix[T]])(tunables: Tunable)(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
 
     val M = m1.numRows
     val P = m1.numCols
