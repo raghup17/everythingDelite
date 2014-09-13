@@ -155,7 +155,7 @@ class Tunable {
     }
   }
 
-  def mutate() = {
+  def mutate(): Tunable = {
     val excludeThese = Range((tunable.length - paramsPerLevel), tunable.length-3)
 //			println("Excluding these: %s".format(excludeThese))
     for (idx <- 1 to (tunable.length-1) diff excludeThese ) {
