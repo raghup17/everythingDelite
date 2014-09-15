@@ -946,7 +946,7 @@ clean:
           population += (t -> invalidScore)
         }
         
-//        Console.println("Initial population = %s".format(population))
+        Console.println("Initial population = %s".format(population))
 
         // Genetic search for 'numGenerations' generations
         for (gen <- 0 until numGenerations) {
@@ -1056,7 +1056,8 @@ clean:
 
           
           // Add all the new guys into population
-          val newMembers: scala.List[Tunable] = crossoverList ::: mutationList ::: newList
+          val newMembers: scala.List[Tunable] =  mutationList ::: newList
+
 //          Console.println("Number of new members = %d".format(newMembers.length))
           for (t: Tunable <- newMembers) {
               population += (t -> invalidScore)
@@ -1101,16 +1102,15 @@ clean:
       val ndim = 512
       val numLevels = 2
       val tunable = new Tunable(mdim, ndim, pdim, numLevels) 
-//      val sizes = List(mdim, pdim, ndim) 
+      val sizes = List(mdim, pdim, ndim) 
 //      val tunable = getTunablesFromMatSizes(mdim, pdim, ndim, maxLevels)
 //      val tunable = getTunablesFromMatSizes(mdim, pdim, ndim, maxLevels)
-//      val bestTunable = autotune2(matrixMult)(sizes)(tunables)
-      val time = matrixMult(sizes)(tunable)
-      throw new Exception("stop here")
+      val bestTunable = autotune2(matrixMult)(sizes)(tunable)
+//      val time = matrixMult(sizes)(tunable)
+//      throw new Exception("stop here")
       
-//      val out = reflectPure(Densematrix_new[T](self.numRows, __arg1.numCols)(implicitly[Manifest[T]],__pos,__imp0))
-//      reflectPure(Densematrix_matmult_autotune[T](self, __arg1, out, bestTunable)(implicitly[Manifest[T]],__pos,__imp0))
-        reflectPure(Densematrix_matmult[T](self,__arg1)(implicitly[Manifest[T]],__pos,__imp0))
+      val out = reflectPure(Densematrix_new[T](self.numRows, __arg1.numCols)(implicitly[Manifest[T]],__pos,__imp0))
+      reflectPure(Densematrix_matmult_autotune[T](self, __arg1, out, bestTunable)(implicitly[Manifest[T]],__pos,__imp0))
     }
     else {
         reflectPure(Densematrix_matmult[T](self,__arg1)(implicitly[Manifest[T]],__pos,__imp0))
