@@ -156,6 +156,12 @@ def stage(runner, params, opts):
         print("LMS_HOME is UNDEFINED")
       print(java_opts)
 
+    if (opts.autotune == True):
+        deleteCmd = "rm -r autotuneCode/a_*"
+        print "Autotune mode, executing cmd: %s" %(deleteCmd)
+        ecode = os.system(deleteCmd)
+
+
     print "==  Generating DEG file with options: " + str(opts)
     java_cmd = delitecommon.JAVA_HOME + "/bin/java " + java_opts + " " + runner + " " + ' '.join(params)
     # print java_cmd
@@ -163,10 +169,6 @@ def stage(runner, params, opts):
     if ecode != 0:
         err("Delite compilation failed")
 
-#    if (opts.autotune == True):
-#        deliteCmd = delitecommon.DELITE_HOME + "/bin/delite " + "--cpp=1 " + runner
-#        print "Autotune mode, executing cmd: %s" %(deliteCmd)
-#        ecode = os.system(deliteCmd)
 #        if ecode != 0:
 #            err("Runtime failed during autotuning")
 

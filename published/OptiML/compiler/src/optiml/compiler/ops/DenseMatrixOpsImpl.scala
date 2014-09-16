@@ -796,7 +796,7 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
                   (startm: Rep[Int], endm: Rep[Int], startn: Rep[Int], endn: Rep[Int], startp: Rep[Int], endp: Rep[Int])
                   (f0: (Rep[Int],Rep[Int],Rep[Int],Rep[Int],Rep[Int],Rep[Int],scala.List[scala.Int]) => scala.Unit)
                   (implicit __pos: SourceContext,__imp0: Arith[T]): scala.Unit = {
-        Console.println("numLevels = %d, level = %d".format(numLevels, level))
+//        Console.println("numLevels = %d, level = %d".format(numLevels, level))
         if (level == numLevels) {
           f0(startm, endm, startn, endn, startp, endp, tunablesList)
         }

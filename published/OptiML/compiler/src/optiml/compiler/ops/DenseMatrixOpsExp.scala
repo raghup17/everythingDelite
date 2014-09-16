@@ -928,7 +928,7 @@ clean:
         Console.println("Every symbol after %s must be purged in each autotune iteration".format(symNumber))
 
         // Some autotuning constants
-        val numGenerations = 1
+        val numGenerations = 50
         val populationSize = 10
         val invalidScore = scala.Double.MaxValue
 
@@ -955,64 +955,88 @@ clean:
           // Profile run each of the tunables in population
 //          Console.println("population.keySet.size = %d".format(population.keySet.size))
           for (t: Tunable <- population.keySet) {
-//            Console.println("Tunable: %s".format(t.toString))
+            Console.println(t.toString)
             val elapsed = f(input)(t)
+            Console.println(elapsed)
             population += (t -> elapsed)
           }
 
           // Get sorted list of tunables by rank
-          val popList = population.toList
+//          val popList = population.toList
 //          Console.println("popList")
 //          Console.println(popList)
 //          val sortedTupleList  = popList.sortBy(x => (x._2, x._1))
 //          val sortedTunables: scala.List[Tunable[Int]] = sortedTupleList map { x => x._1 }
-          val scoreList: scala.List[Double] = population.values.toList.sorted
-//          Console.println("scoreList: ")
-//          Console.println(scoreList)
-          var sortedTunables = List[Tunable]()
+//          val scoreList: scala.List[Double] = population.values.toList.sorted
           // Using 'sortBy' is blowing up in my face, so doing this manually
-//          Console.println("population=")
-//          Console.println(population)
-          for (s: Double <- scoreList) {
-             for (k: Tunable <- population.keySet) {
-//               Console.println("Checking score=%f, tunable = %s".format(s, k.toString))
-               if (population(k) == s) {
-                 if (!sortedTunables.contains(k)) {
-//                   Console.println("Adding ")
-//                   Console.println(k)
-                   sortedTunables :+= k 
-                 }
-               }
-            }
-          }
+//          var sortedTunables = List[Tunable]()
+//          for (s: Double <- scoreList) {
+//             for (k: Tunable <- population.keySet) {
+//               if (population(k) == s) {
+//                 if (!sortedTunables.contains(k)) {
+//                   sortedTunables :+= k 
+//                 }
+//               }
+//            }
+//          }
+//
 
-//          Console.println("Sorted tunables: ")
-//          Console.println(sortedTunables)
+          val popList: scala.List[(Tunable, scala.Double)] = population.toList
+          val sortedTupleList: scala.List[(Tunable, scala.Double)] = popList sortBy { _._2 }
+          Console.println("sortedTupleList = %s".format(sortedTupleList))
+          val sortedTunables: scala.List[Tunable] = sortedTupleList map { x => x._1 }
+          if (sortedTunables.length != population.keySet.size) {
+            Console.println("sortedTunables.length (%d) not equal to population.keySet.size (%d) !".format(sortedTunables.length, population.keySet.size))
+            Console.println("population.keySet:")
+            Console.println(population.keySet)
+            Console.println("sortedTunables:")
+            Console.println(sortedTunables)
+          }
 
           // Time for deletions - keep only the top half
           val bestList: scala.List[Tunable] = sortedTunables take (populationSize/2)
-     
-//          Console.println("bestList:")
-//          Console.println(bestList)
-
-//          Console.println("Pop adjustment begin")
-          // Remove the bottom entries from the population map\
-//          Console.println("sortedTunables.length = %d".format(sortedTunables.length))
-//          Console.println(sortedTunables)
-//          Console.println("bestList.length = %d".format(bestList.length))
           val badTunables: scala.List[Tunable] = sortedTunables diff bestList
-//          Console.println("Removing %d tunables from population".format(badTunables.length))
+
+          Console.println("population.keySet.size = %d".format(population.keySet.size))
+          Console.println("bestList.length = %d".format(bestList.length))
+          Console.println("badTunables.length = %d".format(badTunables.length))
+          Console.println("population.keySet.size before removing %d tunables = %d".format(badTunables.length, population.keySet.size))
+          Console.println("Removing %d tunables from population".format(badTunables.length))
           for (bad: Tunable <- badTunables) {
+            Console.println("Removing %s".format(bad))
+            val before = population.keySet.size
             population -= bad
+            val after = population.keySet.size
+            if (after == before) {
+              Console.println("Could not remove %s!".format(bad))
+              Console.println("hashcode = %d".format(bad.hashCode))
+              Console.println("**** DUMPING POPULATION ***")
+              for (k: Tunable <- population.keySet) {
+                Console.println("k: %s".format(k))
+                Console.println("hashcode: %d".format(k.hashCode))
+                if (k != bad) {
+                  Console.println("  is not the thing that's to be removed")
+                }
+                else {
+                  population -= k
+                }
+              }
+              Console.println("**** END DUMP ***")
+            }
           }
-//          Console.println("population.keySet.size = %d".format(population.keySet.size))
+
+          Console.println("population.keySet.size after removing %d tunables = %d".format(badTunables.length, population.keySet.size))
+          Console.println(population)
 
           // We need to make up new members of population
-          val numNew: scala.Int = badTunables.length
+          val numNew: scala.Int = populationSize - population.keySet.size
           val numMutation: scala.Int = numNew/2 
 //          val numCrossovers: scala.Int = 1 
           val numRandomNew: scala.Int = numNew - numMutation //  - numCrossovers
 
+          Console.println("Creating %d new tunables".format(numRandomNew))
+          Console.println("Creating %d mutations".format(numMutation))
+          Console.println("Totally we will have %d new tunables".format(numNew))
           // Crossovers - ignoring for now
 //          val crossoverList: scala.List[Tunable] = (for (i <- 0 to numCrossovers-1) yield {
 //              val t1 = bestList(positiveRand % bestList.length)
@@ -1031,22 +1055,26 @@ clean:
 //          Console.println("crossoverList.length = %d".format(crossoverList.length))
 
           // Mutations - restricting to upper half of bestList tunables
+          Console.println("Best list before mutation:")
+          Console.println(bestList)
           val mutationList: scala.List[Tunable] = (for (i <- 0 to numMutation-1) yield {
-            val t1 = bestList(positiveRand % bestList.length/2)
-            var res = t1.mutate
+            val t1: Tunable = bestList(positiveRand % bestList.length/2)
+            val t1_clone = t1 // .deepCopy
+            var res: Tunable = t1_clone.mutate
             while (populationCache contains res) {
               val t1 = bestList(positiveRand % bestList.length/2)
-              res = t1.mutate
+              val t1_clone = t1 // .deepCopy
+              res = t1_clone.mutate
             }
             populationCache += res
             res
           }).toList
-//          Console.println("Number of mutations required: %d".format(numMutation))
-//          Console.println("mutationList.length = %d".format(mutationList.length))
+          Console.println("Best list after mutation:")
+          Console.println(bestList)
 
           // - completely random tunables
           val newList: scala.List[Tunable] = (for (i <- 0 to numRandomNew-1) yield {
-            var res = tunable.getnew
+            var res: Tunable = tunable.getnew
             while (populationCache contains res) {
               res = tunable.getnew
             }
@@ -1058,12 +1086,32 @@ clean:
           // Add all the new guys into population
           val newMembers: scala.List[Tunable] =  mutationList ::: newList
 
-//          Console.println("Number of new members = %d".format(newMembers.length))
+          Console.println("Number of new members = %d".format(newMembers.length))
+
           for (t: Tunable <- newMembers) {
+              Console.println("Adding %s".format(t))
+              val before = population.keySet.size
               population += (t -> invalidScore)
+              val after = population.keySet.size
+              if (after == before) {
+                Console.println("Could not add %s!".format(t))
+                Console.println("hashcode = %d".format(t.hashCode))
+                Console.println("**** DUMPING POPULATION ***")
+                for (k: Tunable <- population.keySet) {
+                  Console.println("k: %s".format(k))
+                  Console.println("hashcode: %d".format(k.hashCode))
+                  if (k != t) {
+                    Console.println("  is not the thing that's to be removed")
+                  }
+                }
+                Console.println("**** END DUMP ***")
+              }
+
           }
-//          Console.println("Pop adjustment end")
-          Console.println("\tBest so far: %s -> %s".format(bestList(0).toString, population(bestList(0)).toString))
+
+          Console.println("population size before next gen = %d".format(population.keySet.size))
+//          Console.println("\tBest so far: %s -> %f".format(bestList(0), population(bestList(0))))
+
         }  // End for loop on generations
 
         // Get sorted list of tunables by rank

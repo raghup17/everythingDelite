@@ -17,11 +17,16 @@ class Tunable {
   var tunable: ListBuffer[Int] = new ListBuffer[Int]
   var geneList: ListBuffer[scala.List[Int]] = new ListBuffer[List[Int]]()
   var depList: ListBuffer[List[(Int, (Int, Int) => Unit)]] = new ListBuffer[List[(Int, (Int, Int) => Unit)]]()
-  val paramsPerLevel: Int = 6
+  var paramsPerLevel: Int = 6
   var numLevels: Int = -1 // Zero based. If numLevels == 2, there are three levels 0,1,2. 0 is the outermost loop nest
   var mdim : Int = -1
   var ndim: Int = -1
   var pdim: Int = -1
+  var maxAllowedUnroll = 17
+
+
+  
+
   def posRand(limit: Int) = {
     scala.math.abs(Random.nextInt) % limit
   }
@@ -80,6 +85,7 @@ class Tunable {
     var prevBm = -1
     var prevBn = -1
     var prevBp = -1
+    var retVal = true
     for (l <- 0 to numLevels) {
       val levelStart = l*paramsPerLevel + 1
       val levelEnd = levelStart + paramsPerLevel - 1
@@ -87,7 +93,7 @@ class Tunable {
       val bn = tunable(levelStart + 1)
       val bp = tunable(levelStart + 2)
       if (!validateBlockSizes(prevBm, bm) || !validateBlockSizes(prevBn, bn) || !validateBlockSizes(prevBp, bp)) {
-        false
+        retVal = false
       }
 
       val um = tunable(levelStart + 3)
@@ -95,13 +101,13 @@ class Tunable {
       val up = tunable(levelStart + 5)
      
       if (!validateUnrollFactors(prevBm, bm, um) || !validateUnrollFactors(prevBn, bn, un) || !validateUnrollFactors(prevBp, bp, up)) {
-        false
+        retVal = false
       }
       prevBm = bm
       prevBn = bn
       prevBp = bp
     }
-    true
+    retVal
   }
 
   def getLevelOf(id: Int): Int = {
@@ -130,7 +136,7 @@ class Tunable {
 //    		println("[updateUnroll] geneList(%d) = %s".format(depIdx, geneList(depIdx)))
 //    		println("[updateUnroll] location=%d, Max trip count = %d".format(idx, newMaxTripcount))
     }
-    val newRange = factors(newMaxTripcount).distinct.toList
+    val newRange = factors(newMaxTripcount).distinct.toList filter (x => x<maxAllowedUnroll)
     geneList(idx) = newRange
     if (!newRange.contains(tunable(idx))) {
       val newTunable = newRange(posRand(newRange.length))
@@ -157,19 +163,20 @@ class Tunable {
   }
 
   def mutate(): Tunable = {
-    val excludeThese = Range((tunable.length - paramsPerLevel), tunable.length-3)
+    val newT = this.deepCopy
+    val excludeThese = Range((newT.tunable.length - newT.paramsPerLevel), newT.tunable.length-3)
 //			println("Excluding these: %s".format(excludeThese))
-    for (idx <- 1 to (tunable.length-1) diff excludeThese ) {
+    for (idx <- 1 to (newT.tunable.length-1) diff excludeThese ) {
       if (posRand(Int.MaxValue)%2 == 0) {
-        val range = geneList(idx)
-        tunable(idx) = range(posRand(range.length))
-        updateEverythingFrom(idx)
+        val range = newT.geneList(idx)
+        newT.tunable(idx) = range(posRand(range.length))
+        newT.updateEverythingFrom(idx)
       }
     }
     if (!validateTunables) {
       Console.println("Invalid tunables generated after mutation!")
     }
-    this
+    newT
   }
   
   def mutate(posi: Int) = {
@@ -192,6 +199,26 @@ class Tunable {
 
   def getnew() = {
     new Tunable(mdim, ndim, pdim, numLevels)
+  }
+
+  // TODO: Have to use clone(), but doing so craps out on me. Don't understand what the error message means
+  def deepCopy(): Tunable = {
+    new Tunable(mdim, ndim, pdim, numLevels, paramsPerLevel, maxAllowedUnroll, tunable, geneList, depList) 
+  }
+
+  // To facilitate deep copy
+  def this(M: Int, N: Int, P: Int, levels: Int, p: Int, maxUnroll: Int, 
+            t: ListBuffer[Int], g: ListBuffer[List[Int]], d: ListBuffer[List[(Int, (Int, Int) => Unit)]]) = {
+    this()
+    mdim = M
+    ndim = N
+    pdim = P
+    numLevels = levels
+    paramsPerLevel = p
+    maxAllowedUnroll = maxUnroll
+    tunable = t.clone
+    geneList = g.clone
+    depList = d.clone
   }
 
   def this(M: Int, N: Int, P: Int, levels: Int) = {
@@ -224,9 +251,9 @@ class Tunable {
         bp = bpRange(posRand(bpRange.length))
       }
       
-      val umRange = factors(loopm/bm).distinct.toList
-      val unRange = factors(loopn/bn).distinct.toList
-      val upRange = factors(loopp/bp).distinct.toList
+      val umRange = factors(loopm/bm).distinct.toList filter (x => x<maxAllowedUnroll)
+      val unRange = factors(loopn/bn).distinct.toList filter (x => x<maxAllowedUnroll)
+      val upRange = factors(loopp/bp).distinct.toList filter (x => x<maxAllowedUnroll)
       val um = umRange(posRand(umRange.length))
       val un = unRange(posRand(unRange.length))
       val up = upRange(posRand(upRange.length))
@@ -281,11 +308,19 @@ class Tunable {
   
   override def equals(o: Any) = o match {
     case that: Tunable =>
-      if(that.tunable == tunable && that.geneList == geneList) true
+      if(that.tunable == tunable && that.geneList == geneList && that.hashCode == this.hashCode) true
       else false
     case _ => super.equals(o)
   }
-  override def hashCode = tunable.hashCode + geneList.hashCode
+
+  override def hashCode = {
+    var hashCodeSum = tunable.hashCode
+    for (l <- geneList) {
+      hashCodeSum += l.hashCode
+    }
+    hashCodeSum
+  }
+
   def mkString(s: String) = this.tunable.mkString(s)
   override def toString = { tunable.toString }
 }
