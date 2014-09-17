@@ -32,6 +32,10 @@ class Tunable {
     (1 to scala.math.sqrt(n).toInt) filter (n % _ == 0) flatMap { x => List(x,n/x) } sorted
   }
 
+  def length() = {
+    tunable.length
+  }
+
   // The Tunables are assumed to be stored in the following order:
   // --------------------------------------------------------------------------------------------------------
   // | #levels | stepm | stepn | stepp | unrollm | unrolln | unrollp | stepm | stepn | stepp | ..
@@ -153,7 +157,7 @@ class Tunable {
   }
 
   def mutate(): Tunable = {
-    val excludeThese = Range((tunable.length - paramsPerLevel), tunable.length-3)
+    val excludeThese = Range((tunable.length - (paramsPerLevel+1)), tunable.length-4)
     for (idx <- 1 to (tunable.length-1) diff excludeThese ) {
       if (posRand(Int.MaxValue)%2 == 0) {
         val range = geneList(idx)
@@ -295,6 +299,10 @@ class Tunable {
       loopp = bp
         
     }
+    val ijkOrderList = List(123, 132, 213, 231, 312, 321)
+    geneList.append(ijkOrderList)
+    tunable.append(ijkOrderList(posRand(ijkOrderList.length)))
+    depList.append(emptyDepList)
     if (!validateTunables) {
       Console.println("Invalid tunables created within new!")
     }

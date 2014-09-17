@@ -761,25 +761,75 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
 
 */
 
-      def bmm(startm: Rep[Int], endm: Rep[Int], startn: Rep[Int], endn: Rep[Int], startp: Rep[Int], endp: Rep[Int], tunablesList: scala.List[scala.Int]) = { // (implicit __pos: SourceContext,__imp0: Arith[T]) 
+      def bmm(startm: Rep[Int], endm: Rep[Int], startn: Rep[Int], endn: Rep[Int], startp: Rep[Int], endp: Rep[Int], ijkOrder: scala.Int, tunablesList: scala.List[scala.Int]) = { // (implicit __pos: SourceContext,__imp0: Arith[T]) 
         // Ignore block sizes here
         val um: scala.Int = tunablesList(3)
         val un: scala.Int = tunablesList(4)
         val up: scala.Int = tunablesList(5)
 
-         unroll(um) (startm, endm, 1) { rowIdx => {
-           unroll(un) (startn, endn, 1) { colIdx => {
-             var acc = out(rowIdx, colIdx) // What a weird way to initialize it to zero
-             unroll(up) (startp, endp, 1) { tempIter => {
-               acc += m1(rowIdx, tempIter) * m2(tempIter, colIdx)
+        if (ijkOrder == 123) {
+           unroll(1) (startm, endm, 1) { i => {
+             unroll(1) (startn, endn, 1) { j => {
+               unroll(up) (startp, endp, 1) { k => {
+                 out(i, j) = out(i, j) + m1(i, k) * m2(k, j) 
+               }}
              }}
-            out(rowIdx, colIdx) = acc
            }}
-         }}
+        }
+        else if (ijkOrder == 132) {
+            unroll(1) (startm, endm, 1) { i => {
+             unroll(1) (startp, endp, 1) { k => {
+               unroll(up) (startn, endn, 1) { j => {
+                 out(i, j) = out(i, j) + m1(i, k) * m2(k, j) 
+               }}
+             }}
+           }}
+        }
+        else if (ijkOrder == 213) {
+            unroll(1) (startn, endn, 1) { j => {
+             unroll(1) (startm, endm, 1) { i => {
+               unroll(up) (startp, endp, 1) { k => {
+                 out(i, j) = out(i, j) + m1(i, k) * m2(k, j) 
+               }}
+             }}
+           }}
+        }
+        else if (ijkOrder == 231) {
+            unroll(1) (startn, endn, 1) { j => {
+             unroll(1) (startp, endp, 1) { k => {
+               unroll(up) (startm, endm, 1) { i => {
+                 out(i, j) = out(i, j) + m1(i, k) * m2(k, j) 
+               }}
+             }}
+           }}
+        }
+        else if (ijkOrder == 312) {
+            unroll(1) (startp, endp, 1) { k => {
+             unroll(1) (startm, endm, 1) { i => {
+               unroll(up) (startn, endn, 1) { j => {
+                 out(i, j) = out(i, j) + m1(i, k) * m2(k, j) 
+               }}
+             }}
+           }}
+        }
+        else if (ijkOrder == 321) {
+            unroll(1) (startp, endp, 1) { k => {
+             unroll(1) (startn, endn, 1) { j => {
+               unroll(up) (startm, endm, 1) { i => {
+                 out(i, j) = out(i, j) + m1(i, k) * m2(k, j) 
+               }}
+             }}
+           }}
+        }
+        else {
+          Console.println("Unknown ijkOrder: %d".format(ijkOrder))
+          throw new Exception("Abort")
+        }
       }
       
       val numLevels:scala.Int = tunables(0)
       val tunableParamsPerLevel = 6 // bm, bn, bp, um, un, up      
+      val ijkOrder: scala.Int = tunables(tunables.length-1)
 
       def getTunablesForLevel(level: scala.Int): scala.List[scala.Int] = {
         val startIdx: scala.Int = level * tunableParamsPerLevel + 1
@@ -794,11 +844,11 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
       // Generate <m,n,p> loop
       def levelGen(level: scala.Int, tunablesList: scala.List[scala.Int]) // Level specific information
                   (startm: Rep[Int], endm: Rep[Int], startn: Rep[Int], endn: Rep[Int], startp: Rep[Int], endp: Rep[Int])
-                  (f0: (Rep[Int],Rep[Int],Rep[Int],Rep[Int],Rep[Int],Rep[Int],scala.List[scala.Int]) => scala.Unit)
+                  (f0: (Rep[Int],Rep[Int],Rep[Int],Rep[Int],Rep[Int],Rep[Int], scala.Int, scala.List[scala.Int]) => scala.Unit)
                   (implicit __pos: SourceContext,__imp0: Arith[T]): scala.Unit = {
 //        Console.println("numLevels = %d, level = %d".format(numLevels, level))
         if (level == numLevels) {
-          f0(startm, endm, startn, endn, startp, endp, tunablesList)
+          f0(startm, endm, startn, endn, startp, endp, ijkOrder, tunablesList)
         }
         else {
           val stepm = tunablesList(0)
