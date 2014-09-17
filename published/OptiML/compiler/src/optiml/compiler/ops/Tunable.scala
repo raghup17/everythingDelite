@@ -16,16 +16,13 @@ import scala.collection.mutable.ListBuffer
 class Tunable {
   var tunable: ListBuffer[Int] = new ListBuffer[Int]
   var geneList: ListBuffer[scala.List[Int]] = new ListBuffer[List[Int]]()
-  var depList: ListBuffer[List[(Int, (Int, Int) => Unit)]] = new ListBuffer[List[(Int, (Int, Int) => Unit)]]()
+  var depList: ListBuffer[List[(Int, (Int, Int, ListBuffer[Int], ListBuffer[List[Int]]) => Unit)]] = new ListBuffer[List[(Int, (Int, Int, ListBuffer[Int], ListBuffer[List[Int]]) => Unit)]]()
   var paramsPerLevel: Int = 6
   var numLevels: Int = -1 // Zero based. If numLevels == 2, there are three levels 0,1,2. 0 is the outermost loop nest
   var mdim : Int = -1
   var ndim: Int = -1
   var pdim: Int = -1
   var maxAllowedUnroll = 17
-
-
-  
 
   def posRand(limit: Int) = {
     scala.math.abs(Random.nextInt) % limit
@@ -37,12 +34,12 @@ class Tunable {
 
   // The Tunables are assumed to be stored in the following order:
   // --------------------------------------------------------------------------------------------------------
-  // | #levels | stepm | stepn | stepp | unrollm | unrolln | unrollp | stepm | stepn | stepp | .. 
+  // | #levels | stepm | stepn | stepp | unrollm | unrolln | unrollp | stepm | stepn | stepp | ..
   // |         | <<----------- level 0 parameters ----------------->>|<<-- level 1 parameters -------
   // --------------------------------------------------------------------------------------------------------
   // The following invariants must hold good:
-  // 1. If step size in level 'l-1' is 'sm', then the corresponding loop in level 'l'must 
-  //    have atmost 'sm' iterations. If the loop in level 'l' has step size 'sm2', then 
+  // 1. If step size in level 'l-1' is 'sm', then the corresponding loop in level 'l'must
+  //    have atmost 'sm' iterations. If the loop in level 'l' has step size 'sm2', then
   //    the max iteration count is 'sm/sm2'.
   // 2. Block sizes at level 'l' must be <= block size at level 'l-1', and must be an integral
   //    multiple of block size at l-1
@@ -54,12 +51,16 @@ class Tunable {
       }
       else {
         val factorsOfPrevB = factors(prevB).distinct.toList
-        if (b > prevB)
-          false
-        if (!(factorsOfPrevB contains b)) {
+        if (b > prevB) {
+          Console.println("curr block %d greater than prev block %d!".format(b, prevB))
           false
         }
-        true
+        else if (!(factorsOfPrevB contains b)) {
+          false
+        }
+        else {
+          true
+        }
       }
     }
 
@@ -72,6 +73,8 @@ class Tunable {
         val validUnrollFactors = factors(maxTripCount).distinct.toList
         if (uf > maxTripCount) {
           Console.println("Unroll factor of %d too large with prevB=%d, currB=%d!".format(uf, prevB, currB))
+          Console.println(tunable)
+//          throw new Exception("stop here")
           false
         }
         else if (!(validUnrollFactors.contains(uf))) {
@@ -118,65 +121,50 @@ class Tunable {
     }
   }
   
-  def updateBlock(idx: Int, depIdx: Int) = {
-    val newMaxBlock = tunable(depIdx)
+  def updateBlock(idx: Int, depIdx: Int, useThisTunable: ListBuffer[Int], useThisGeneList: ListBuffer[List[Int]]) = {
+    val newMaxBlock = useThisTunable(depIdx)
     val newRange = factors(newMaxBlock).distinct.toList
-    geneList(idx) = newRange
-    if (!newRange.contains(tunable(idx))) {
+    useThisGeneList(idx) = newRange
+    if (!newRange.contains(useThisTunable(idx))) {
       val newTunable = newRange(posRand(newRange.length))
-      tunable(idx) = newTunable
+      useThisTunable(idx) = newTunable
     }
   }
   
-  def updateUnroll(idx: Int, depIdx: Int) = {
-//    	println("[updateUnroll] Updating location %d".format(idx))
-    val newMaxTripcount = geneList(depIdx).max / tunable(depIdx)
-    if (getLevelOf(idx) == 2) {
-//    		println("[updateUnroll] location %d depends on location %d:.format(idx, depIdx)".format(idx, depIdx))
-//    		println("[updateUnroll] geneList(%d) = %s".format(depIdx, geneList(depIdx)))
-//    		println("[updateUnroll] location=%d, Max trip count = %d".format(idx, newMaxTripcount))
-    }
-    val newRange = factors(newMaxTripcount).distinct.toList filter (x => x<maxAllowedUnroll)
-    geneList(idx) = newRange
-    if (!newRange.contains(tunable(idx))) {
+  def updateUnroll(idx: Int, depIdx: Int, useThisTunable: ListBuffer[Int], useThisGeneList: ListBuffer[List[Int]]) = {
+    val newMaxTripcount = useThisGeneList(depIdx).max / useThisTunable(depIdx)
+    val newRange = factors(newMaxTripcount).distinct.toList filter (x => x < maxAllowedUnroll)
+    useThisGeneList(idx) = newRange
+    if (!newRange.contains(useThisTunable(idx))) {
       val newTunable = newRange(posRand(newRange.length))
-      tunable(idx) = newTunable
+      useThisTunable(idx) = newTunable
     }
   }
   
   def updateEverythingFrom(idx: Int) = {
     for (i <- idx to tunable.length-1) {
-      //println("Before updating location %d".format(i))
-      //println(tunable)
-      //println(geneList)
       val depInfo = depList(i)
       for (d <- depInfo) {
         val tobeUpdated = d._1
         val f = d._2
-//  			println("Updating location %d".format(tobeUpdated))
-        f(tobeUpdated, i)
+        f(tobeUpdated, i, this.tunable, this.geneList)
       }
-      //println("After updating location %d:".format(i))
-      //println(tunable)
-      //println(geneList)
     }
   }
 
   def mutate(): Tunable = {
-    val newT = this.deepCopy
-    val excludeThese = Range((newT.tunable.length - newT.paramsPerLevel), newT.tunable.length-3)
-//			println("Excluding these: %s".format(excludeThese))
-    for (idx <- 1 to (newT.tunable.length-1) diff excludeThese ) {
+    val excludeThese = Range((tunable.length - paramsPerLevel), tunable.length-3)
+    for (idx <- 1 to (tunable.length-1) diff excludeThese ) {
       if (posRand(Int.MaxValue)%2 == 0) {
-        val range = newT.geneList(idx)
-        newT.tunable(idx) = range(posRand(range.length))
-        newT.updateEverythingFrom(idx)
+        val range = geneList(idx)
+        tunable(idx) = range(posRand(range.length))
+        updateEverythingFrom(idx)
       }
     }
     if (!validateTunables) {
       Console.println("Invalid tunables generated after mutation!")
     }
-    newT
+    this
   }
   
   def mutate(posi: Int) = {
@@ -193,6 +181,7 @@ class Tunable {
     println(tunable)
     if (!validateTunables) {
       Console.println("Invalid tunables generated after mutation!")
+//      throw new Exception("abort")
     }
 
   }
@@ -203,28 +192,35 @@ class Tunable {
 
   // TODO: Have to use clone(), but doing so craps out on me. Don't understand what the error message means
   def deepCopy(): Tunable = {
-    new Tunable(mdim, ndim, pdim, numLevels, paramsPerLevel, maxAllowedUnroll, tunable, geneList, depList) 
-  }
 
-  // To facilitate deep copy
-  def this(M: Int, N: Int, P: Int, levels: Int, p: Int, maxUnroll: Int, 
-            t: ListBuffer[Int], g: ListBuffer[List[Int]], d: ListBuffer[List[(Int, (Int, Int) => Unit)]]) = {
-    this()
-    mdim = M
-    ndim = N
-    pdim = P
-    numLevels = levels
-    paramsPerLevel = p
-    maxAllowedUnroll = maxUnroll
-    tunable = t.clone
-    geneList = g.clone
-    depList = d.clone
+    val newT = new Tunable(mdim, ndim, pdim, numLevels)
+
+    val newTunable: ListBuffer[Int] = new ListBuffer[Int]
+    val newGeneList: ListBuffer[scala.List[Int]] = new ListBuffer[List[Int]]()
+    val newDepList: ListBuffer[List[(Int, (Int, Int, ListBuffer[Int], ListBuffer[List[Int]]) => Unit)]] = new ListBuffer[List[(Int, (Int, Int, ListBuffer[Int], ListBuffer[List[Int]]) => Unit)]]()
+
+    for (t: scala.Int <- tunable) {
+      newTunable.append(t)
+    }
+
+    for (g: scala.List[Int] <- geneList) {
+      newGeneList.append(g)
+    }
+
+    for (d <- depList) {
+      newDepList.append(d)
+    }
+
+    newT.tunable = newTunable
+    newT.geneList = newGeneList
+    newT.depList = newDepList
+    newT
   }
 
   def this(M: Int, N: Int, P: Int, levels: Int) = {
     this()
     val numLevelsRange = List(levels)
-    val emptyDepList = List[(Int, (Int, Int) => Unit)]()
+    val emptyDepList = List[(Int, (Int, Int, ListBuffer[Int], ListBuffer[List[Int]]) => Unit)]()
     numLevels = levels
     mdim = M
     ndim = N
@@ -322,5 +318,5 @@ class Tunable {
   }
 
   def mkString(s: String) = this.tunable.mkString(s)
-  override def toString = { tunable.toString }
+  override def toString = { "Tunable:" + tunable.toString + "\n" + "GeneList:" + geneList.toString }
 }

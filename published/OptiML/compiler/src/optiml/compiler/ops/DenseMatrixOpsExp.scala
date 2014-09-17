@@ -811,7 +811,6 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
       var executableNum = -1
       def matrixMult(sizes: scala.List[scala.Int])(tunables: Tunable): Double = {
         // Create IR nodes to perform m3 = m1 x m2 for the given tunables 
-//        val lhs = reflectPure(Densematrix_matmult_autotune[T](M, P, N, tunables)(implicitly[Manifest[T]],__pos,__imp0))
         val folderName = genFolderName + "/" + "a_" + tunables.mkString("_")
         val outDir = new File(folderName)
         outDir.mkdirs()
@@ -1059,12 +1058,17 @@ clean:
           Console.println(bestList)
           val mutationList: scala.List[Tunable] = (for (i <- 0 to numMutation-1) yield {
             val t1: Tunable = bestList(positiveRand % bestList.length/2)
-            val t1_clone = t1 // .deepCopy
+            val t1_clone: Tunable = t1.deepCopy
             var res: Tunable = t1_clone.mutate
+            
             while (populationCache contains res) {
               val t1 = bestList(positiveRand % bestList.length/2)
-              val t1_clone = t1 // .deepCopy
+              val t1_clone = t1.deepCopy
               res = t1_clone.mutate
+            }
+            if (!res.validateTunables) {
+              Console.println("Invalid tunable generated after mutation, should abort!")
+              throw new Exception("stop here")
             }
             populationCache += res
             res
@@ -1089,7 +1093,7 @@ clean:
           Console.println("Number of new members = %d".format(newMembers.length))
 
           for (t: Tunable <- newMembers) {
-              Console.println("Adding %s".format(t))
+//              Console.println("Adding %s".format(t))
               val before = population.keySet.size
               population += (t -> invalidScore)
               val after = population.keySet.size
