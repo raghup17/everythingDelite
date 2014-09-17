@@ -6,15 +6,18 @@
 #define N 512
 #define P 512
 
+// 2, 64, 16, 256, 8, 2, 1, 
+// 4, 8, 4, 4, 2, 1, 
+// 1, 1, 1, 1, 8, 2
 // Level 0 blocking params
-#define bm0 256  
-#define bn0 256
+#define bm0 64 
+#define bn0 16
 #define bp0 256
 
 // Level 1 blocking params
-#define bm1 64
-#define bn1 64
-#define bp1 64
+#define bm1 4
+#define bn1 8
+#define bp1 4
 
 
 
@@ -35,11 +38,17 @@ void matMult(double *m1, double *m2, double *out) {
     for (j1=j; j1<j+bn0; j1+= bn1) {
     for (k1=k; k1<k+bp0; k1+=bp1) {
 
-              for (k2=k1; k2<k1+bp1; k2++) {
               for (i2=i1; i2<i1+bm1; i2++) {
               for (j2=j1; j2<j1+bn1; j2++) {
+//                double acc = out[i2*N+j2];
+              for (k2=k1; k2<k1+bp1; k2+=2) {
                 out[i2*N+j2] += m1[i2*P+k2] * m2[k2*N+j2];
+                out[i2*N+j2] += m1[i2*P+k2+1] * m2[(k2+1)*N+j2];
+//                acc += m1[i2*P+k2] * m2[k2*N+j2];
+//                acc += m1[i2*P+k2+1] * m2[(k2+1)*N+j2];
+
               }
+//                out[i2*N+j2] = acc;
               }
               }
 
@@ -99,30 +108,37 @@ int main()
   double *out_gold = (double*) malloc (M*N*sizeof(double));
   int mismatchCount = 0;
   int i=0;
-  double uStart = 0.0;
-  double uEnd = 0.0;
+  volatile double uStart = 0.0;
+  volatile double uEnd = 0.0;
 
   // Initialize - already initialized to random values
-//  for (i=0; i<M*P; i++) {
-//    m1[i] = i;
-//  }
-//
-//  for (i=0; i<P*N; i++) {
-//    m2[i] = i;
-//  }
-//
-//  for (i=0; i<M*N; i++) {
-//    out[i] = 0.0;
-//    out_gold[i] = 0.0;
-//  }
+  for (i=0; i<M*P; i++) {
+    m1[i] = i;
+  }
+
+  for (i=0; i<P*N; i++) {
+    m2[i] = i;
+  }
+
+  for (i=0; i<M*N; i++) {
+    out[i] = 0.0;
+    out_gold[i] = 0.0;
+  }
 
   // Invoke
+  __builtin___clear_cache((char*)m1, (char*)(&m1[M*P-1]));
+  __builtin___clear_cache((char*)m2, (char*)(&m2[P*N-1]));
+  __builtin___clear_cache((char*)out, (char*)(&m1[M*N-1]));
   uStart = getTimeInMicroSecs();
   matMult(m1, m2, out);
   uEnd = getTimeInMicroSecs();
   printf("Matrix multiply took %lf us\n", (uEnd-uStart));
 
   // Get Golden copy
+  __builtin___clear_cache((char*)m1, (char*)(&m1[M*P-1]));
+  __builtin___clear_cache((char*)m2, (char*)(&m2[P*N-1]));
+  __builtin___clear_cache((char*)out, (char*)(&m1[M*N-1]));
+
   uStart = getTimeInMicroSecs();
   matMult_gold(m1, m2, out_gold);
   uEnd = getTimeInMicroSecs();
