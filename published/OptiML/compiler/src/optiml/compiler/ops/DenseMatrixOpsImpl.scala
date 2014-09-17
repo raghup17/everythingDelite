@@ -761,6 +761,8 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
 
 */
 
+
+
       def bmm(startm: Rep[Int], endm: Rep[Int], startn: Rep[Int], endn: Rep[Int], startp: Rep[Int], endp: Rep[Int], ijkOrder: scala.Int, tunablesList: scala.List[scala.Int]) = { // (implicit __pos: SourceContext,__imp0: Arith[T]) 
         // Ignore block sizes here
         val um: scala.Int = tunablesList(3)
@@ -828,8 +830,9 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
       }
       
       val numLevels:scala.Int = tunables(0)
-      val tunableParamsPerLevel = 6 // bm, bn, bp, um, un, up      
+      val tunableParamsPerLevel = tunables.paramsPerLevel // bm, bn, bp, um, un, up 
       val ijkOrder: scala.Int = tunables(tunables.length-1)
+//      val transposeLevel: scala.Int = tunables(tunables.length-1)
 
       def getTunablesForLevel(level: scala.Int): scala.List[scala.Int] = {
         val startIdx: scala.Int = level * tunableParamsPerLevel + 1
@@ -841,12 +844,26 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
         tunablesList.toList
       }
 
+      def transpose(transposeBuffer: Rep[DenseMatrix[T]], original: Rep[DenseMatrix[T]], startRow: Rep[Int], startCol: Rep[Int], numRows: scala.Int, numCols: scala.Int) = {
+        for (trow: scala.Int <- 0 to numRows-1) {
+          for (tcol: scala.Int <- 0 to numCols-1) {
+            transposeBuffer(trow, tcol) = original(startRow+tcol, startCol+trow)
+          }
+        }
+      }
+
       // Generate <m,n,p> loop
       def levelGen(level: scala.Int, tunablesList: scala.List[scala.Int]) // Level specific information
                   (startm: Rep[Int], endm: Rep[Int], startn: Rep[Int], endn: Rep[Int], startp: Rep[Int], endp: Rep[Int])
                   (f0: (Rep[Int],Rep[Int],Rep[Int],Rep[Int],Rep[Int],Rep[Int], scala.Int, scala.List[scala.Int]) => scala.Unit)
                   (implicit __pos: SourceContext,__imp0: Arith[T]): scala.Unit = {
-//        Console.println("numLevels = %d, level = %d".format(numLevels, level))
+//      Console.println("numLevels = %d, level = %d".format(numLevels, level))
+
+//      if (level == transposeLevel) {
+//        transpose(transposeBuffer, m2, startRow, startCol, numRows, numCols) 
+//      }
+
+        
         if (level == numLevels) {
           f0(startm, endm, startn, endn, startp, endp, ijkOrder, tunablesList)
         }

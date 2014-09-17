@@ -821,6 +821,10 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
         val m2_fresh = fresh[DenseMatrix[T]]
         val out_fresh = fresh[DenseMatrix[T]]
 
+        val symNumber = fresh[Int]
+        Console.println("Every symbol after %s must be purged in each autotune iteration".format(symNumber))
+
+
         val m1 = reflectPure(Densematrix_new[T](M, P)(implicitly[Manifest[T]],__pos,__imp0))
         val m2 = reflectPure(Densematrix_new[T](P, N)(implicitly[Manifest[T]],__pos,__imp0))
         val out = reflectPure(Densematrix_new[T](M, N)(implicitly[Manifest[T]],__pos,__imp0))
@@ -916,6 +920,8 @@ clean:
 //        Console.println("[run] %s".format(nativeRunOut))
 
         // reset symbol table
+        purgeSymFromAll(symNumber)
+
         nativeRunOut.toDouble
       }
       
@@ -923,9 +929,7 @@ clean:
       def autotune2(f: scala.List[scala.Int] => Tunable => scala.Double)
                                      (input: scala.List[scala.Int])
                                      (tunable: Tunable): Tunable = {
-        val symNumber = fresh[Int]
-        Console.println("Every symbol after %s must be purged in each autotune iteration".format(symNumber))
-
+        
         // Some autotuning constants
         val numGenerations = 50
         val populationSize = 10
@@ -1123,7 +1127,6 @@ clean:
         val sortedTupleList = popList sortBy { _._2 }
         val sortedTunables = sortedTupleList map { x => x._1 }
         Console.println("Best tunables order: %s".format(sortedTupleList.toString))
-        purgeSymFromAll(symNumber)
         sortedTunables(0)
       }
 

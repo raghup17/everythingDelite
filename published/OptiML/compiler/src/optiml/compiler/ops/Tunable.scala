@@ -17,12 +17,12 @@ class Tunable {
   var tunable: ListBuffer[Int] = new ListBuffer[Int]
   var geneList: ListBuffer[scala.List[Int]] = new ListBuffer[List[Int]]()
   var depList: ListBuffer[List[(Int, (Int, Int, ListBuffer[Int], ListBuffer[List[Int]]) => Unit)]] = new ListBuffer[List[(Int, (Int, Int, ListBuffer[Int], ListBuffer[List[Int]]) => Unit)]]()
-  var paramsPerLevel: Int = 6
+  var paramsPerLevel: Int = 6 // bm, bn, bp, um, un, up 
   var numLevels: Int = -1 // Zero based. If numLevels == 2, there are three levels 0,1,2. 0 is the outermost loop nest
   var mdim : Int = -1
   var ndim: Int = -1
   var pdim: Int = -1
-  var maxAllowedUnroll = 17
+  var maxAllowedUnroll = 17  // Arbitrarily restricting max unroll factor to be <= 16
 
   def posRand(limit: Int) = {
     scala.math.abs(Random.nextInt) % limit
@@ -299,6 +299,8 @@ class Tunable {
       loopp = bp
         
     }
+
+    // Parameter controlling ijk order of the innermost loop
     val ijkOrderList = List(123, 132, 213, 231, 312, 321)
     geneList.append(ijkOrderList)
     tunable.append(ijkOrderList(posRand(ijkOrderList.length)))
