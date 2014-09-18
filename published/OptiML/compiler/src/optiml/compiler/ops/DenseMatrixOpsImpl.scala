@@ -761,8 +761,6 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
 
 */
 
-
-
       val transposeLevel: scala.Int = tunables(tunables.length-1)
       val tunableParamsPerLevel = tunables.paramsPerLevel // bm, bn, bp, um, un, up 
       def createTransposeBuffer(level: scala.Int): Option[Rep[DenseMatrix[T]]] = {
@@ -770,10 +768,17 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
           None
         }
         else {
-          val tunablesForLevel = getTunablesForLevel(level)
-          val bp = tunablesForLevel(2)
-          val bn = tunablesForLevel(1)
-          Some(DenseMatrix[T](bn, bp))
+          if (level == 0) {
+            val bn = tunables.ndim
+            val bp = tunables.pdim
+            Some(DenseMatrix[T](bn, bp))
+          }
+          else {
+            val tunablesForLevel = getTunablesForLevel(level-1)
+            val bn = tunablesForLevel(1)
+            val bp = tunablesForLevel(2)
+            Some(DenseMatrix[T](bn, bp))
+          }
         }
       }
 
@@ -795,6 +800,8 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
         val un: scala.Int = tunablesList(4)
         val up: scala.Int = tunablesList(5)
 
+        Console.println("jTransposeStart = %s".format(jTransposeStart))
+        Console.println("kTransposeStart = %s".format(kTransposeStart))
         if (ijkOrder == 123) {
            unroll(1) (startm, endm, 1) { i => {
              unroll(1) (startn, endn, 1) { j => {
@@ -912,9 +919,17 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
 //      Console.println("numLevels = %d, level = %d".format(numLevels, level))
 
       if (level == transposeLevel) {
-        val bp = tunablesList(2)
-        val bn = tunablesList(1)
-        transpose(transposeBuffer.get, m2, startp, startn, bn, bp)
+        if (level == 0) {
+          val bn = tunables.ndim
+          val bp = tunables.pdim
+          transpose(transposeBuffer.get, m2, startp, startn, bn, bp)
+        }
+        else {
+          val prevTunables = getTunablesForLevel(level-1)
+          val bn = prevTunables(1)
+          val bp = prevTunables(2)
+          transpose(transposeBuffer.get, m2, startp, startn, bn, bp)
+        }
         jTransposeStart = startn
         kTransposeStart = startp
       }

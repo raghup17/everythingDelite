@@ -307,8 +307,8 @@ class Tunable {
     depList.append(emptyDepList)
 
     // Parameter controlling where the transpose happens 
-//    val transposeRangeList: scala.List[Int] = ((-(numLevels+1)).to(numLevels)).toList
-    val transposeRangeList: scala.List[Int] = (0.to(numLevels)).toList
+    val transposeRangeList: scala.List[Int] = ((-(numLevels+1)).to(numLevels)).toList
+//    val transposeRangeList: scala.List[Int] = (0.to(numLevels)).toList
     geneList.append(transposeRangeList)
     tunable.append(transposeRangeList(posRand(transposeRangeList.length)))
     depList.append(emptyDepList)

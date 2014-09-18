@@ -986,7 +986,7 @@ clean:
 
           val popList: scala.List[(Tunable, scala.Double)] = population.toList
           val sortedTupleList: scala.List[(Tunable, scala.Double)] = popList sortBy { _._2 }
-          Console.println("sortedTupleList = %s".format(sortedTupleList))
+          Console.println("sortedTupleList:\n%s".format(sortedTupleList))
           val sortedTunables: scala.List[Tunable] = sortedTupleList map { x => x._1 }
           if (sortedTunables.length != population.keySet.size) {
             Console.println("sortedTunables.length (%d) not equal to population.keySet.size (%d) !".format(sortedTunables.length, population.keySet.size))
@@ -1000,11 +1000,11 @@ clean:
           val bestList: scala.List[Tunable] = sortedTunables take (populationSize/2)
           val badTunables: scala.List[Tunable] = sortedTunables diff bestList
 
-          Console.println("population.keySet.size = %d".format(population.keySet.size))
-          Console.println("bestList.length = %d".format(bestList.length))
-          Console.println("badTunables.length = %d".format(badTunables.length))
-          Console.println("population.keySet.size before removing %d tunables = %d".format(badTunables.length, population.keySet.size))
-          Console.println("Removing %d tunables from population".format(badTunables.length))
+//          Console.println("population.keySet.size = %d".format(population.keySet.size))
+//          Console.println("bestList.length = %d".format(bestList.length))
+//          Console.println("badTunables.length = %d".format(badTunables.length))
+//          Console.println("population.keySet.size before removing %d tunables = %d".format(badTunables.length, population.keySet.size))
+//          Console.println("Removing %d tunables from population".format(badTunables.length))
           for (bad: Tunable <- badTunables) {
             Console.println("Removing %s".format(bad))
             val before = population.keySet.size
@@ -1028,8 +1028,8 @@ clean:
             }
           }
 
-          Console.println("population.keySet.size after removing %d tunables = %d".format(badTunables.length, population.keySet.size))
-          Console.println(population)
+//          Console.println("population.keySet.size after removing %d tunables = %d".format(badTunables.length, population.keySet.size))
+//          Console.println(population)
 
           // We need to make up new members of population
           val numNew: scala.Int = populationSize - population.keySet.size
@@ -1058,8 +1058,8 @@ clean:
 //          Console.println("crossoverList.length = %d".format(crossoverList.length))
 
           // Mutations - restricting to upper half of bestList tunables
-          Console.println("Best list before mutation:")
-          Console.println(bestList)
+//          Console.println("Best list before mutation:")
+//          Console.println(bestList)
           val mutationList: scala.List[Tunable] = (for (i <- 0 to numMutation-1) yield {
             val t1: Tunable = bestList(positiveRand % bestList.length/2)
             val t1_clone: Tunable = t1.deepCopy
@@ -1077,8 +1077,8 @@ clean:
             populationCache += res
             res
           }).toList
-          Console.println("Best list after mutation:")
-          Console.println(bestList)
+//          Console.println("Best list after mutation:")
+//          Console.println(bestList)
 
           // - completely random tunables
           val newList: scala.List[Tunable] = (for (i <- 0 to numRandomNew-1) yield {
