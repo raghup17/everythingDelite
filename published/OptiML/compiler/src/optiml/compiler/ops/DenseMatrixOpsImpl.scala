@@ -555,40 +555,10 @@ trait DenseMatrixOpsImpl {
     self.indices.foreach { i => densematrix_raw_update(self,i,densematrix_raw_apply(self,i)*__arg1) }
   }
 
-  def fact(x: scala.Int): scala.Int = {
-    if (x <= 1) 1
-    else x * fact(x-1)
+  def densematrix_new[T:Manifest](r: Rep[Int], c: Rep[Int])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
+    val out = DenseMatrix[T](r, c)
+    out.unsafeMutable
   }
-
-  def testWrapper(): scala.Unit = { 
-    Console.println("Printing something") 
-    for (i <- 0 to 10)
-      Console.println(i)
-    Console.println("Factorial of 10 is " + fact(10))
-  }
-
-//
-//  def matrixMult_gold(args: List[Matrix]): Matrix = {
-//    val A: Matrix = args(0)  // M x P
-//    val B: Matrix = args(1)  // P x N
-//
-//    val M = A.numRows
-//    val P = A.numCols
-//    val N = B.numCols
-//    val C = new Matrix(M, N, x => 0)  // M x N
-//
-//    for (rowIdx <- 0 until M) {
-//      for (colIdx <- 0 until N) {
-//        var acc = 0
-//        for (iter <- 0 until P) {
-//          acc += A(rowIdx, iter) * B(iter, colIdx)
-//        }
-//        C(rowIdx, colIdx) = acc
-//      }
-//    }
-//    C
-//  }
-
 
   def unroll(unrollFactor: scala.Int)(loopStart: Rep[Int], loopEnd: Rep[Int], step: Int)(body: Rep[Int] => scala.Unit) = {
     val iterCount = (loopEnd-loopStart)
@@ -610,157 +580,12 @@ trait DenseMatrixOpsImpl {
     }
   }
 
-
-//  def matrixMult(args: List[Rep[DenseMatrix[T]]])(blockSizes: Tunable[Int]): Matrix = {
-//    val A: Matrix = args(0)  // M x P
-//    val B: Matrix = args(1)  // P x N
-//
-//    // Matrix sizes
-//    val M = A.numRows
-//    val P = A.numCols
-//    val N = B.numCols
-//
-//    // Block sizes
-//    val m = blockSizes(0)
-//    val p = blockSizes(1)
-//    val n = blockSizes(2)
-//
-//    // Unroll factors
-//    val um = blockSizes(3)
-//    val up = blockSizes(4)
-//    val un = blockSizes(5)
-//
-//
-//    // Number of blocks in each dimension
-//    val bm: Int = M / m
-//    val bp: Int = P / p
-//    val bn: Int = N / n 
-//
-//    val C = new Matrix(M, N, x => 0)  // M x N
-//
-//    for (blockm <- 0 until M by m) {
-//      for (blockn <- 0 until N by n) {
-//        for (blockp <- 0 until P by p) {
-//          
-//          for (rowIdx <- blockm until blockm+m) {
-//            for (colIdx <- blockn until blockn+n) {
-//              var acc = C(rowIdx, colIdx)
-//              for (tempIter <- blockp until blockp + p) {
-//                acc += A(rowIdx, tempIter) * B(tempIter, colIdx)
-//              }
-//              C(rowIdx, colIdx) = acc
-//            }
-//          }
-//
-//        }
-//      }
-//    }
-//
-//  C  
-//  }
-
-
-  def densematrix_new[T:Manifest](r: Rep[Int], c: Rep[Int])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
-    val out = DenseMatrix[T](r, c)
-    out.unsafeMutable
-  }
-
-
-//  def densematrix_matmult_impl62a[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]], res: Rep[DenseMatrix[T]])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
-//    // Allocation happening here - do not need this for autotuning!
-//    //    val out = DenseMatrix[T](self.numRows, __arg1.numCols)
-//    val out = res 
-//    if (Config.autotuneEnabled) {
-//      Console.println("[AUTOTUNER] Autotuner enabled, matmult")
-//      Console.println("[AUTOTUNER] Autotunable parameters at this level:")
-//      Console.println("[AUTOTUNER] #blocking levels, blockSize, double buffering, block location, transpose")
-//
-//      val M = self.numRows
-//      val P = self.numCols
-//      val N = __arg1.numCols
-//      val m = 4
-//      val p = 4
-//      val n = 4
-//
-//      unroll(1) (0, M, m) { blockm => {
-//        unroll(1) (0, N, n) { blockn => { 
-//          unroll(1) (0, P, p) { blockp => {
-//          
-//            unroll(1) (blockm, blockm+m, 1) { rowIdx => {
-//              unroll(1) (blockn ,blockn+n, 1) { colIdx => {
-//                var acc = out(rowIdx, colIdx)
-//                unroll(4) (blockp, blockp + p, 1) { tempIter => {
-//                  acc += self(rowIdx, tempIter) * __arg1(tempIter, colIdx)
-//                }}
-//                out(rowIdx, colIdx) = acc
-//              }}
-//            }}
-//          }}
-//        }}
-//      }}
-//
-//    }
-//    else {
-//      throw new Exception("Non-autotuned version should not use this implementation! ABORT!!")
-//    }
-//    out.unsafeImmutable
-//  }
-
-
-
-def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[DenseMatrix[T]], out: Rep[DenseMatrix[T]])(tunables: Tunable)(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
+  def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[DenseMatrix[T]], out: Rep[DenseMatrix[T]])(tunables: Tunable)(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
     val M = m1.numRows
     val P = m1.numCols
     val N = m2.numRows
 
     if (Config.autotuneEnabled) {
-//      Console.println("[AUTOTUNER] Autotuner enabled, matmult")
-//      Console.println("[AUTOTUNER] Autotunable parameters at this level:")
-//      Console.println("[AUTOTUNER] #blocking levels, blockSize, double buffering, block location, transpose")
-
-      
-//      val u1: scala.Int = tunables(3)
-//      val u2: scala.Int = tunables(4)
-//      val u3: scala.Int = tunables(5)
-//      val u4: scala.Int = tunables(6)
-//      val u5: scala.Int = tunables(7)
-//      val u6: scala.Int = tunables(8)
-    
-      // Note: Don't add any prints here - that adds a 'Misc1_Println' node in the IR which has a 'Simple' summary. This
-      // inadvertently adds a dependency on previously created IR nodes, even if the string to be printed doesn't depend 
-      // on anything. If you are unconvinced, add a println("blah") and see how the generated code explodes in size due to
-      // all the dependencies
-
-/*
-      val m: scala.Int = tunables(0)
-      val p: scala.Int = tunables(1)
-      val n: scala.Int = tunables(2)
-      val u1: scala.Int = 1 
-      val u2: scala.Int = 1 
-      val u3: scala.Int = 1 
-      val u4: scala.Int = 1 
-      val u5: scala.Int = 1 
-      val u6: scala.Int = 1
-
-      unroll(u1) (0, M, m) { blockm => {
-        unroll(u2) (0, N, n) { blockn => { 
-          unroll(u3) (0, P, p) { blockp => {
-          
-            unroll(u4) (blockm, blockm+m, 1) { rowIdx => {
-              unroll(u5) (blockn ,blockn+n, 1) { colIdx => {
-                var acc = out(rowIdx, colIdx)
-                unroll(u6) (blockp, blockp + p, 1) { tempIter => {
-                  acc += m1(rowIdx, tempIter) * m2(tempIter, colIdx)
-                }}
-                out(rowIdx, colIdx) = acc
-              }}
-            }}
-          }}
-        }}
-      }}
-
-*/
-
       val transposeLevel: scala.Int = tunables(tunables.length-1)
       val tunableParamsPerLevel = tunables.paramsPerLevel // bm, bn, bp, um, un, up 
       def createTransposeBuffer(level: scala.Int): Option[Rep[DenseMatrix[T]]] = {
@@ -905,8 +730,6 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
         }
       }
 
-      
-
       // Quick and dirty way to remember the indices to be subtracted from the innermost
       // loop indices to get the transpose functionality correct
       var jTransposeStart: Rep[Int] = 0
@@ -916,7 +739,6 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
                   (startm: Rep[Int], endm: Rep[Int], startn: Rep[Int], endn: Rep[Int], startp: Rep[Int], endp: Rep[Int])
                   (f0: (Rep[Int],Rep[Int],Rep[Int],Rep[Int],Rep[Int],Rep[Int],Rep[Int],Rep[Int],scala.Int, scala.List[scala.Int]) => scala.Unit)
                   (implicit __pos: SourceContext,__imp0: Arith[T]): scala.Unit = {
-//      Console.println("numLevels = %d, level = %d".format(numLevels, level))
 
       if (level == transposeLevel) {
         if (level == 0) {
@@ -958,126 +780,26 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
       // Invocation
       val tunablesList: scala.List[scala.Int] = getTunablesForLevel(0)
       levelGen(0, tunablesList)(0, M, 0, N, 0, P)(bmm)
-
-//      val m: scala.Int = tunablesList(0)
-//      val n: scala.Int = tunablesList(1)
-//      val p: scala.Int = tunablesList(2)
-//      val u1: scala.Int = 1
-//      val u2: scala.Int = 1
-//      val u3: scala.Int = 1
-//      val u4: scala.Int = 1
-//      val u5: scala.Int = 1
-//      val u6: scala.Int = 1
-//      unroll(u1) (0, M, m) { blockm => {
-//        unroll(u2) (0, N, n) { blockn => { 
-//          unroll(u3) (0, P, p) { blockp => {
-//            bmm(blockm, blockm+m, blockn, blockn+n, blockp, blockp+p, scala.List(m, p, n, u4, u5, u6))
-//          }}
-//        }}
-//      }}
     }
     else {
       throw new Exception("Non-autotuned version should not use this implementation! ABORT!!")
     }
     out.unsafeImmutable
   }
-
-def densematrix_matmult_impl62b[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[DenseMatrix[T]])(tunables: Tunable)(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
-
-    val M = m1.numRows
-    val P = m1.numCols
-    val N = m2.numRows
-    val out = DenseMatrix[T](M, N)
-
-    if (Config.autotuneEnabled) {
-
-      val m: scala.Int = tunables(0)
-      val p: scala.Int = tunables(1)
-      val n: scala.Int = tunables(2)
-
-//      val u1: scala.Int = tunables(3)
-//      val u2: scala.Int = tunables(4)
-//      val u3: scala.Int = tunables(5)
-//      val u4: scala.Int = tunables(6)
-//      val u5: scala.Int = tunables(7)
-//      val u6: scala.Int = tunables(8)
-
-//      val u1: scala.Int = 1 
-//      val u2: scala.Int = 1 
-//      val u3: scala.Int = 1 
-//      val u4: scala.Int = 1 
-//      val u5: scala.Int = 1 
-//      val u6: scala.Int = 1
-//
-//      unroll(u1) (0, M, m) { blockm => {
-//        unroll(u2) (0, N, n) { blockn => { 
-//          unroll(u3) (0, P, p) { blockp => {
-//          
-//            unroll(u4) (blockm, blockm+m, 1) { rowIdx => {
-//              unroll(u5) (blockn ,blockn+n, 1) { colIdx => {
-//                var acc = out(rowIdx, colIdx)
-//                unroll(u6) (blockp, blockp + p, 1) { tempIter => {
-//                  acc += m1(rowIdx, tempIter) * m2(tempIter, colIdx)
-//                }}
-//                out(rowIdx, colIdx) = acc
-//              }}
-//            }}
-//          }}
-//        }}
-//      }}
-//
-      for (blockm <- 0 until M by m) {
-        for (blockn <- 0 until N by n) { 
-          for (blockp <- 0 until P by p) {
-          
-            for (rowIdx <- blockm until (blockm+m)) {
-              for (colIdx <- blockn until (blockn+n)) {
-                var acc = out(rowIdx, colIdx)
-                for (tempIter <- blockp until (blockp+p)) {
-                  acc += m1(rowIdx, tempIter) * m2(tempIter, colIdx)
-                }
-                out(rowIdx, colIdx) = acc
-              }
-            }
-          }
-        }
-      }
-
-
-    }
-    else {
-      throw new Exception("Non-autotuned version should not use this implementation! ABORT!!")
-    }
-    out.unsafeImmutable
-  }
-
-
 
   def densematrix_matmult_impl62[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
     fassert(self.numCols == __arg1.numRows, "dimension mismatch: matrix multiply")
 
-//    val out = DenseMatrix[T](self.numRows, __arg1.numCols)
-//    val yT = __arg1.t
-    val yT = __arg1
+    val out = DenseMatrix[T](self.numRows, __arg1.numCols)
+    val yT = __arg1.t
       for (rowIdx <- 0 until self.numRows) {
         for (i <- 0 until __arg1.numCols) {
           var acc = self(rowIdx, 0) * yT(i, 0)
           for (j <- 1 until yT.numCols) {
             acc += self(rowIdx, j) * yT(i, j)
           }
-//          out(rowIdx, i) = acc
-          __arg1(rowIdx, i) = acc
+          out(rowIdx, i) = acc
         }
-      }
-    __arg1.unsafeImmutable
-  }
-
-  def densematrix_matmult_impl62c[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]])(implicit __pos: SourceContext,__imp0: Arith[T]): Rep[DenseMatrix[T]] = {
-
-      var acc = self(0, 0)
-      for (rowIdx <- 0 until self.numRows) {
-        acc += self(rowIdx, 0)
-        __arg1(rowIdx, 0) = acc
       }
     __arg1.unsafeImmutable
   }

@@ -218,13 +218,6 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
     override def autotune = Config.autotuneEnabled
   }
 
-  case class Densematrix_matmult_autotune3[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]])(implicit val __pos: SourceContext,val __imp0: Arith[T]) extends DeliteOpSingleTask[DenseMatrix[T]](reifyEffectsHere(densematrix_matmult_impl62[T](self,__arg1)(implicitly[Manifest[T]],__pos,__imp0))) {
-    val _mT = implicitly[Manifest[T]]
-
-    override def autotune = Config.autotuneEnabled
-  }
-
-
   case class Densematrix_new[T:Manifest](r: Rep[Int], c: Rep[Int])(implicit val __pos: SourceContext,val __imp0: Arith[T]) extends DeliteOpSingleTask[DenseMatrix[T]](reifyEffectsHere(densematrix_new[T](r,c)(implicitly[Manifest[T]],__pos,__imp0))) {
     val _mT = implicitly[Manifest[T]]
     override def autotune = Config.autotuneEnabled
@@ -236,20 +229,6 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
 
     override def autotune = Config.autotuneEnabled
   }
-
-  case class Densematrix_matmult_autotune2[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[DenseMatrix[T]], tunables: Tunable)(implicit val __pos: SourceContext,val __imp0: Arith[T]) extends DeliteOpSingleTask[DenseMatrix[T]](reifyEffectsHere(densematrix_matmult_impl62b[T](m1, m2)(tunables)(implicitly[Manifest[T]],__pos,__imp0))) {
-    val _mT = implicitly[Manifest[T]]
-
-    override def autotune = Config.autotuneEnabled
-  }
-
-  
-  //  case class Densematrix_matmult_autotune[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseMatrix[T]], res: Rep[DenseMatrix[T]])(implicit val __pos: SourceContext,val __imp0: Arith[T]) extends DeliteOpSingleTask[DenseMatrix[T]](reifyEffectsHere(densematrix_matmult_impl62a[T](self,__arg1, res)(implicitly[Manifest[T]],__pos,__imp0))) {
-//    val _mT = implicitly[Manifest[T]]
-//
-//    override def autotune = Config.autotuneEnabled
-//  }
-
 
   case class Densematrix_matvecmult[T:Manifest](self: Rep[DenseMatrix[T]],__arg1: Rep[DenseVector[T]])(implicit val __pos: SourceContext,val __imp0: Arith[T]) extends DeliteOpSingleTask[DenseVector[T]](reifyEffectsHere(densematrix_matvecmult_impl63[T](self,__arg1)(implicitly[Manifest[T]],__pos,__imp0))) {
     val _mT = implicitly[Manifest[T]]
@@ -921,7 +900,7 @@ clean:
 
         // reset symbol table
         purgeSymFromAll(symNumber)
-//        throw new Exception("stop here")
+
         nativeRunOut.toDouble
       }
       
@@ -1006,7 +985,6 @@ clean:
 //          Console.println("population.keySet.size before removing %d tunables = %d".format(badTunables.length, population.keySet.size))
 //          Console.println("Removing %d tunables from population".format(badTunables.length))
           for (bad: Tunable <- badTunables) {
-            Console.println("Removing %s".format(bad))
             val before = population.keySet.size
             population -= bad
             val after = population.keySet.size
@@ -1039,7 +1017,7 @@ clean:
 
           Console.println("Creating %d new tunables".format(numRandomNew))
           Console.println("Creating %d mutations".format(numMutation))
-          Console.println("Totally we will have %d new tunables".format(numNew))
+//          Console.println("Totally we will have %d new tunables".format(numNew))
           // Crossovers - ignoring for now
 //          val crossoverList: scala.List[Tunable] = (for (i <- 0 to numCrossovers-1) yield {
 //              val t1 = bestList(positiveRand % bestList.length)
@@ -1058,8 +1036,6 @@ clean:
 //          Console.println("crossoverList.length = %d".format(crossoverList.length))
 
           // Mutations - restricting to upper half of bestList tunables
-//          Console.println("Best list before mutation:")
-//          Console.println(bestList)
           val mutationList: scala.List[Tunable] = (for (i <- 0 to numMutation-1) yield {
             val t1: Tunable = bestList(positiveRand % bestList.length/2)
             val t1_clone: Tunable = t1.deepCopy
@@ -1077,8 +1053,6 @@ clean:
             populationCache += res
             res
           }).toList
-//          Console.println("Best list after mutation:")
-//          Console.println(bestList)
 
           // - completely random tunables
           val newList: scala.List[Tunable] = (for (i <- 0 to numRandomNew-1) yield {
@@ -1094,10 +1068,7 @@ clean:
           // Add all the new guys into population
           val newMembers: scala.List[Tunable] =  mutationList ::: newList
 
-          Console.println("Number of new members = %d".format(newMembers.length))
-
           for (t: Tunable <- newMembers) {
-//              Console.println("Adding %s".format(t))
               val before = population.keySet.size
               population += (t -> invalidScore)
               val after = population.keySet.size
@@ -1116,10 +1087,6 @@ clean:
               }
 
           }
-
-          Console.println("population size before next gen = %d".format(population.keySet.size))
-//          Console.println("\tBest so far: %s -> %f".format(bestList(0), population(bestList(0))))
-
         }  // End for loop on generations
 
         // Get sorted list of tunables by rank
@@ -1446,9 +1413,6 @@ clean:
 
     case mn@Densematrix_matmult_autotune(__arg0,__arg1, __arg2, tunables) => reflectPure(new { override val original = Some(f,mn) } with Densematrix_matmult_autotune(f(__arg0),f(__arg1), f(__arg2), tunables)(mtype(mn._mT),mn.__pos,atype(mn.__imp0)))(mtype(manifest[A]), pos)
     case Reflect(mn@Densematrix_matmult_autotune(__arg0,__arg1, __arg2, tunables), u, es) => reflectMirrored(Reflect(new { override val original = Some(f,mn) } with Densematrix_matmult_autotune(f(__arg0),f(__arg1), f(__arg2), tunables)(mtype(mn._mT),mn.__pos,atype(mn.__imp0)), mapOver(f,u), f(es)))(mtype(manifest[A]), pos)
-
-    case mn@Densematrix_matmult_autotune3(__arg0,__arg1) => reflectPure(new { override val original = Some(f,mn) } with Densematrix_matmult_autotune3(f(__arg0),f(__arg1))(mtype(mn._mT),mn.__pos,atype(mn.__imp0)))(mtype(manifest[A]), pos)
-    case Reflect(mn@Densematrix_matmult_autotune3(__arg0,__arg1), u, es) => reflectMirrored(Reflect(new { override val original = Some(f,mn) } with Densematrix_matmult_autotune3(f(__arg0),f(__arg1))(mtype(mn._mT),mn.__pos,atype(mn.__imp0)), mapOver(f,u), f(es)))(mtype(manifest[A]), pos)
 
     case mn@Densematrix_matvecmult(__arg0,__arg1) => reflectPure(new { override val original = Some(f,mn) } with Densematrix_matvecmult(f(__arg0),f(__arg1))(mtype(mn._mT),mn.__pos,atype(mn.__imp0)))(mtype(manifest[A]), pos)
     case Reflect(mn@Densematrix_matvecmult(__arg0,__arg1), u, es) => reflectMirrored(Reflect(new { override val original = Some(f,mn) } with Densematrix_matvecmult(f(__arg0),f(__arg1))(mtype(mn._mT),mn.__pos,atype(mn.__imp0)), mapOver(f,u), f(es)))(mtype(manifest[A]), pos)
