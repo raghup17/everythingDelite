@@ -763,76 +763,19 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
 
 
 
-      def bmm(startm: Rep[Int], endm: Rep[Int], startn: Rep[Int], endn: Rep[Int], startp: Rep[Int], endp: Rep[Int], ijkOrder: scala.Int, tunablesList: scala.List[scala.Int]) = { // (implicit __pos: SourceContext,__imp0: Arith[T]) 
-        // Ignore block sizes here
-        val um: scala.Int = tunablesList(3)
-        val un: scala.Int = tunablesList(4)
-        val up: scala.Int = tunablesList(5)
-
-        if (ijkOrder == 123) {
-           unroll(1) (startm, endm, 1) { i => {
-             unroll(1) (startn, endn, 1) { j => {
-               unroll(up) (startp, endp, 1) { k => {
-                 out(i, j) = out(i, j) + m1(i, k) * m2(k, j) 
-               }}
-             }}
-           }}
-        }
-        else if (ijkOrder == 132) {
-            unroll(1) (startm, endm, 1) { i => {
-             unroll(1) (startp, endp, 1) { k => {
-               unroll(up) (startn, endn, 1) { j => {
-                 out(i, j) = out(i, j) + m1(i, k) * m2(k, j) 
-               }}
-             }}
-           }}
-        }
-        else if (ijkOrder == 213) {
-            unroll(1) (startn, endn, 1) { j => {
-             unroll(1) (startm, endm, 1) { i => {
-               unroll(up) (startp, endp, 1) { k => {
-                 out(i, j) = out(i, j) + m1(i, k) * m2(k, j) 
-               }}
-             }}
-           }}
-        }
-        else if (ijkOrder == 231) {
-            unroll(1) (startn, endn, 1) { j => {
-             unroll(1) (startp, endp, 1) { k => {
-               unroll(up) (startm, endm, 1) { i => {
-                 out(i, j) = out(i, j) + m1(i, k) * m2(k, j) 
-               }}
-             }}
-           }}
-        }
-        else if (ijkOrder == 312) {
-            unroll(1) (startp, endp, 1) { k => {
-             unroll(1) (startm, endm, 1) { i => {
-               unroll(up) (startn, endn, 1) { j => {
-                 out(i, j) = out(i, j) + m1(i, k) * m2(k, j) 
-               }}
-             }}
-           }}
-        }
-        else if (ijkOrder == 321) {
-            unroll(1) (startp, endp, 1) { k => {
-             unroll(1) (startn, endn, 1) { j => {
-               unroll(up) (startm, endm, 1) { i => {
-                 out(i, j) = out(i, j) + m1(i, k) * m2(k, j) 
-               }}
-             }}
-           }}
+      val transposeLevel: scala.Int = tunables(tunables.length-1)
+      val tunableParamsPerLevel = tunables.paramsPerLevel // bm, bn, bp, um, un, up 
+      def createTransposeBuffer(level: scala.Int): Option[Rep[DenseMatrix[T]]] = {
+        if (level < 0) {
+          None
         }
         else {
-          Console.println("Unknown ijkOrder: %d".format(ijkOrder))
-          throw new Exception("Abort")
+          val tunablesForLevel = getTunablesForLevel(level)
+          val bp = tunablesForLevel(2)
+          val bn = tunablesForLevel(1)
+          Some(DenseMatrix[T](bn, bp))
         }
       }
-      
-      val numLevels:scala.Int = tunables(0)
-      val tunableParamsPerLevel = tunables.paramsPerLevel // bm, bn, bp, um, un, up 
-      val ijkOrder: scala.Int = tunables(tunables.length-1)
-//      val transposeLevel: scala.Int = tunables(tunables.length-1)
 
       def getTunablesForLevel(level: scala.Int): scala.List[scala.Int] = {
         val startIdx: scala.Int = level * tunableParamsPerLevel + 1
@@ -844,28 +787,141 @@ def densematrix_matmult_impl62a[T:Manifest](m1: Rep[DenseMatrix[T]], m2: Rep[Den
         tunablesList.toList
       }
 
-      def transpose(transposeBuffer: Rep[DenseMatrix[T]], original: Rep[DenseMatrix[T]], startRow: Rep[Int], startCol: Rep[Int], numRows: scala.Int, numCols: scala.Int) = {
-        for (trow: scala.Int <- 0 to numRows-1) {
-          for (tcol: scala.Int <- 0 to numCols-1) {
+      val transposeBuffer: Option[Rep[DenseMatrix[T]]] = createTransposeBuffer(transposeLevel)
+
+      def bmm(startm: Rep[Int], endm: Rep[Int], startn: Rep[Int], endn: Rep[Int], startp: Rep[Int], endp: Rep[Int], jTransposeStart: Rep[Int], kTransposeStart: Rep[Int], ijkOrder: scala.Int, tunablesList: scala.List[scala.Int]) = {
+        // Ignore block sizes here
+        val um: scala.Int = tunablesList(3)
+        val un: scala.Int = tunablesList(4)
+        val up: scala.Int = tunablesList(5)
+
+        if (ijkOrder == 123) {
+           unroll(1) (startm, endm, 1) { i => {
+             unroll(1) (startn, endn, 1) { j => {
+               unroll(up) (startp, endp, 1) { k => {
+                 if (transposeLevel >= 0) {
+                    val tbuf = transposeBuffer.get
+                    out(i, j) = out(i, j) + m1(i, k) * tbuf(j-jTransposeStart, k-kTransposeStart)
+                 }
+                 else 
+                   out(i, j) = out(i, j) + m1(i, k) * m2(k, j)
+               }}
+             }}
+           }}
+        }
+        else if (ijkOrder == 132) {
+            unroll(1) (startm, endm, 1) { i => {
+             unroll(1) (startp, endp, 1) { k => {
+               unroll(up) (startn, endn, 1) { j => {
+                 if (transposeLevel >= 0) {
+                    val tbuf = transposeBuffer.get
+                    out(i, j) = out(i, j) + m1(i, k) * tbuf(j-jTransposeStart, k-kTransposeStart)
+                 }
+                 else 
+                   out(i, j) = out(i, j) + m1(i, k) * m2(k, j)
+               }}
+             }}
+           }}
+        }
+        else if (ijkOrder == 213) {
+            unroll(1) (startn, endn, 1) { j => {
+             unroll(1) (startm, endm, 1) { i => {
+               unroll(up) (startp, endp, 1) { k => {
+                 if (transposeLevel >= 0) {
+                    val tbuf = transposeBuffer.get
+                    out(i, j) = out(i, j) + m1(i, k) * tbuf(j-jTransposeStart, k-kTransposeStart)
+                 }
+                 else 
+                   out(i, j) = out(i, j) + m1(i, k) * m2(k, j)
+               }}
+             }}
+           }}
+        }
+        else if (ijkOrder == 231) {
+            unroll(1) (startn, endn, 1) { j => {
+             unroll(1) (startp, endp, 1) { k => {
+               unroll(up) (startm, endm, 1) { i => {
+                 if (transposeLevel >= 0) {
+                    val tbuf = transposeBuffer.get
+                    out(i, j) = out(i, j) + m1(i, k) * tbuf(j-jTransposeStart, k-kTransposeStart)
+                 }
+                 else 
+                   out(i, j) = out(i, j) + m1(i, k) * m2(k, j)
+               }}
+             }}
+           }}
+        }
+        else if (ijkOrder == 312) {
+            unroll(1) (startp, endp, 1) { k => {
+             unroll(1) (startm, endm, 1) { i => {
+               unroll(up) (startn, endn, 1) { j => {
+                 if (transposeLevel >= 0) {
+                    val tbuf = transposeBuffer.get
+                    out(i, j) = out(i, j) + m1(i, k) * tbuf(j-jTransposeStart, k-kTransposeStart)
+                 }
+                 else 
+                   out(i, j) = out(i, j) + m1(i, k) * m2(k, j)
+               }}
+             }}
+           }}
+        }
+        else if (ijkOrder == 321) {
+            unroll(1) (startp, endp, 1) { k => {
+             unroll(1) (startn, endn, 1) { j => {
+               unroll(up) (startm, endm, 1) { i => {
+                 if (transposeLevel >= 0) {
+                    val tbuf = transposeBuffer.get
+                    out(i, j) = out(i, j) + m1(i, k) * tbuf(j-jTransposeStart, k-kTransposeStart)
+                 }
+                 else 
+                   out(i, j) = out(i, j) + m1(i, k) * m2(k, j)
+               }}
+             }}
+           }}
+        }
+        else {
+          Console.println("Unknown ijkOrder: %d".format(ijkOrder))
+          throw new Exception("Abort")
+        }
+      }
+      
+      val numLevels:scala.Int = tunables(0)
+      val ijkOrder: scala.Int = tunables(tunables.length-2)
+
+
+
+      def transpose(transposeBuffer: Rep[DenseMatrix[T]], original: Rep[DenseMatrix[T]], startRow: Rep[Int], startCol: Rep[Int], numRows: Rep[Int], numCols: Rep[Int]) = {
+        for (trow <- 0 until numRows) {
+          for (tcol <- 0 until numCols) {
             transposeBuffer(trow, tcol) = original(startRow+tcol, startCol+trow)
           }
         }
       }
 
+      
+
+      // Quick and dirty way to remember the indices to be subtracted from the innermost
+      // loop indices to get the transpose functionality correct
+      var jTransposeStart: Rep[Int] = 0
+      var kTransposeStart: Rep[Int] = 0
       // Generate <m,n,p> loop
       def levelGen(level: scala.Int, tunablesList: scala.List[scala.Int]) // Level specific information
                   (startm: Rep[Int], endm: Rep[Int], startn: Rep[Int], endn: Rep[Int], startp: Rep[Int], endp: Rep[Int])
-                  (f0: (Rep[Int],Rep[Int],Rep[Int],Rep[Int],Rep[Int],Rep[Int], scala.Int, scala.List[scala.Int]) => scala.Unit)
+                  (f0: (Rep[Int],Rep[Int],Rep[Int],Rep[Int],Rep[Int],Rep[Int],Rep[Int],Rep[Int],scala.Int, scala.List[scala.Int]) => scala.Unit)
                   (implicit __pos: SourceContext,__imp0: Arith[T]): scala.Unit = {
 //      Console.println("numLevels = %d, level = %d".format(numLevels, level))
 
-//      if (level == transposeLevel) {
-//        transpose(transposeBuffer, m2, startRow, startCol, numRows, numCols) 
-//      }
+      if (level == transposeLevel) {
+        val bp = tunablesList(2)
+        val bn = tunablesList(1)
+        transpose(transposeBuffer.get, m2, startp, startn, bn, bp)
+        jTransposeStart = startn
+        kTransposeStart = startp
+      }
 
         
         if (level == numLevels) {
-          f0(startm, endm, startn, endn, startp, endp, ijkOrder, tunablesList)
+          f0(startm, endm, startn, endn, startp, endp, jTransposeStart, kTransposeStart, ijkOrder, tunablesList)
         }
         else {
           val stepm = tunablesList(0)

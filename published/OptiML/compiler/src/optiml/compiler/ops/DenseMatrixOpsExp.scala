@@ -921,7 +921,7 @@ clean:
 
         // reset symbol table
         purgeSymFromAll(symNumber)
-
+//        throw new Exception("stop here")
         nativeRunOut.toDouble
       }
       
