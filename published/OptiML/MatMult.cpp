@@ -10,16 +10,27 @@
 // 4, 8, 4, 4, 2, 1, 
 // 1, 1, 1, 1, 8, 2
 // Level 0 blocking params
-#define bm0 64 
-#define bn0 16
-#define bp0 256
+#define bm0 128
+#define bn0 128
+#define bp0 128
 
 // Level 1 blocking params
-#define bm1 4
-#define bn1 8
-#define bp1 4
+#define bm1 16
+#define bn1 16
+#define bp1 16
 
 
+
+void printMat(double *buf, int rdim, int cdim) {
+  int i=0, j=0;
+
+  for (i=0; i<rdim; i++) {
+    for (j=0; j<cdim; j++) {
+      printf("%3.2lf ", buf[i*cdim+j]);
+    }
+    printf("\n");
+  }
+}
 
 // m1: M x P
 // m2: P x N
@@ -30,25 +41,41 @@ void matMult(double *m1, double *m2, double *out) {
   int i1=0, j1=0, k1=0;
   int i2=0, j2=0, k2=0;
 
+  // Allocate transpose buffer
+  double *transposeBuffer = (double*) malloc(bp0*bn0*sizeof(double));
+  int trow=0, tcol=0;
+
+
+  // Multiply m1(0,0)..m1(M,P) and m2(0,0)..m2(P,N)
   for (i=0; i<M; i+=bm0) {
   for (j=0; j<N; j+=bn0) {
   for (k=0; k<P; k+=bp0) {
 
-    for (i1=i; i1<i+bm0; i1+= bm1) {
-    for (j1=j; j1<j+bn0; j1+= bn1) {
+    // Transpose here
+//        for (trow=0; trow<bn0; trow++) {
+//          for (tcol=0; tcol<bp0; tcol++) {
+//              transposeBuffer[trow*bp0+tcol] = m2[(tcol+k)*N+trow+j];
+//          }
+//        }
+    for (i1=i; i1<i+bm0; i1+=bm1) {
+    for (j1=j; j1<j+bn0; j1+=bn1) {
     for (k1=k; k1<k+bp0; k1+=bp1) {
+
+      for (trow=0; trow<bn1; trow++) {
+          for (tcol=0; tcol<bp1; tcol++) {
+              transposeBuffer[trow*bp1+tcol] = m2[(tcol+k1)*N+trow+j1];
+          }
+        }
 
               for (i2=i1; i2<i1+bm1; i2++) {
               for (j2=j1; j2<j1+bn1; j2++) {
-//                double acc = out[i2*N+j2];
-              for (k2=k1; k2<k1+bp1; k2+=2) {
-                out[i2*N+j2] += m1[i2*P+k2] * m2[k2*N+j2];
-                out[i2*N+j2] += m1[i2*P+k2+1] * m2[(k2+1)*N+j2];
-//                acc += m1[i2*P+k2] * m2[k2*N+j2];
-//                acc += m1[i2*P+k2+1] * m2[(k2+1)*N+j2];
-
+              for (k2=k1; k2<k1+bp1; k2++) {
+//                out[i2*N+j2] += m1[i2*P+k2] * m2[k2*N+j2];
+//                  printf("Would've multiplied %3.2lf and %3.2lf\n", m1[i2*P+k2], m2[k2*N+j2]);
+//                  printf("Actually multiplying %3.2lf and %3.2lf\n", m1[i2*P+k2], transposeBuffer[(j2-j1)*(bp1)+(k2-k1)]);
+//                  out[i2*N+j2] += m1[i2*P+k2] * transposeBuffer[(j2-j)*(bp0)+(k2-k)];
+                  out[i2*N+j2] += m1[i2*P+k2] * transposeBuffer[(j2-j1)*(bp1)+(k2-k1)];
               }
-//                out[i2*N+j2] = acc;
               }
               }
 
@@ -138,7 +165,6 @@ int main()
   __builtin___clear_cache((char*)m1, (char*)(&m1[M*P-1]));
   __builtin___clear_cache((char*)m2, (char*)(&m2[P*N-1]));
   __builtin___clear_cache((char*)out, (char*)(&m1[M*N-1]));
-
   uStart = getTimeInMicroSecs();
   matMult_gold(m1, m2, out_gold);
   uEnd = getTimeInMicroSecs();
