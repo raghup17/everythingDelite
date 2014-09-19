@@ -17,7 +17,7 @@ class Tunable {
   var tunable: ListBuffer[Int] = new ListBuffer[Int]
   var geneList: ListBuffer[scala.List[Int]] = new ListBuffer[List[Int]]()
   var depList: ListBuffer[List[(Int, (Int, Int, ListBuffer[Int], ListBuffer[List[Int]]) => Unit)]] = new ListBuffer[List[(Int, (Int, Int, ListBuffer[Int], ListBuffer[List[Int]]) => Unit)]]()
-  var paramsPerLevel: Int = 6 // bm, bn, bp, um, un, up 
+  var paramsPerLevel: Int = 6 // bm, bn, bp, um, un, up
   var numLevels: Int = -1 // Zero based. If numLevels == 2, there are three levels 0,1,2. 0 is the outermost loop nest
   var mdim : Int = -1
   var ndim: Int = -1
@@ -136,7 +136,10 @@ class Tunable {
   }
   
   def updateUnroll(idx: Int, depIdx: Int, useThisTunable: ListBuffer[Int], useThisGeneList: ListBuffer[List[Int]]) = {
-    val newMaxTripcount = useThisGeneList(depIdx).max / useThisTunable(depIdx)
+    
+    val loopUpperbound = useThisGeneList(depIdx).max
+    val loopStepSize = useThisTunable(depIdx)
+    val newMaxTripcount = loopUpperbound / loopStepSize
     val newRange = factors(newMaxTripcount).distinct.toList filter (x => x < maxAllowedUnroll)
     useThisGeneList(idx) = newRange
     if (!newRange.contains(useThisTunable(idx))) {
@@ -174,10 +177,9 @@ class Tunable {
   def mutate(posi: Int) = {
     val range = geneList(posi)
     println("Old value = %d".format(tunable(posi)))
-    
     tunable(posi) = range(posRand(range.length))
     
-    println("Old value = %d".format(tunable(posi)))
+    println("New value = %d".format(tunable(posi)))
     println("Before updating everything")
     println(tunable)
     updateEverythingFrom(posi)
@@ -238,13 +240,23 @@ class Tunable {
     var loopp = P
     
     for (l <- 0 to levels) {
-      val bmRange = factors(loopm).distinct.toList
-      val bnRange = factors(loopn).distinct.toList
-      val bpRange = factors(loopp).distinct.toList
+      var bmRange = factors(loopm).distinct.toList
+      var bnRange = factors(loopn).distinct.toList
+      var bpRange = factors(loopp).distinct.toList
       var bm: Int = 1
       var bn: Int = 1
       var bp: Int = 1
-
+ 
+      // Special case when there is no blocking:
+      // - block size won't change
+      // - loop upperbound won't change
+      // Hence the unroll factor can mutate independently. No dependency.
+      if (numLevels == 0) {
+	      bmRange = List(1)
+  	    bnRange = List(1)
+    	  bpRange = List(1)
+      }
+      
       if (l != levels) {
         bm = bmRange(posRand(bmRange.length))
         bn = bnRange(posRand(bnRange.length))
@@ -275,14 +287,30 @@ class Tunable {
       geneList.append(bmRange, bnRange, bpRange, umRange, unRange, upRange)
       
       if (l == levels) {
-        depList.append(
-          List((bmLoc+3, updateUnroll)),
-          List((bnLoc+3, updateUnroll)),
-          List((bpLoc+3, updateUnroll)),
-          emptyDepList,
-          emptyDepList,
-          emptyDepList
-        )
+      	if (numLevels == 0) {
+			    // Special case when there is no blocking:
+          // - block size won't change
+          // - loop upperbound won't change
+			    // Hence the unroll factor can mutate independently. No dependency.
+	        depList.append(
+	          emptyDepList,
+	          emptyDepList,
+	          emptyDepList,
+	          emptyDepList,
+	          emptyDepList,
+	          emptyDepList
+	        )
+      	}
+      	else {
+	        depList.append(
+	          List((bmLoc+3, updateUnroll)),
+	          List((bnLoc+3, updateUnroll)),
+	          List((bpLoc+3, updateUnroll)),
+	          emptyDepList,
+	          emptyDepList,
+	          emptyDepList
+	        )
+        }
       }
       else {
         depList.append(
@@ -306,12 +334,12 @@ class Tunable {
     tunable.append(ijkOrderList(posRand(ijkOrderList.length)))
     depList.append(emptyDepList)
 
-    // Parameter controlling where the transpose happens 
+    // Parameter controlling where the transpose happens
     val transposeRangeList: scala.List[Int] = ((-(numLevels+1)).to(numLevels)).toList
-//    val transposeRangeList: scala.List[Int] = (0.to(numLevels)).toList
     geneList.append(transposeRangeList)
     tunable.append(transposeRangeList(posRand(transposeRangeList.length)))
     depList.append(emptyDepList)
+    
 
     if (!validateTunables) {
       Console.println("Invalid tunables created within new!")
@@ -336,5 +364,21 @@ class Tunable {
   }
 
   def mkString(s: String) = this.tunable.mkString(s)
-  override def toString = { "Tunable:" + tunable.toString + "\n" + "GeneList:" + geneList.toString }
+  override def toString = {
+    val sb = new StringBuilder
+    sb.append(tunable(0))
+    sb.append("_")
+    for (l <- 0 to numLevels) {
+      val lStart = l*paramsPerLevel+1
+      val lEnd = l+paramsPerLevel-1
+      sb.append(tunable(lStart) + ":" + tunable(lStart+1) + ":" + tunable(lStart+2) + ":")
+      sb.append("(" + tunable(lStart+3) + ":" + tunable(lStart+4) + ":" + tunable(lStart+5) + ")")
+    }
+    val rest = (numLevels+1)*paramsPerLevel + 1
+    for (i <- rest to tunable.length-1) {
+      sb.append("_")
+      sb.append(tunable(i))
+    }
+    sb.toString
+  }
 }

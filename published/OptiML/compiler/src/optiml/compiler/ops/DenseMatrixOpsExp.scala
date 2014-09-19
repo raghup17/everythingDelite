@@ -785,8 +785,6 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
       codegen.headerStream = new PrintWriter(new FileWriter("%s/avoidNullptrException.h".format(genFolderName)))
 
       // Clear all the previous runs
-      val output = runThis(scala.Array("rm", "-r", "%s/a_*".format(genFolderName)))
-      Console.println("[rm -rf output] %s".format(output))
       var executableNum = -1
       def matrixMult(sizes: scala.List[scala.Int])(tunables: Tunable): Double = {
         // Create IR nodes to perform m3 = m1 x m2 for the given tunables 
@@ -801,7 +799,7 @@ trait DenseMatrixOpsExp extends DenseMatrixCompilerOps with DeliteCollectionOpsE
         val out_fresh = fresh[DenseMatrix[T]]
 
         val symNumber = fresh[Int]
-        Console.println("Every symbol after %s must be purged in each autotune iteration".format(symNumber))
+//        Console.println("Every symbol after %s must be purged in each autotune iteration".format(symNumber))
 
 
         val m1 = reflectPure(Densematrix_new[T](M, P)(implicitly[Manifest[T]],__pos,__imp0))
@@ -907,7 +905,7 @@ clean:
       // The autotuner
       def autotune2(f: scala.List[scala.Int] => Tunable => scala.Double)
                                      (input: scala.List[scala.Int])
-                                     (tunable: Tunable): Tunable = {
+                                     (tunable: Tunable): (Tunable, scala.Double) = {
         
         // Some autotuning constants
         val numGenerations = 50
@@ -928,7 +926,7 @@ clean:
           population += (t -> invalidScore)
         }
         
-        Console.println("Initial population = %s".format(population))
+//        Console.println("Initial population = %s".format(population))
 
         // Genetic search for 'numGenerations' generations
         for (gen <- 0 until numGenerations) {
@@ -965,7 +963,7 @@ clean:
 
           val popList: scala.List[(Tunable, scala.Double)] = population.toList
           val sortedTupleList: scala.List[(Tunable, scala.Double)] = popList sortBy { _._2 }
-          Console.println("sortedTupleList:\n%s".format(sortedTupleList))
+//          Console.println("sortedTupleList:\n%s".format(sortedTupleList))
           val sortedTunables: scala.List[Tunable] = sortedTupleList map { x => x._1 }
           if (sortedTunables.length != population.keySet.size) {
             Console.println("sortedTunables.length (%d) not equal to population.keySet.size (%d) !".format(sortedTunables.length, population.keySet.size))
@@ -1015,8 +1013,8 @@ clean:
 //          val numCrossovers: scala.Int = 1 
           val numRandomNew: scala.Int = numNew - numMutation //  - numCrossovers
 
-          Console.println("Creating %d new tunables".format(numRandomNew))
-          Console.println("Creating %d mutations".format(numMutation))
+//          Console.println("Creating %d new tunables".format(numRandomNew))
+//          Console.println("Creating %d mutations".format(numMutation))
 //          Console.println("Totally we will have %d new tunables".format(numNew))
           // Crossovers - ignoring for now
 //          val crossoverList: scala.List[Tunable] = (for (i <- 0 to numCrossovers-1) yield {
@@ -1093,8 +1091,11 @@ clean:
         val popList = population.toList
         val sortedTupleList = popList sortBy { _._2 }
         val sortedTunables = sortedTupleList map { x => x._1 }
-        Console.println("Best tunables order: %s".format(sortedTupleList.toString))
-        sortedTunables(0)
+        Console.println("Best sorted tunables order:")
+        for (t: (Tunable, Double) <- sortedTupleList) {
+          Console.println("%s: %f".format(t._1, t._2))
+        }
+        sortedTupleList(0)
       }
 
       // Get the set of tunable parameters
@@ -1106,30 +1107,26 @@ clean:
         (for (i <- factors(M)) yield i).toList
       } 
 
-      // Tunables order:
-      // (numLevels, bm, bn, bp, um, un, up, bm1, bn1, bp1, um1, un1, up1, ...)
-// 			def getTunablesFromMatSizes(M: Int, P: Int, N: Int) = {
-//        val numLevelRange = 0 to 2 toList
-// 				val bmRange = getBlockSizes(M)
-// 				val bpRange = getBlockSizes(P)
-// 				val bnRange = getBlockSizes(N)
-//        val umRange = scala.List(1)
-//        val unRange = scala.List(1)
-//        val upRange = scala.List(1)
-// 				new Tunable (List(numLevelRange(0), bmRange(4), bnRange(4), bpRange(4), umRange(0), unRange(0), upRange(0), bmRange(2), bnRange(2), bpRange(2), umRange(0), unRange(0), upRange(0), bmRange(0), bnRange(0), bpRange(0), umRange(0), unRange(0), upRange(0)), List(numLevelRange, bmRange, bnRange, bpRange, umRange, unRange, upRange, bmRange, bnRange, bpRange, umRange, unRange, upRange, bmRange, bnRange, bpRange, umRange, unRange, upRange))
-// 			}
-
       val mdim = 512
       val pdim = 512
       val ndim = 512
+
       val numLevels = 2
-      val tunable = new Tunable(mdim, ndim, pdim, numLevels) 
-      val sizes = List(mdim, pdim, ndim) 
-//      val tunable = getTunablesFromMatSizes(mdim, pdim, ndim, maxLevels)
-//      val tunable = getTunablesFromMatSizes(mdim, pdim, ndim, maxLevels)
-      val bestTunable = autotune2(matrixMult)(sizes)(tunable)
-//      val time = matrixMult(sizes)(tunable)
-//      throw new Exception("stop here")
+
+      var bestTunable = new Tunable(mdim, ndim, pdim, numLevels)
+      var bestSoFar = scala.Double.MaxValue
+
+      // Launch genetic search for each number of levels, upto and including the max number of levels of blocking
+      for (l: scala.Int <- 0 to numLevels) {
+        Console.println("Launching search with %d blocking levels".format(l))
+        val tunable = new Tunable(mdim, ndim, pdim, l) 
+        val sizes = List(mdim, pdim, ndim) 
+        val bestTunableTuple = autotune2(matrixMult)(sizes)(tunable)
+        if (bestTunableTuple._2 < bestSoFar) {
+          bestTunable = bestTunableTuple._1
+          bestSoFar = bestTunableTuple._2
+        }
+      }
       
       val out = reflectPure(Densematrix_new[T](self.numRows, __arg1.numCols)(implicitly[Manifest[T]],__pos,__imp0))
       reflectPure(Densematrix_matmult_autotune[T](self, __arg1, out, bestTunable)(implicitly[Manifest[T]],__pos,__imp0))

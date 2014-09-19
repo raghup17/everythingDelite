@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>~/work/stanford/everythingDelite/published/OptiML/compiler/src/optiml/compiler/ops/DenseMatrixOpsImpl.scala.html</title>
+<meta name="Generator" content="Vim/7.4">
+<meta name="plugin-version" content="vim7.4_v1">
+<meta name="syntax" content="scala">
+<meta name="settings" content="number_lines,use_css,pre_wrap,no_foldcolumn,expand_tabs,line_ids,prevent_copy=">
+<meta name="colorscheme" content="solarized">
+<style type="text/css">
+<!--
+pre { white-space: pre-wrap; font-family: monospace; color: #585858; background-color: #ffffd7; }
+body { font-family: monospace; color: #585858; background-color: #ffffd7; }
+* { font-size: 1em; }
+.Statement { color: #5f8700; }
+.PreProc { color: #d75f00; }
+.Type { color: #af8700; }
+.LineNr { color: #8a8a8a; background-color: #d7d7af; padding-bottom: 1px; }
+.Normal { color: #585858; background-color: #ffffd7; padding-bottom: 1px; }
+.Comment { color: #8a8a8a; }
+.Constant { color: #00afaf; }
+.Special { color: #af0000; }
+.Identifier { color: #0087ff; }
+-->
+</style>
+
+<script type='text/javascript'>
+<!--
+
+/* function to open any folds containing a jumped-to line before jumping to it */
+function JumpToLine()
+{
+  var lineNum;
+  lineNum = window.location.hash;
+  lineNum = lineNum.substr(1); /* strip off '#' */
+
+  if (lineNum.indexOf('L') == -1) {
+    lineNum = 'L'+lineNum;
+  }
+  lineElem = document.getElementById(lineNum);
+  /* Always jump to new location even if the line was hidden inside a fold, or
+   * we corrected the raw number to a line ID.
+   */
+  if (lineElem) {
+    lineElem.scrollIntoView(true);
+  }
+  return true;
+}
+if ('onhashchange' in window) {
+  window.onhashchange = JumpToLine;
+}
+
+-->
+</script>
+</head>
+<body onload='JumpToLine();'>
+<pre id='vimCodeElement'>
+<span id="L622" class="LineNr">622 </span>      <span class="Statement">def</span> <span class="Identifier">bmm</span>(start<span class="Normal">m: </span><span class="Type">Rep</span>[<span class="Special">Int</span>], end<span class="Normal">m: </span><span class="Type">Rep</span>[<span class="Special">Int</span>], start<span class="Normal">n: </span><span class="Type">Rep</span>[<span class="Special">Int</span>], end<span class="Normal">n: </span><span class="Type">Rep</span>[<span class="Special">Int</span>], start<span class="Normal">p: </span><span class="Type">Rep</span>[<span class="Special">Int</span>], end<span class="Normal">p: </span><span class="Type">Rep</span>[<span class="Special">Int</span>], jTransposeStar<span class="Normal">t: </span><span class="Type">Rep</span>[<span class="Special">Int</span>], kTransposeStar<span class="Normal">t: </span><span class="Type">Rep</span>[<span class="Special">Int</span>], ijkOrde<span class="Normal">r: </span><span class="Type">scala.Int</span>, tunablesLis<span class="Normal">t: </span><span class="Type">scala.List</span>[scala.<span class="Special">Int</span>]) = {
+<span id="L623" class="LineNr">623 </span>        <span class="Comment">// Ignore block sizes here</span>
+<span id="L624" class="LineNr">624 </span>        <span class="Statement">val</span> <span class="Identifier">um</span>: <span class="Type">scala.Int</span> = tunablesList(<span class="Constant">3</span>)
+<span id="L625" class="LineNr">625 </span>        <span class="Statement">val</span> <span class="Identifier">un</span>: <span class="Type">scala.Int</span> = tunablesList(<span class="Constant">4</span>)
+<span id="L626" class="LineNr">626 </span>        <span class="Statement">val</span> <span class="Identifier">up</span>: <span class="Type">scala.Int</span> = tunablesList(<span class="Constant">5</span>)
+<span id="L627" class="LineNr">627 </span>
+<span id="L628" class="LineNr">628 </span>        <span class="Statement">if</span> (ijkOrder == <span class="Constant">123</span>) {
+<span id="L629" class="LineNr">629 </span>           unroll(<span class="Constant">1</span>) (startm, endm, <span class="Constant">1</span>) { i <span class="PreProc">=&gt;</span> {
+<span id="L630" class="LineNr">630 </span>             unroll(<span class="Constant">1</span>) (startn, endn, <span class="Constant">1</span>) { j <span class="PreProc">=&gt;</span> {
+<span id="L631" class="LineNr">631 </span>               unroll(up) (startp, endp, <span class="Constant">1</span>) { k <span class="PreProc">=&gt;</span> {
+<span id="L632" class="LineNr">632 </span>                 <span class="Statement">if</span> (transposeLevel &gt;= <span class="Constant">0</span>) {
+<span id="L633" class="LineNr">633 </span>                    <span class="Statement">val</span> <span class="Identifier">tbuf</span> = transposeBuffer.get
+<span id="L634" class="LineNr">634 </span>                    out(i, j) = out(i, j) + m1(i, k) * tbuf(j-jTransposeStart, k-kTransposeStart)
+<span id="L635" class="LineNr">635 </span>                 }
+<span id="L636" class="LineNr">636 </span>                 <span class="Statement">else</span>
+<span id="L637" class="LineNr">637 </span>                   out(i, j) = out(i, j) + m1(i, k) * m2(k, j)
+<span id="L638" class="LineNr">638 </span>               }}
+<span id="L639" class="LineNr">639 </span>             }}
+<span id="L640" class="LineNr">640 </span>           }}
+<span id="L641" class="LineNr">641 </span>        }
+<span id="L642" class="LineNr">642 </span>        <span class="Statement">else</span> <span class="Statement">if</span> (ijkOrder == <span class="Constant">132</span>) {
+<span id="L643" class="LineNr">643 </span>            unroll(<span class="Constant">1</span>) (startm, endm, <span class="Constant">1</span>) { i <span class="PreProc">=&gt;</span> {
+<span id="L644" class="LineNr">644 </span>             unroll(<span class="Constant">1</span>) (startp, endp, <span class="Constant">1</span>) { k <span class="PreProc">=&gt;</span> {
+<span id="L645" class="LineNr">645 </span>               unroll(up) (startn, endn, <span class="Constant">1</span>) { j <span class="PreProc">=&gt;</span> {
+<span id="L646" class="LineNr">646 </span>                 <span class="Statement">if</span> (transposeLevel &gt;= <span class="Constant">0</span>) {
+<span id="L647" class="LineNr">647 </span>                    <span class="Statement">val</span> <span class="Identifier">tbuf</span> = transposeBuffer.get
+<span id="L648" class="LineNr">648 </span>                    out(i, j) = out(i, j) + m1(i, k) * tbuf(j-jTransposeStart, k-kTransposeStart)
+<span id="L649" class="LineNr">649 </span>                 }
+<span id="L650" class="LineNr">650 </span>                 <span class="Statement">else</span>
+<span id="L651" class="LineNr">651 </span>                   out(i, j) = out(i, j) + m1(i, k) * m2(k, j)
+<span id="L652" class="LineNr">652 </span>               }}
+<span id="L653" class="LineNr">653 </span>             }}
+<span id="L654" class="LineNr">654 </span>           }}
+<span id="L655" class="LineNr">655 </span>        }
+<span id="L656" class="LineNr">656 </span>        <span class="Statement">else</span> <span class="Statement">if</span> (ijkOrder == <span class="Constant">213</span>) {
+<span id="L657" class="LineNr">657 </span>            unroll(<span class="Constant">1</span>) (startn, endn, <span class="Constant">1</span>) { j <span class="PreProc">=&gt;</span> {
+<span id="L658" class="LineNr">658 </span>             unroll(<span class="Constant">1</span>) (startm, endm, <span class="Constant">1</span>) { i <span class="PreProc">=&gt;</span> {
+<span id="L659" class="LineNr">659 </span>               unroll(up) (startp, endp, <span class="Constant">1</span>) { k <span class="PreProc">=&gt;</span> {
+<span id="L660" class="LineNr">660 </span>                 <span class="Statement">if</span> (transposeLevel &gt;= <span class="Constant">0</span>) {
+<span id="L661" class="LineNr">661 </span>                    <span class="Statement">val</span> <span class="Identifier">tbuf</span> = transposeBuffer.get
+<span id="L662" class="LineNr">662 </span>                    out(i, j) = out(i, j) + m1(i, k) * tbuf(j-jTransposeStart, k-kTransposeStart)
+<span id="L663" class="LineNr">663 </span>                 }
+<span id="L664" class="LineNr">664 </span>                 <span class="Statement">else</span>
+<span id="L665" class="LineNr">665 </span>                   out(i, j) = out(i, j) + m1(i, k) * m2(k, j)
+<span id="L666" class="LineNr">666 </span>               }}
+<span id="L667" class="LineNr">667 </span>             }}
+<span id="L668" class="LineNr">668 </span>           }}
+<span id="L669" class="LineNr">669 </span>        }
+<span id="L670" class="LineNr">670 </span>        <span class="Statement">else</span> <span class="Statement">if</span> (ijkOrder == <span class="Constant">231</span>) {
+<span id="L671" class="LineNr">671 </span>            unroll(<span class="Constant">1</span>) (startn, endn, <span class="Constant">1</span>) { j <span class="PreProc">=&gt;</span> {
+<span id="L672" class="LineNr">672 </span>             unroll(<span class="Constant">1</span>) (startp, endp, <span class="Constant">1</span>) { k <span class="PreProc">=&gt;</span> {
+<span id="L673" class="LineNr">673 </span>               unroll(up) (startm, endm, <span class="Constant">1</span>) { i <span class="PreProc">=&gt;</span> {
+<span id="L674" class="LineNr">674 </span>                 <span class="Statement">if</span> (transposeLevel &gt;= <span class="Constant">0</span>) {
+<span id="L675" class="LineNr">675 </span>                    <span class="Statement">val</span> <span class="Identifier">tbuf</span> = transposeBuffer.get
+<span id="L676" class="LineNr">676 </span>                    out(i, j) = out(i, j) + m1(i, k) * tbuf(j-jTransposeStart, k-kTransposeStart)
+<span id="L677" class="LineNr">677 </span>                 }
+<span id="L678" class="LineNr">678 </span>                 <span class="Statement">else</span>
+<span id="L679" class="LineNr">679 </span>                   out(i, j) = out(i, j) + m1(i, k) * m2(k, j)
+<span id="L680" class="LineNr">680 </span>               }}
+<span id="L681" class="LineNr">681 </span>             }}
+<span id="L682" class="LineNr">682 </span>           }}
+<span id="L683" class="LineNr">683 </span>        }
+<span id="L684" class="LineNr">684 </span>        <span class="Statement">else</span> <span class="Statement">if</span> (ijkOrder == <span class="Constant">312</span>) {
+<span id="L685" class="LineNr">685 </span>            unroll(<span class="Constant">1</span>) (startp, endp, <span class="Constant">1</span>) { k <span class="PreProc">=&gt;</span> {
+<span id="L686" class="LineNr">686 </span>             unroll(<span class="Constant">1</span>) (startm, endm, <span class="Constant">1</span>) { i <span class="PreProc">=&gt;</span> {
+<span id="L687" class="LineNr">687 </span>               unroll(up) (startn, endn, <span class="Constant">1</span>) { j <span class="PreProc">=&gt;</span> {
+<span id="L688" class="LineNr">688 </span>                 <span class="Statement">if</span> (transposeLevel &gt;= <span class="Constant">0</span>) {
+<span id="L689" class="LineNr">689 </span>                    <span class="Statement">val</span> <span class="Identifier">tbuf</span> = transposeBuffer.get
+<span id="L690" class="LineNr">690 </span>                    out(i, j) = out(i, j) + m1(i, k) * tbuf(j-jTransposeStart, k-kTransposeStart)
+<span id="L691" class="LineNr">691 </span>                 }
+<span id="L692" class="LineNr">692 </span>                 <span class="Statement">else</span>
+<span id="L693" class="LineNr">693 </span>                   out(i, j) = out(i, j) + m1(i, k) * m2(k, j)
+<span id="L694" class="LineNr">694 </span>               }}
+<span id="L695" class="LineNr">695 </span>             }}
+<span id="L696" class="LineNr">696 </span>           }}
+<span id="L697" class="LineNr">697 </span>        }
+<span id="L698" class="LineNr">698 </span>        <span class="Statement">else</span> <span class="Statement">if</span> (ijkOrder == <span class="Constant">321</span>) {
+<span id="L699" class="LineNr">699 </span>            unroll(<span class="Constant">1</span>) (startp, endp, <span class="Constant">1</span>) { k <span class="PreProc">=&gt;</span> {
+<span id="L700" class="LineNr">700 </span>             unroll(<span class="Constant">1</span>) (startn, endn, <span class="Constant">1</span>) { j <span class="PreProc">=&gt;</span> {
+<span id="L701" class="LineNr">701 </span>               unroll(up) (startm, endm, <span class="Constant">1</span>) { i <span class="PreProc">=&gt;</span> {
+<span id="L702" class="LineNr">702 </span>                 <span class="Statement">if</span> (transposeLevel &gt;= <span class="Constant">0</span>) {
+<span id="L703" class="LineNr">703 </span>                    <span class="Statement">val</span> <span class="Identifier">tbuf</span> = transposeBuffer.get
+<span id="L704" class="LineNr">704 </span>                    out(i, j) = out(i, j) + m1(i, k) * tbuf(j-jTransposeStart, k-kTransposeStart)
+<span id="L705" class="LineNr">705 </span>                 }
+<span id="L706" class="LineNr">706 </span>                 <span class="Statement">else</span>
+<span id="L707" class="LineNr">707 </span>                   out(i, j) = out(i, j) + m1(i, k) * m2(k, j)
+<span id="L708" class="LineNr">708 </span>               }}
+<span id="L709" class="LineNr">709 </span>             }}
+<span id="L710" class="LineNr">710 </span>           }}
+<span id="L711" class="LineNr">711 </span>        }
+<span id="L712" class="LineNr">712 </span>        <span class="Statement">else</span> {
+<span id="L713" class="LineNr">713 </span>          <span class="Special">Console</span>.println(<span class="Constant">&quot;Unknown ijkOrder: %d&quot;</span>.format(ijkOrder))
+<span id="L714" class="LineNr">714 </span>          <span class="Statement">throw</span> <span class="PreProc">new</span> <span class="Special">Exception</span>(<span class="Constant">&quot;Abort&quot;</span>)
+<span id="L715" class="LineNr">715 </span>        }
+<span id="L716" class="LineNr">716 </span>      }
+</pre>
+</body>
+</html>
+<!-- vim: set foldmethod=manual : -->

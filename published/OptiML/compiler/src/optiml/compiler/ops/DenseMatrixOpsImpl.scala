@@ -625,8 +625,6 @@ trait DenseMatrixOpsImpl {
         val un: scala.Int = tunablesList(4)
         val up: scala.Int = tunablesList(5)
 
-        Console.println("jTransposeStart = %s".format(jTransposeStart))
-        Console.println("kTransposeStart = %s".format(kTransposeStart))
         if (ijkOrder == 123) {
            unroll(1) (startm, endm, 1) { i => {
              unroll(1) (startn, endn, 1) { j => {
